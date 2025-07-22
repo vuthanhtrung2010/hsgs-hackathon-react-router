@@ -16,22 +16,26 @@ import { ThemeProvider } from "./components/ThemeProvider";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="h-full">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased min-h-full bg-background text-foreground">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          {children}
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+          </div>
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
@@ -61,7 +65,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center p-4 bg-background text-foreground">
       <div className="max-w-lg w-full">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-bold">{message}</h1>
