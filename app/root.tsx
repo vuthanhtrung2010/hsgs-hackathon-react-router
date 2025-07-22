@@ -9,31 +9,30 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-
-export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
-];
+import "~/styles/rating.css";
+import "~/styles/table.css";
+import { Navbar } from "./components/Navbar";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body>
-        {children}
+      <body className="font-sans antialiased">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          {children}
+        </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -62,14 +61,18 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="max-w-lg w-full">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold">{message}</h1>
+          <p className="text-lg text-muted-foreground">{details}</p>
+          {import.meta.env.DEV && stack && (
+            <pre className="text-left text-sm bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md p-3 overflow-auto">
+              {stack}
+            </pre>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,0 +1,145 @@
+/* DMOJ-style rating colors and classes - exact copy from DMOJ */
+
+.rate-none, .rate-none a {
+  color: #999;
+  font-weight: normal;
+}
+
+.rate-newbie, .rate-newbie a {
+  color: #999;
+}
+
+.rate-amateur, .rate-amateur a {
+  color: #00a900;
+}
+
+.rate-expert, .rate-expert a {
+  color: blue;
+}
+
+.rate-candidate-master, .rate-candidate-master a {
+  color: purple;
+}
+
+.rate-master, .rate-master a {
+  color: #ffb100;
+}
+
+.rate-grandmaster, .rate-grandmaster a {
+  color: #e00;
+}
+
+.rate-target, .rate-target a {
+  color: #e00;
+}
+
+.rate-admin, .rate-admin a {
+  color: #e00;
+}
+
+.rate-target a::first-letter {
+  color: #700;
+}
+
+/* Rating group styles */
+.rate-group {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2em;
+  min-height: 1.2em;
+}
+
+.rate-group .rating {
+  display: inline-block;
+  font-weight: bold;
+  line-height: 1.2em;
+  vertical-align: middle;
+}
+
+.rate-group .rate-box {
+  width: 1.2em;
+  height: 1.2em;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* SVG rate box styling */
+svg.rate-box {
+  width: 1.2em;
+  
+  circle {
+    fill: none;
+    stroke-width: 2px;
+  }
+  
+  &.rate-none {
+    visibility: hidden;
+  }
+}
+
+/* SVG colors for different rating levels - exact DMOJ colors */
+svg.rate-box.rate-newbie circle {
+  stroke: #999;
+}
+svg.rate-box.rate-newbie path {
+  fill: #999;
+}
+
+svg.rate-box.rate-amateur circle {
+  stroke: #00a900;
+}
+svg.rate-box.rate-amateur path {
+  fill: #00a900;
+}
+
+svg.rate-box.rate-expert circle {
+  stroke: blue;
+}
+svg.rate-box.rate-expert path {
+  fill: blue;
+}
+
+svg.rate-box.rate-candidate-master circle {
+  stroke: purple;
+}
+svg.rate-box.rate-candidate-master path {
+  fill: purple;
+}
+
+svg.rate-box.rate-master circle {
+  stroke: #ffb100;
+}
+svg.rate-box.rate-master path {
+  fill: #ffb100;
+}
+
+svg.rate-box.rate-grandmaster circle {
+  stroke: #e00;
+}
+svg.rate-box.rate-grandmaster path {
+  fill: #e00;
+}
+
+svg.rate-box.rate-target circle {
+  stroke: #e00;
+}
+svg.rate-box.rate-target path {
+  fill: #e00;
+}
+
+svg.rate-box.rate-target circle:last-child {
+  stroke: none;
+  fill: #e00;
+}
+
+/* Username styling with rating colors */
+.username-link {
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.username-link:hover {
+  text-decoration: underline;
+}

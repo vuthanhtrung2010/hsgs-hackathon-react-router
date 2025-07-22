@@ -1,0 +1,198 @@
+.data-table {
+  width: 100%;
+}
+
+.data-table-header {
+  border-bottom: 1px solid;
+  background-color: rgb(31 41 55);
+}
+
+.dark .data-table-header {
+  background-color: white;
+}
+
+.data-table-header-cell {
+  height: 3rem;
+  padding: 0 1rem;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 500;
+  color: white;
+  border-right: 1px solid rgb(75 85 99);
+}
+
+.dark .data-table-header-cell {
+  color: rgb(17 24 39);
+  border-right: 1px solid rgb(209 213 219);
+}
+
+.data-table-header-cell:first-child {
+  border-top-left-radius: 0.375rem;
+}
+
+.data-table-header-cell:last-child {
+  border-top-right-radius: 0.375rem;
+}
+
+.data-table-header-cell.sortable {
+  cursor: pointer;
+}
+
+.data-table-header-cell.sortable:hover {
+  background-color: rgb(55 65 81);
+}
+
+.dark .data-table-header-cell.sortable:hover {
+  background-color: rgb(243 244 246);
+}
+
+.data-table-header-cell.center {
+  text-align: center;
+}
+
+.data-table-body-row {
+  border-bottom: 1px solid;
+  transition: colors 0.2s;
+}
+
+.data-table-body-row:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .data-table-body-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.data-table-body-row.deleted {
+  background-color: rgba(0, 0, 0, 0.1);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.data-table-body-cell {
+  padding: 1rem;
+  vertical-align: middle;
+  border-right: 1px solid;
+}
+
+.data-table-body-cell.center {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.data-table-body-cell:last-child {
+  border-right: 0;
+}
+
+/* Search and filter controls */
+.search-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-input-container {
+  position: relative;
+  flex: 1;
+  max-width: 28rem;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgb(156 163 175);
+  width: 1rem !important;
+  height: 1rem !important;
+  max-width: 1rem !important;
+  max-height: 1rem !important;
+  display: inline-block;
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.filter-checkbox input {
+  border-radius: 0.25rem;
+  border: 1px solid;
+}
+
+.results-info {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: rgb(107 114 128);
+}
+
+/* Responsive table wrapper */
+.table-wrapper {
+  border-radius: 0.375rem;
+  border: 1px solid;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+/* Prevent FontAwesome icons from being oversized during load */
+.fa, .fas, .far, .fal, .fab, svg[data-icon] {
+  max-width: 2rem !important;
+  max-height: 2rem !important;
+  display: inline-block;
+  box-sizing: border-box;
+}
+
+/* Global icon size reset to prevent flash */
+svg {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Specific size control for trophy icon */
+.trophy-icon {
+  width: 2rem !important;
+  height: 2rem !important;
+  max-width: 2rem !important;
+  max-height: 2rem !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+}
+
+/* Sort icons in table headers */
+.data-table-header-cell .fa,
+.data-table-header-cell .fas,
+.data-table-header-cell svg[data-icon] {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+  max-width: 0.75rem !important;
+  max-height: 0.75rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Prevent layout shift during loading */
+.users-page-container {
+  min-height: 50vh;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.users-page-container.loading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.users-page-container.loaded {
+  opacity: 1;
+  pointer-events: auto;
+}
