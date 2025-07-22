@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Select,
   SelectContent,
@@ -19,15 +17,17 @@ interface CourseSelectorProps {
   selectedCourseId?: string;
   onCourseChange: (courseId: string) => void;
   className?: string;
+  courses?: CourseData[]; // Accept courses as a prop
 }
 
 export default function CourseSelector({
   selectedCourseId,
   onCourseChange,
-  className
+  className,
+  courses: propCourses
 }: CourseSelectorProps) {
-  const [courses, setCourses] = useState<CourseData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState<CourseData[]>(propCourses || []);
+  const [loading, setLoading] = useState(!propCourses);
 
   useEffect(() => {
     async function loadCourses() {
@@ -46,8 +46,13 @@ export default function CourseSelector({
       }
     }
 
-    loadCourses();
-  }, [selectedCourseId, onCourseChange]);
+    if (!propCourses) {
+      loadCourses();
+    } else {
+      setCourses(propCourses);
+      setLoading(false);
+    }
+  }, [propCourses, selectedCourseId, onCourseChange]);
 
   if (loading) {
     return (

@@ -1,6 +1,3 @@
-"use client";
-
-import React from 'react';
 import { getRatingClass } from '~/lib/rating';
 import type { Recommendations } from '~/lib/server-actions/users';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,8 +10,8 @@ interface RecommendationsProps {
 
 export default function RecommendationsPanel({ recommendations, userRating }: RecommendationsProps) {
   // Canvas URL configuration
-  const canvasBaseUrl = process.env.NEXT_PUBLIC_CANVAS_API_BASE_URL || 'https://canvas.instructure.com';
-  const courseId = process.env.NEXT_PUBLIC_CANVAS_COURSE_ID || '';
+  const canvasBaseUrl = process.env.VITE_CANVAS_VITE_API_BASE_URL || 'https://canvas.instructure.com';
+  const courseId = process.env.VITE_CANVAS_COURSE_ID || '';
 
   if (!recommendations || recommendations.length === 0) {
     return (

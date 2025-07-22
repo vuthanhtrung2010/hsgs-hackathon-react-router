@@ -1,5 +1,3 @@
-"use client";
-
 import { Card, CardContent } from "~/components/ui/card";
 import { MagicCard } from "~/components/magicui/magic-card";
 import { useTheme } from "~/components/ThemeProvider";

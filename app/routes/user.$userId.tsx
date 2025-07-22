@@ -1,8 +1,6 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router";
-import type { IUserData, getUserData } from "~/lib/server-actions/users";
+import React from "react";
+import { Link, useLoaderData } from "react-router";
+import type { IUserData } from "~/lib/server-actions/users";
 import { getRatingClass, getRatingTitle } from "~/lib/rating";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
@@ -11,24 +9,59 @@ import RatingDisplay from "~/components/RatingDisplay";
 import ClusterRadarChart from "~/components/ClusterRadarChart";
 import RecommendationsPanel from "~/components/RecommendationsPanel";
 import CourseSelector from "~/components/CourseSelector";
-import Loading from "~/components/Loading";
 import NotFound from "~/components/NotFound";
 import type { Route } from "./+types/user.$userId";
 import { Config } from "~/config";
 
-export async function meta({ params }: Route.MetaArgs) {
+export async function loader({ params }: Route.LoaderArgs) {
   try {
-    const { getUserData } = await import("~/lib/server-actions/users");
-    const user = await getUserData(params.userId);
-    if (!user) {
+    const { userId } = params;
+
+    const url = new URL(
+      `/api/users/details/${userId}`,
+      process.env.VITE_API_BASE_URL ||
+        import.meta.env.VITE_API_BASE_URL ||
+        "https://api.example.com"
+    );
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Response("Not Found", { status: 404 });
+    }
+
+    const data = await response.json();
+    return data as IUserData;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    throw new Response("Not Found", { status: 404 });
+  }
+}
+
+export function meta({ matches }: Route.MetaArgs) {
+  try {
+    // Find the user data from the current route's loader
+    const currentMatch = matches.find(match => match?.id === "routes/user.$userId");
+    const userData = currentMatch?.data as IUserData | undefined;
+
+    if (!userData) {
       return [
         { title: `No such user - ${Config.siteDescription}` },
         { name: "description", content: "User not found" },
       ];
     }
+
     return [
-      { title: `User ${user.name} - ${Config.siteDescription}` },
-      { name: "description", content: `Profile of user ${user.name}. Rating: ${user.rating}` },
+      { title: `User ${userData.name} - ${Config.siteDescription}` },
+      {
+        name: "description",
+        content: `Profile of user ${userData.name}. Rating: ${userData.rating}`,
+      },
     ];
   } catch {
     return [
@@ -43,40 +76,17 @@ interface UserPageProps {
 }
 
 export default function UserPage({ userRank }: UserPageProps) {
-  const params = useParams();
-  const userId = params.userId as string;
-  const [userData, setUserData] = useState<IUserData | null>(null);
-  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const userData = useLoaderData<IUserData>();
+  const [selectedCourseId, setSelectedCourseId] = React.useState<string>("");
 
   // Get current course data
-  const currentCourse = userData?.courses?.find(course => course.courseId === selectedCourseId) || userData?.courses?.[0];
+  const currentCourse =
+    userData?.courses?.find(
+      (course: any) => course.courseId === selectedCourseId
+    ) || userData?.courses?.[0];
 
-  useEffect(() => {
-    async function loadUserData() {
-      try {
-        setLoading(true);
-        const { getUserData } = await import("~/lib/server-actions/users");
-        const user = await getUserData(userId);
-        if (!user) {
-          setError("User not found");
-          return;
-        }
-        setUserData(user);
-      } catch (err) {
-        console.error("Failed to load user data:", err);
-        setError("Failed to load user data");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadUserData();
-  }, [userId]);
-
-  // Separate effect to set default course
-  useEffect(() => {
+  // Set default course
+  React.useEffect(() => {
     if (userData?.courses && userData.courses.length > 0 && !selectedCourseId) {
       setSelectedCourseId(userData.courses[0].courseId);
     }
@@ -86,15 +96,7 @@ export default function UserPage({ userRank }: UserPageProps) {
     setSelectedCourseId(courseId);
   };
 
-  if (loading) {
-    return (
-      <main className="max-w-6xl mx-auto py-8 px-4">
-        <Loading />
-      </main>
-    );
-  }
-
-  if (error || !userData) {
+  if (!userData) {
     return <NotFound />;
   }
 
@@ -146,16 +148,18 @@ export default function UserPage({ userRank }: UserPageProps) {
               {currentCourse && (
                 <>
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-muted-foreground">
-                      Min. rating:
-                    </span>
-                    <RatingDisplay rating={currentCourse.minRating} showIcon={true} />
+                    <span className="text-muted-foreground">Min. rating:</span>
+                    <RatingDisplay
+                      rating={currentCourse.minRating}
+                      showIcon={true}
+                    />
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">
-                      Max. rating:
-                    </span>
-                    <RatingDisplay rating={currentCourse.maxRating} showIcon={true} />
+                    <span className="text-muted-foreground">Max. rating:</span>
+                    <RatingDisplay
+                      rating={currentCourse.maxRating}
+                      showIcon={true}
+                    />
                   </div>
                 </>
               )}
@@ -178,7 +182,7 @@ export default function UserPage({ userRank }: UserPageProps) {
           {userData.courses && userData.courses.length > 1 && (
             <div className="mb-6 flex items-center gap-4">
               <span className="text-sm font-medium">Course:</span>
-              <CourseSelector 
+              <CourseSelector
                 selectedCourseId={selectedCourseId}
                 onCourseChange={handleCourseChange}
               />
@@ -189,11 +193,11 @@ export default function UserPage({ userRank }: UserPageProps) {
             <>
               {/* IELTS Skills & Recommendations */}
               <div className="grid lg:grid-cols-[2fr_1fr] gap-6 mb-6">
-                <ClusterRadarChart 
-                  clusters={currentCourse.clusters} 
+                <ClusterRadarChart
+                  clusters={currentCourse.clusters}
                   userName={userData.name}
                 />
-                <RecommendationsPanel 
+                <RecommendationsPanel
                   recommendations={currentCourse.recommendations}
                   userRating={userData.rating}
                 />
@@ -201,8 +205,11 @@ export default function UserPage({ userRank }: UserPageProps) {
 
               {/* Rating History */}
               <div className="bg-card border rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4">Rating History - {currentCourse.courseName}</h2>
-                {currentCourse.ratingChanges && currentCourse.ratingChanges.length > 0 ? (
+                <h2 className="text-xl font-semibold mb-4">
+                  Rating History - {currentCourse.courseName}
+                </h2>
+                {currentCourse.ratingChanges &&
+                currentCourse.ratingChanges.length > 0 ? (
                   <div className="w-full">
                     <RatingChart
                       ratingChanges={currentCourse.ratingChanges}

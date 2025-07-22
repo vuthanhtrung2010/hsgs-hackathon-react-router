@@ -1,7 +1,5 @@
-"use client";
-
 import React, { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -21,7 +19,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "~/components/ui/pagination";
-import { type IUsersListData, getRankings } from "~/lib/server-actions/users";
+import { type IUsersListData } from "~/lib/server-actions/users";
 import { getRatingTitle } from "~/lib/rating";
 import RatingDisplay from "~/components/RatingDisplay";
 import CourseSelector from "~/components/CourseSelector";
@@ -37,14 +35,46 @@ const USERS_PER_PAGE = 50;
 type SortField = "name" | "rating";
 type SortOrder = "asc" | "desc" | null;
 
+export async function loader() {
+  try {
+    const url = new URL(
+      "/api/courses",
+      process.env.VITE_API_BASE_URL ||
+        import.meta.env.VITE_API_BASE_URL ||
+        "https://api.example.com"
+    );
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      return [{ id: "default", name: "Default Course" }];
+    }
+
+    const courses = await response.json();
+    return courses;
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    return [{ id: "default", name: "Default Course" }];
+  }
+}
+
 export function meta({}: Route.MetaArgs) {
   return [
     { title: `Leaderboard - ${Config.siteDescription}` },
-    { name: "description", content: `Leaderboard of users on ${Config.sitename}. View user ratings, ranks, and statistics.` },
+    {
+      name: "description",
+      content: `Leaderboard of users on ${Config.sitename}. View user ratings, ranks, and statistics.`,
+    },
   ];
 }
 
 export default function UsersPage() {
+  const courses = useLoaderData<{ id: string; name: string }[]>();
   const [users, setUsers] = useState<IUsersListData[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<IUsersListData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,6 +84,13 @@ export default function UsersPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+
+  // Initialize with first course from loader
+  useEffect(() => {
+    if (courses && courses.length > 0 && !selectedCourseId) {
+      setSelectedCourseId(courses[0].id);
+    }
+  }, [courses, selectedCourseId]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -87,15 +124,23 @@ export default function UsersPage() {
           case "name":
             aValue = a.name;
             bValue = b.name;
-            if (typeof aValue === 'string' && typeof bValue === 'string') {
-              return sortOrder === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            if (typeof aValue === "string" && typeof bValue === "string") {
+              return sortOrder === "asc"
+                ? aValue.localeCompare(bValue)
+                : bValue.localeCompare(aValue);
             }
             break;
           case "rating":
             // Get the rating for the selected course
-            aValue = (a.course && a.course.courseId.toString() === selectedCourseId) ? a.course.rating : 1500;
-            bValue = (b.course && b.course.courseId.toString() === selectedCourseId) ? b.course.rating : 1500;
-            
+            aValue =
+              a.course && a.course.courseId.toString() === selectedCourseId
+                ? a.course.rating
+                : 1500;
+            bValue =
+              b.course && b.course.courseId.toString() === selectedCourseId
+                ? b.course.rating
+                : 1500;
+
             const comparison = (aValue as number) - (bValue as number);
             return sortOrder === "asc" ? comparison : -comparison;
           default:
@@ -112,10 +157,21 @@ export default function UsersPage() {
   useEffect(() => {
     async function loadUsers() {
       if (!selectedCourseId) return;
-      
+
       setIsLoading(true);
       try {
-        const usersData = await getRankings(selectedCourseId);
+        const response = await fetch(`/api/ranking/${selectedCourseId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
+
+        const usersData = await response.json();
         setUsers(usersData);
       } catch (error) {
         console.error("Failed to load users:", error);
@@ -128,29 +184,29 @@ export default function UsersPage() {
             course: {
               courseId: parseInt(selectedCourseId),
               courseName: "IELTS Practice",
-              rating: 1581
-            }
+              rating: 1581,
+            },
           },
           {
-            id: "26079", 
+            id: "26079",
             name: "Nguyễn Hòa Bình",
             shortName: "Nguyễn Hòa Bình",
             course: {
               courseId: parseInt(selectedCourseId),
               courseName: "IELTS Practice",
-              rating: 1541
-            }
+              rating: 1541,
+            },
           },
           {
             id: "26071",
             name: "An Hiep",
-            shortName: "An Hiep", 
+            shortName: "An Hiep",
             course: {
               courseId: parseInt(selectedCourseId),
               courseName: "IELTS Practice",
-              rating: 1501
-            }
-          }
+              rating: 1501,
+            },
+          },
         ];
         setUsers(mockUsers);
       } finally {
@@ -195,20 +251,23 @@ export default function UsersPage() {
   return (
     <main className="max-w-7xl mx-auto py-8 px-4">
       {!isLoaded && <Loading />}
-      <div className={`users-page-container ${isLoaded ? "loaded" : "loading"}`}>
+      <div
+        className={`users-page-container ${isLoaded ? "loaded" : "loading"}`}
+      >
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-4 flex items-center">
             <FontAwesomeIcon icon={faTrophy} className="mr-2 trophy-icon" />
             Leaderboard
           </h1>
           <hr className="mb-6" />
-          
+
           {/* Course Selector */}
           <div className="mb-4 flex items-center gap-4">
             <span className="text-sm font-medium">Course:</span>
-            <CourseSelector 
+            <CourseSelector
               selectedCourseId={selectedCourseId}
               onCourseChange={handleCourseChange}
+              courses={courses}
             />
           </div>
 
@@ -250,7 +309,10 @@ export default function UsersPage() {
             <table className="data-table">
               <thead>
                 <tr className="data-table-header">
-                  <th className="data-table-header-cell center" style={{ width: "4rem" }}>
+                  <th
+                    className="data-table-header-cell center"
+                    style={{ width: "4rem" }}
+                  >
                     Rank
                   </th>
                   <th
@@ -260,7 +322,10 @@ export default function UsersPage() {
                   >
                     <div className="flex items-center justify-center gap-2">
                       Rating
-                      <FontAwesomeIcon icon={getSortIcon("rating")} className="w-3 h-3" />
+                      <FontAwesomeIcon
+                        icon={getSortIcon("rating")}
+                        className="w-3 h-3"
+                      />
                     </div>
                   </th>
                   <th
@@ -269,7 +334,10 @@ export default function UsersPage() {
                   >
                     <div className="flex items-center gap-2">
                       Name
-                      <FontAwesomeIcon icon={getSortIcon("name")} className="w-3 h-3" />
+                      <FontAwesomeIcon
+                        icon={getSortIcon("name")}
+                        className="w-3 h-3"
+                      />
                     </div>
                   </th>
                 </tr>
@@ -277,7 +345,11 @@ export default function UsersPage() {
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={3} className="data-table-body-cell center" style={{ height: "6rem" }}>
+                    <td
+                      colSpan={3}
+                      className="data-table-body-cell center"
+                      style={{ height: "6rem" }}
+                    >
                       <div className="flex items-center justify-center">
                         <Loading />
                       </div>
@@ -285,7 +357,11 @@ export default function UsersPage() {
                   </tr>
                 ) : currentUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="data-table-body-cell center" style={{ height: "6rem" }}>
+                    <td
+                      colSpan={3}
+                      className="data-table-body-cell center"
+                      style={{ height: "6rem" }}
+                    >
                       <span className="text-muted-foreground">
                         {searchTerm
                           ? "No users found matching your search."
@@ -295,14 +371,26 @@ export default function UsersPage() {
                   </tr>
                 ) : (
                   currentUsers.map((user, index) => {
-                    const rating = (user.course && user.course.courseId.toString() === selectedCourseId) ? user.course.rating : 1500;
+                    const rating =
+                      user.course &&
+                      user.course.courseId.toString() === selectedCourseId
+                        ? user.course.rating
+                        : 1500;
                     return (
                       <tr key={user.id} className="data-table-body-row">
                         <td className="data-table-body-cell center">
-                          <span className="font-bold text-lg">#{startIndex + index + 1}</span>
+                          <span className="font-bold text-lg">
+                            #{startIndex + index + 1}
+                          </span>
                         </td>
-                        <td className="data-table-body-cell center" style={{ verticalAlign: "middle" }}>
-                          <RatingDisplay rating={Math.round(rating)} showIcon={true} />
+                        <td
+                          className="data-table-body-cell center"
+                          style={{ verticalAlign: "middle" }}
+                        >
+                          <RatingDisplay
+                            rating={Math.round(rating)}
+                            showIcon={true}
+                          />
                         </td>
                         <td className="data-table-body-cell">
                           <Link
@@ -310,7 +398,10 @@ export default function UsersPage() {
                             className="username-link"
                             title={getRatingTitle(Math.round(rating))}
                           >
-                            <NameDisplay name={user.name} rating={Math.round(rating)} />
+                            <NameDisplay
+                              name={user.name}
+                              rating={Math.round(rating)}
+                            />
                           </Link>
                         </td>
                       </tr>
@@ -327,8 +418,14 @@ export default function UsersPage() {
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    className={
+                      currentPage === 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
                   />
                 </PaginationItem>
 
@@ -384,8 +481,14 @@ export default function UsersPage() {
 
                 <PaginationItem>
                   <PaginationNext
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    className={
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
                   />
                 </PaginationItem>
               </PaginationContent>
@@ -394,7 +497,9 @@ export default function UsersPage() {
         )}
         {currentUsers.length > 0 && (
           <div className="mt-6 text-sm text-muted-foreground">
-            <p>Click on a name to view their profile and detailed statistics.</p>
+            <p>
+              Click on a name to view their profile and detailed statistics.
+            </p>
           </div>
         )}
       </div>

@@ -1,39 +1,5 @@
-"use client";
-
-import React, { useMemo, useRef } from "react";
-import {
-  Chart as ChartJS,
-  TimeScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Legend,
-  Filler,
-  defaults,
-} from "chart.js";
-import "chartjs-adapter-date-fns";
-import zoomPlugin from "chartjs-plugin-zoom";
-import annotationPlugin from "chartjs-plugin-annotation";
-import { Line } from "react-chartjs-2";
+import { useEffect, useState } from "react";
 import { useTheme } from "~/components/ThemeProvider";
-import type { TooltipItem } from "chart.js";
-
-// register Chart.js components + plugins
-ChartJS.register(
-  TimeScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Legend,
-  Filler,
-  zoomPlugin,
-  annotationPlugin
-);
-
-// global default color (will be overridden per-theme)
-defaults.color = "#666";
 
 interface RatingChange {
   date: string;
@@ -46,114 +12,199 @@ interface RatingChartProps {
   maxRating: number;
 }
 
-const TIERS = [
-  { value: 0,   color: "rgba(153,153,153,0.2)" },
-  { value: 1000,color: "rgba(0,169,0,0.2)"   },
-  { value: 1300,color: "rgba(0,0,255,0.2)"   },
-  { value: 1600,color: "rgba(128,0,128,0.2)" },
-  { value: 1900,color: "rgba(255,177,0,0.2)" },
-  { value: 2100,color: "rgba(224,0,0,0.2)"   },
-  { value: 2400,color: "rgba(224,0,0,0.2)"   },
-  { value: 3000,color: "rgba(224,0,0,0.2)"   },
-];
-
-export default function RatingChart({
-  ratingChanges,
-  minRating,
-  maxRating,
-}: RatingChartProps) {
+// Client-side only chart component
+export default function RatingChart({ ratingChanges, minRating, maxRating }: RatingChartProps) {
+  const [ChartComponent, setChartComponent] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { actualTheme } = useTheme();
-  const isDark = actualTheme === "dark";
-  const chartRef = useRef(null);
 
-  // build data & find max point
-  const data = useMemo(() => {
-    const pts = ratingChanges.map((c) => ({
-      x: new Date(c.date),
-      y: c.rating,
-    }));
-    let maxIdx = 0;
-    pts.forEach((p, i) => { if (p.y > pts[maxIdx].y) maxIdx = i; });
-    return {
-      datasets: [{
-        label: "Rating",
-        data: pts,
-        borderColor: "#eab308",
-        backgroundColor: "rgba(234,179,8,0.1)",
-        tension: 0.2,
-        pointBackgroundColor: pts.map(() => "#fff"),
-        pointBorderColor: pts.map((_, i) =>
-          i === maxIdx ? "#e00000" : "#eab308"
-        ),
-        pointBorderWidth: pts.map((_, i) => (i === maxIdx ? 3 : 2)),
-        pointRadius: 4,
-        fill: true,
-      }],
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadChart = async () => {
+      if (typeof window === "undefined") return;
+      
+      try {
+        // Dynamic imports to avoid SSR issues
+        const [
+          chartModule,
+          reactChartModule,
+          zoomModule,
+          annotationModule
+        ] = await Promise.all([
+          import("chart.js"),
+          import("react-chartjs-2"),
+          import("chartjs-plugin-zoom"),
+          import("chartjs-plugin-annotation")
+        ]);
+        
+        // @ts-expect-error no types for date-fns adapter
+        await import("chartjs-adapter-date-fns");
+
+        const {
+          Chart: ChartJS,
+          TimeScale,
+          LinearScale,
+          PointElement,
+          LineElement,
+          Tooltip,
+          Legend,
+          Filler,
+          defaults
+        } = chartModule;
+
+        const { Line } = reactChartModule;
+
+        // Register Chart.js components
+        ChartJS.register(
+          TimeScale,
+          LinearScale,
+          PointElement,
+          LineElement,
+          Tooltip,
+          Legend,
+          Filler,
+          zoomModule.default,
+          annotationModule.default
+        );
+
+        // Set theme-based defaults
+        defaults.color = actualTheme === "dark" ? "#e5e5e5" : "#666";
+        defaults.backgroundColor = actualTheme === "dark" ? "#262626" : "#ffffff";
+
+        // Create the chart component
+        const ChartComponent = ({ ratingChanges, minRating, maxRating }: RatingChartProps) => {
+          const data = {
+            datasets: [
+              {
+                label: "Rating",
+                data: ratingChanges.map((change) => ({
+                  x: new Date(change.date).getTime(),
+                  y: change.rating,
+                })),
+                borderColor: actualTheme === "dark" ? "#60a5fa" : "#3b82f6",
+                backgroundColor: actualTheme === "dark" 
+                  ? "rgba(96, 165, 250, 0.1)" 
+                  : "rgba(59, 130, 246, 0.1)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+              },
+            ],
+          };
+
+          const options = {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              intersect: false,
+              mode: 'index' as const,
+            },
+            scales: {
+              x: {
+                type: 'time' as const,
+                time: {
+                  tooltipFormat: 'MMM dd, yyyy HH:mm',
+                },
+                grid: {
+                  color: actualTheme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+                },
+                ticks: {
+                  color: actualTheme === "dark" ? "#e5e5e5" : "#666",
+                },
+              },
+              y: {
+                min: Math.max(0, minRating - 100),
+                max: maxRating + 100,
+                grid: {
+                  color: actualTheme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+                },
+                ticks: {
+                  color: actualTheme === "dark" ? "#e5e5e5" : "#666",
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+              tooltip: {
+                backgroundColor: actualTheme === "dark" ? "#1f2937" : "#ffffff",
+                titleColor: actualTheme === "dark" ? "#f9fafb" : "#111827",
+                bodyColor: actualTheme === "dark" ? "#e5e7eb" : "#374151",
+                borderColor: actualTheme === "dark" ? "#374151" : "#d1d5db",
+                borderWidth: 1,
+                callbacks: {
+                  title: (context: any[]) => {
+                    const index = context[0].dataIndex;
+                    const change = ratingChanges[index];
+                    return new Date(change.date).toLocaleDateString();
+                  },
+                  label: (context: any) => {
+                    return `Rating: ${context.parsed.y}`;
+                  },
+                },
+              },
+              zoom: {
+                pan: {
+                  enabled: true,
+                  mode: 'x' as const,
+                },
+                zoom: {
+                  wheel: {
+                    enabled: true,
+                  },
+                  pinch: {
+                    enabled: true,
+                  },
+                  mode: 'x' as const,
+                },
+              },
+            },
+          };
+
+          return <Line data={data} options={options} />;
+        };
+
+        if (isMounted) {
+          setChartComponent(() => ChartComponent);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Failed to load chart:", error);
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
     };
-  }, [ratingChanges]);
 
-  // create tier annotations
-  const annotations = useMemo(() => {
-    const limit = maxRating + 200;
-    return TIERS.filter((t) => t.value <= limit).map((t, i, arr) => ({
-      type: "box" as const,
-      yMin: t.value,
-      yMax: arr[i + 1] ? arr[i + 1].value : limit,
-      backgroundColor: t.color,
-      borderWidth: 0,
-    }));
-  }, [maxRating]);
+    loadChart();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [actualTheme, ratingChanges, minRating, maxRating]);
 
-  // chart options
-  const options = useMemo(() => ({
-    scales: {
-      x: {
-        type: "time" as const,
-        time: { unit: "day" as const, tooltipFormat: "MMM dd, yyyy" },
-        grid: { display: false },
-        ticks: { color: isDark ? "#eee" : "#333" },
-      },
-      y: {
-        min: Math.floor((minRating - 100) / 200) * 200,
-        max: Math.ceil((maxRating + 100) / 200) * 200,
-        ticks: {
-          stepSize: 200,
-          color: isDark ? "#eee" : "#333",
-          callback: function(value: string | number) {
-            return `${value}`;
-          },
-        },
-        title: {
-          display: true,
-          text: "Rating",
-          color: isDark ? "#eee" : "#333",
-          font: { size: 14 },
-        },
-        grid: { display: false },
-      },
-    },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: { label: (ctx: TooltipItem<"line">) => `Rating: ${ctx.parsed.y}` },
-        titleColor: isDark ? "#eee" : "#333",
-        bodyColor: isDark ? "#eee" : "#333",
-      },
-      zoom: {
-        pan: { enabled: true, mode: "x" as const },
-        zoom: {
-          wheel: { enabled: true },
-          pinch: { enabled: true },
-          mode: "x" as const,
-        },
-      },
-      annotation: { annotations },
-    },
-    layout: { padding: 10 },
-    responsive: true,
-    maintainAspectRatio: false,
-    backgroundColor: isDark ? "#222" : "#fff",
-  }), [isDark, minRating, maxRating, annotations]);
+  if (isLoading) {
+    return (
+      <div className="w-full h-[300px] bg-muted/20 rounded-md border border-border flex items-center justify-center">
+        <p className="text-sm text-muted-foreground">Loading chart...</p>
+      </div>
+    );
+  }
 
-  return <Line ref={chartRef} data={data} options={options} />;
+  if (!ChartComponent) {
+    return (
+      <div className="w-full h-[300px] bg-muted/20 rounded-md border border-border flex items-center justify-center">
+        <p className="text-sm text-muted-foreground">Failed to load chart</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-[300px]">
+      <ChartComponent ratingChanges={ratingChanges} minRating={minRating} maxRating={maxRating} />
+    </div>
+  );
 }
