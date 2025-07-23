@@ -12,6 +12,7 @@ import "./app.css";
 import "~/styles/rating.css";
 import "~/styles/table.css";
 import { Navbar } from "./components/Navbar";
+import Footer from "./components/Footer";
 import { ThemeProvider } from "./components/ThemeProvider";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <main className="flex-1">
               {children}
             </main>
+            <Footer />
           </div>
         </ThemeProvider>
         <ScrollRestoration />
