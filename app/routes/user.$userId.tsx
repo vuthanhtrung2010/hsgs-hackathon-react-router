@@ -200,6 +200,7 @@ export default function UserPage({ userRank }: UserPageProps) {
                 <RecommendationsPanel
                   recommendations={currentCourse.recommendations}
                   userRating={userData.rating}
+                  courseId={currentCourse.courseId}
                 />
               </div>
 
