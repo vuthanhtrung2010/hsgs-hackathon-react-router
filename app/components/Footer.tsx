@@ -20,7 +20,7 @@ export default function Footer() {
         <div className="mx-2 h-4 w-px bg-muted-foreground/50"></div>
         Fork it on{" "}
         <Link
-          to="https://github.com/vuthanhtrung2010/hsgs-hackathon-react-router"
+          to="https://github.com/vuthanhtrung2010/hsgs-hackathon-react-router-cf"
           target="_blank"
           rel="noopener noreferrer"
           className="underline"

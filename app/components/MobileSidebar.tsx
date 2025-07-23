@@ -38,11 +38,6 @@ const navigationItems = [
     icon: Code,
   },
   {
-    title: "Submissions",
-    url: "/submissions",
-    icon: FileText,
-  },
-  {
     title: "Users",
     url: "/users",
     icon: Users,

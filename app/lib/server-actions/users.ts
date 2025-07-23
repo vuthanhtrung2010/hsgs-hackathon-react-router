@@ -89,7 +89,7 @@ export async function getUserData(userId: string): Promise<IUserData> {
       throw new Error(`Failed to fetch user data: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as IUserData;
     return data;
   } catch (error) {
     console.error("Error fetching user data:", error);
