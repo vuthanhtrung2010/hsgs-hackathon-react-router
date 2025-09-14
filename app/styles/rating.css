@@ -1,39 +1,48 @@
 /* DMOJ-style rating colors and classes - exact copy from DMOJ */
 
-.rate-none, .rate-none a {
+.rate-none,
+.rate-none a {
   color: #999;
   font-weight: normal;
 }
 
-.rate-newbie, .rate-newbie a {
+.rate-newbie,
+.rate-newbie a {
   color: #999;
 }
 
-.rate-amateur, .rate-amateur a {
+.rate-amateur,
+.rate-amateur a {
   color: #00a900;
 }
 
-.rate-expert, .rate-expert a {
+.rate-expert,
+.rate-expert a {
   color: blue;
 }
 
-.rate-candidate-master, .rate-candidate-master a {
+.rate-candidate-master,
+.rate-candidate-master a {
   color: purple;
 }
 
-.rate-master, .rate-master a {
+.rate-master,
+.rate-master a {
   color: #ffb100;
 }
 
-.rate-grandmaster, .rate-grandmaster a {
+.rate-grandmaster,
+.rate-grandmaster a {
   color: #e00;
 }
 
-.rate-target, .rate-target a {
+.rate-target,
+.rate-target a {
   color: #e00;
 }
 
-.rate-admin, .rate-admin a {
+.rate-admin,
+.rate-admin a {
   color: #e00;
 }
 
@@ -68,12 +77,12 @@
 /* SVG rate box styling */
 svg.rate-box {
   width: 1.2em;
-  
+
   circle {
     fill: none;
     stroke-width: 2px;
   }
-  
+
   &.rate-none {
     visibility: hidden;
   }

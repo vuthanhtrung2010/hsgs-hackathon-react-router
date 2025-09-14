@@ -13,7 +13,11 @@ export default function Home() {
     <div className="font-sans min-h-screen flex items-center justify-center">
       <h1 className="text-4xl font-bold">
         <TextType
-          text={["Welcome to HSGS Hackathon 2025!", "This is made by Trung.", "Yikes"]}
+          text={[
+            "Welcome to HSGS Hackathon 2025!",
+            "This is made by Trung.",
+            "Yikes",
+          ]}
           typingSpeed={75}
           pauseDuration={1500}
           deletingSpeed={50}

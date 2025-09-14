@@ -1,32 +1,39 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
-import { AlertCircle } from 'lucide-react';
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import { AlertCircle } from "lucide-react";
 
-import { useAuth } from '../components/AuthProvider';
-import { useTheme } from '../components/ThemeProvider';
-import { MagicCard } from '../components/magicui/magic-card';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import Loading from '../components/Loading';
+import { useAuth } from "../components/AuthProvider";
+import { useTheme } from "../components/ThemeProvider";
+import { MagicCard } from "../components/magicui/magic-card";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import Loading from "../components/Loading";
 
 export default function LoginPage() {
   const { actualTheme } = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, login, isLoading: authLoading } = useAuth();
-  
+
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   useEffect(() => {
     setMounted(true);
@@ -60,7 +67,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     if (!formRef.current) {
       setIsLoading(false);
@@ -68,12 +75,12 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
@@ -83,15 +90,15 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Login failed');
+        setError(result.error || "Login failed");
       } else if (result.user) {
         // Login successful, update auth context
-        login(result.token || '', result.user);
+        login(result.token || "", result.user);
         navigate(callbackUrl);
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('Unexpected error occurred');
+      console.error("Login error:", err);
+      setError("Unexpected error occurred");
     }
 
     setIsLoading(false);
@@ -101,7 +108,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center">
       <Card className="p-0 max-w-sm w-full shadow-none border-none">
         <MagicCard
-          gradientColor={mounted && actualTheme === 'dark' ? '#262626' : '#D9D9D955'}
+          gradientColor={
+            mounted && actualTheme === "dark" ? "#262626" : "#D9D9D955"
+          }
           className="p-0"
         >
           <CardHeader className="border-b border-border p-4 [.border-b]:pb-4">
@@ -145,7 +154,7 @@ export default function LoginPage() {
               </div>
               <CardFooter className="flex-col gap-2 p-0 mt-6">
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Signing in...' : 'Sign In'}
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </CardFooter>
             </form>

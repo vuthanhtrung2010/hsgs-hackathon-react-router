@@ -24,7 +24,7 @@ export default function CourseSelector({
   selectedCourseId,
   onCourseChange,
   className,
-  courses: propCourses
+  courses: propCourses,
 }: CourseSelectorProps) {
   const [courses, setCourses] = useState<CourseData[]>(propCourses || []);
   const [loading, setLoading] = useState(!propCourses);
@@ -34,7 +34,7 @@ export default function CourseSelector({
       try {
         const coursesData = await getCourses();
         setCourses(coursesData);
-        
+
         // If no course is selected, select the first one
         if (!selectedCourseId && coursesData.length > 0) {
           onCourseChange(coursesData[0].id);
@@ -56,7 +56,9 @@ export default function CourseSelector({
 
   if (loading) {
     return (
-      <div className={`w-48 h-10 bg-muted animate-pulse rounded-md ${className}`} />
+      <div
+        className={`w-48 h-10 bg-muted animate-pulse rounded-md ${className}`}
+      />
     );
   }
 
@@ -65,10 +67,7 @@ export default function CourseSelector({
   }
 
   return (
-    <Select
-      value={selectedCourseId}
-      onValueChange={onCourseChange}
-    >
+    <Select value={selectedCourseId} onValueChange={onCourseChange}>
       <SelectTrigger className={`w-48 ${className}`}>
         <SelectValue placeholder="Select a course" />
       </SelectTrigger>

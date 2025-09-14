@@ -192,7 +192,7 @@ export default function Problems() {
         return 0;
       });
     },
-    [sortField, sortOrder]
+    [sortField, sortOrder],
   );
 
   // Filter and sort problems
@@ -202,21 +202,21 @@ export default function Problems() {
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter((problem) =>
-        problem.name.toLowerCase().includes(searchTerm.toLowerCase())
+        problem.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     // Filter by course
     if (selectedCourseId && selectedCourseId !== "all") {
       filtered = filtered.filter(
-        (problem) => problem.course.courseId === selectedCourseId
+        (problem) => problem.course.courseId === selectedCourseId,
       );
     }
 
     // Filter by problem types
     if (selectedProblemTypes.length > 0) {
       filtered = filtered.filter((problem) =>
-        problem.type.some((type) => selectedProblemTypes.includes(type))
+        problem.type.some((type) => selectedProblemTypes.includes(type)),
       );
     }
 
@@ -240,7 +240,7 @@ export default function Problems() {
 
   const handleProblemTypeToggle = (type: ProblemType) => {
     setSelectedProblemTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
@@ -451,7 +451,7 @@ export default function Problems() {
                         <Link
                           to={`${new URL(
                             `/courses/${problem.course.courseId}/quizzes/${problem.problemId}`,
-                            canvasLMSBaseUrl
+                            canvasLMSBaseUrl,
                           )}`}
                           className="text-primary hover:underline font-medium"
                         >
@@ -474,7 +474,7 @@ export default function Problems() {
                               key={type}
                               variant="secondary"
                               className={`text-white ${getBadgeColor(
-                                type
+                                type,
                               )} text-xs`}
                             >
                               {type}

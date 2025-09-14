@@ -5,10 +5,10 @@ import {
   PolarRadiusAxis,
   Radar,
   ResponsiveContainer,
-  Tooltip
-} from 'recharts';
-import { getRatingClass } from '~/lib/rating';
-import type { Clusters } from '~/lib/server-actions/users';
+  Tooltip,
+} from "recharts";
+import { getRatingClass } from "~/lib/rating";
+import type { Clusters } from "~/lib/server-actions/users";
 
 interface ClusterRadarChartProps {
   clusters: Clusters;
@@ -18,13 +18,17 @@ interface ClusterRadarChartProps {
 // Format cluster names for display
 const formatClusterName = (clusterKey: string): string => {
   return clusterKey
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
 // Custom tooltip for radar chart
-const CustomTooltip = ({ active, payload, label }: {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
   active?: boolean;
   payload?: Array<{ value: number }>;
   label?: string;
@@ -43,7 +47,10 @@ const CustomTooltip = ({ active, payload, label }: {
   return null;
 };
 
-export default function ClusterRadarChart({ clusters, userName }: ClusterRadarChartProps) {
+export default function ClusterRadarChart({
+  clusters,
+  userName,
+}: ClusterRadarChartProps) {
   // Transform clusters data for radar chart
   const radarData = Object.entries(clusters).map(([key, value]) => ({
     subject: formatClusterName(key),
@@ -53,7 +60,8 @@ export default function ClusterRadarChart({ clusters, userName }: ClusterRadarCh
 
   // Calculate average rating across all clusters
   const averageRating = Math.round(
-    Object.values(clusters).reduce((sum, rating) => sum + (rating || 0), 0) / Object.keys(clusters).length
+    Object.values(clusters).reduce((sum, rating) => sum + (rating || 0), 0) /
+      Object.keys(clusters).length,
   );
 
   return (
@@ -61,21 +69,22 @@ export default function ClusterRadarChart({ clusters, userName }: ClusterRadarCh
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">Skills Analysis</h2>
         <div className="text-sm text-muted-foreground">
-          Avg: <span className={`font-bold ${getRatingClass(averageRating)}`}>
+          Avg:{" "}
+          <span className={`font-bold ${getRatingClass(averageRating)}`}>
             {averageRating}
           </span>
         </div>
       </div>
-      
+
       <div className="w-full h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={radarData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-            <PolarGrid 
-              className="opacity-30"
-              radialLines={true}
-            />
-            <PolarAngleAxis 
-              dataKey="subject" 
+          <RadarChart
+            data={radarData}
+            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+          >
+            <PolarGrid className="opacity-30" radialLines={true} />
+            <PolarAngleAxis
+              dataKey="subject"
               tick={{ fontSize: 11 }}
               className="text-muted-foreground"
             />
@@ -104,19 +113,26 @@ export default function ClusterRadarChart({ clusters, userName }: ClusterRadarCh
       <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
         {radarData.slice(0, 8).map((item) => (
           <div key={item.subject} className="flex justify-between items-center">
-            <span className="text-muted-foreground truncate">{item.subject}:</span>
+            <span className="text-muted-foreground truncate">
+              {item.subject}:
+            </span>
             <span className={`font-medium ${getRatingClass(item.rating)}`}>
               {item.rating}
             </span>
           </div>
         ))}
       </div>
-      
+
       {radarData.length > 8 && (
         <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
           {radarData.slice(8).map((item) => (
-            <div key={item.subject} className="flex justify-between items-center">
-              <span className="text-muted-foreground truncate">{item.subject}:</span>
+            <div
+              key={item.subject}
+              className="flex justify-between items-center"
+            >
+              <span className="text-muted-foreground truncate">
+                {item.subject}:
+              </span>
               <span className={`font-medium ${getRatingClass(item.rating)}`}>
                 {item.rating}
               </span>

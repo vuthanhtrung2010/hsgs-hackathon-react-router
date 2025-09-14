@@ -24,7 +24,9 @@ export default function NotFound() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="p-0 max-w-lg w-full shadow-none border-none">
         <MagicCard
-          gradientColor={mounted && actualTheme === "dark" ? "#262626" : "#D9D9D955"}
+          gradientColor={
+            mounted && actualTheme === "dark" ? "#262626" : "#D9D9D955"
+          }
           className="p-0"
         >
           <CardHeader className="text-center p-8">

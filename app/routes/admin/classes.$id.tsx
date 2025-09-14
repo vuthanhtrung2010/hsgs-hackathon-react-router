@@ -1,11 +1,27 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Badge } from '../../components/ui/badge';
-import { AlertCircle, ArrowLeft, Edit2, Save, X, Plus, Trash2, Users, GraduationCap } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Badge } from "../../components/ui/badge";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Edit2,
+  Save,
+  X,
+  Plus,
+  Trash2,
+  Users,
+  GraduationCap,
+} from "lucide-react";
 
 interface ClassData {
   id: string;
@@ -24,7 +40,7 @@ export default function ClassDetails() {
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [editedStudents, setEditedStudents] = useState<string[]>([]);
-  const [newStudent, setNewStudent] = useState('');
+  const [newStudent, setNewStudent] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -35,20 +51,20 @@ export default function ClassDetails() {
     try {
       setLoading(true);
       const response = await fetch(`/api/admin/classes/${params.id}`, {
-        credentials: 'include'
+        credentials: "include",
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setClassData(data.class);
         setEditedStudents(data.class.students);
       } else {
-        setError(data.error || 'Failed to fetch class data');
+        setError(data.error || "Failed to fetch class data");
       }
     } catch (err) {
-      setError('Failed to connect to server');
-      console.error('Error fetching class data:', err);
+      setError("Failed to connect to server");
+      console.error("Error fetching class data:", err);
     } finally {
       setLoading(false);
     }
@@ -62,13 +78,13 @@ export default function ClassDetails() {
   const handleCancel = () => {
     setEditing(false);
     setEditedStudents([...classData!.students]);
-    setNewStudent('');
+    setNewStudent("");
   };
 
   const handleAddStudent = () => {
     if (newStudent.trim() && !editedStudents.includes(newStudent.trim())) {
       setEditedStudents([...editedStudents, newStudent.trim()]);
-      setNewStudent('');
+      setNewStudent("");
     }
   };
 
@@ -79,30 +95,38 @@ export default function ClassDetails() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      
+
       const response = await fetch(`/api/admin/classes/${params.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
-          students: editedStudents
+          students: editedStudents,
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setClassData(prev => prev ? { ...prev, students: editedStudents, memberCount: editedStudents.length } : null);
+        setClassData((prev) =>
+          prev
+            ? {
+                ...prev,
+                students: editedStudents,
+                memberCount: editedStudents.length,
+              }
+            : null,
+        );
         setEditing(false);
-        setNewStudent('');
+        setNewStudent("");
       } else {
-        setError(data.error || 'Failed to update class');
+        setError(data.error || "Failed to update class");
       }
     } catch (err) {
-      setError('Failed to connect to server');
-      console.error('Error updating class:', err);
+      setError("Failed to connect to server");
+      console.error("Error updating class:", err);
     } finally {
       setSaving(false);
     }
@@ -112,7 +136,11 @@ export default function ClassDetails() {
     return (
       <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/admin/classes')}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/admin/classes")}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Classes
           </Button>
@@ -128,7 +156,11 @@ export default function ClassDetails() {
     return (
       <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/admin/classes')}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/admin/classes")}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Classes
           </Button>
@@ -137,7 +169,7 @@ export default function ClassDetails() {
           <CardContent className="p-6">
             <div className="flex items-center gap-2 text-red-600">
               <AlertCircle className="h-5 w-5" />
-              <span>{error || 'Class not found'}</span>
+              <span>{error || "Class not found"}</span>
             </div>
           </CardContent>
         </Card>
@@ -150,7 +182,11 @@ export default function ClassDetails() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/admin/classes')}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/admin/classes")}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Classes
           </Button>
@@ -164,7 +200,7 @@ export default function ClassDetails() {
             </p>
           </div>
         </div>
-        
+
         {!editing && (
           <Button onClick={handleEdit}>
             <Edit2 className="h-4 w-4 mr-2" />
@@ -177,14 +213,18 @@ export default function ClassDetails() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Students
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{editing ? editedStudents.length : classData.memberCount}</div>
+            <div className="text-2xl font-bold">
+              {editing ? editedStudents.length : classData.memberCount}
+            </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Created</CardTitle>
@@ -195,7 +235,7 @@ export default function ClassDetails() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Last Updated</CardTitle>
@@ -218,19 +258,25 @@ export default function ClassDetails() {
                 Students
               </CardTitle>
               <CardDescription>
-                {editing ? 'Edit the list of students in this class' : 'List of all students in this class'}
+                {editing
+                  ? "Edit the list of students in this class"
+                  : "List of all students in this class"}
               </CardDescription>
             </div>
-            
+
             {editing && (
               <div className="flex gap-2">
-                <Button variant="outline" onClick={handleCancel} disabled={saving}>
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={saving}
+                >
                   <X className="h-4 w-4 mr-2" />
                   Cancel
                 </Button>
                 <Button onClick={handleSave} disabled={saving}>
                   <Save className="h-4 w-4 mr-2" />
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? "Saving..." : "Save Changes"}
                 </Button>
               </div>
             )}
@@ -256,14 +302,17 @@ export default function ClassDetails() {
                     value={newStudent}
                     onChange={(e) => setNewStudent(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === "Enter") {
                         e.preventDefault();
                         handleAddStudent();
                       }
                     }}
                   />
                 </div>
-                <Button onClick={handleAddStudent} disabled={!newStudent.trim()}>
+                <Button
+                  onClick={handleAddStudent}
+                  disabled={!newStudent.trim()}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add
                 </Button>
@@ -277,7 +326,10 @@ export default function ClassDetails() {
                   </p>
                 ) : (
                   editedStudents.map((student, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                    >
                       <span className="font-medium">{student}</span>
                       <Button
                         variant="ghost"

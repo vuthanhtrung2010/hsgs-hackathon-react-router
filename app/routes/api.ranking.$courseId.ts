@@ -6,7 +6,7 @@ export async function loader({ params }: { params: { courseId: string } }) {
       `/api/ranking/${courseId}`,
       process.env.VITE_API_BASE_URL ||
         import.meta.env.VITE_API_BASE_URL ||
-        "https://api.example.com"
+        "https://api.example.com",
     );
 
     const response = await fetch(url.toString(), {
@@ -22,7 +22,7 @@ export async function loader({ params }: { params: { courseId: string } }) {
         {
           status: response.status,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 

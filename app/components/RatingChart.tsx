@@ -13,31 +13,31 @@ interface RatingChartProps {
 }
 
 // Client-side only chart component
-export default function RatingChart({ ratingChanges, minRating, maxRating }: RatingChartProps) {
+export default function RatingChart({
+  ratingChanges,
+  minRating,
+  maxRating,
+}: RatingChartProps) {
   const [ChartComponent, setChartComponent] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { actualTheme } = useTheme();
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const loadChart = async () => {
       if (typeof window === "undefined") return;
-      
+
       try {
         // Dynamic imports to avoid SSR issues
-        const [
-          chartModule,
-          reactChartModule,
-          zoomModule,
-          annotationModule
-        ] = await Promise.all([
-          import("chart.js"),
-          import("react-chartjs-2"),
-          import("chartjs-plugin-zoom"),
-          import("chartjs-plugin-annotation")
-        ]);
-        
+        const [chartModule, reactChartModule, zoomModule, annotationModule] =
+          await Promise.all([
+            import("chart.js"),
+            import("react-chartjs-2"),
+            import("chartjs-plugin-zoom"),
+            import("chartjs-plugin-annotation"),
+          ]);
+
         // @ts-expect-error no types for date-fns adapter
         await import("chartjs-adapter-date-fns");
 
@@ -50,7 +50,7 @@ export default function RatingChart({ ratingChanges, minRating, maxRating }: Rat
           Tooltip,
           Legend,
           Filler,
-          defaults
+          defaults,
         } = chartModule;
 
         const { Line } = reactChartModule;
@@ -65,15 +65,20 @@ export default function RatingChart({ ratingChanges, minRating, maxRating }: Rat
           Legend,
           Filler,
           zoomModule.default,
-          annotationModule.default
+          annotationModule.default,
         );
 
         // Set theme-based defaults
         defaults.color = actualTheme === "dark" ? "#e5e5e5" : "#666";
-        defaults.backgroundColor = actualTheme === "dark" ? "#262626" : "#ffffff";
+        defaults.backgroundColor =
+          actualTheme === "dark" ? "#262626" : "#ffffff";
 
         // Create the chart component
-        const ChartComponent = ({ ratingChanges, minRating, maxRating }: RatingChartProps) => {
+        const ChartComponent = ({
+          ratingChanges,
+          minRating,
+          maxRating,
+        }: RatingChartProps) => {
           const data = {
             datasets: [
               {
@@ -83,9 +88,10 @@ export default function RatingChart({ ratingChanges, minRating, maxRating }: Rat
                   y: change.rating,
                 })),
                 borderColor: actualTheme === "dark" ? "#60a5fa" : "#3b82f6",
-                backgroundColor: actualTheme === "dark" 
-                  ? "rgba(96, 165, 250, 0.1)" 
-                  : "rgba(59, 130, 246, 0.1)",
+                backgroundColor:
+                  actualTheme === "dark"
+                    ? "rgba(96, 165, 250, 0.1)"
+                    : "rgba(59, 130, 246, 0.1)",
                 fill: true,
                 tension: 0.4,
                 pointRadius: 4,
@@ -99,16 +105,19 @@ export default function RatingChart({ ratingChanges, minRating, maxRating }: Rat
             maintainAspectRatio: false,
             interaction: {
               intersect: false,
-              mode: 'index' as const,
+              mode: "index" as const,
             },
             scales: {
               x: {
-                type: 'time' as const,
+                type: "time" as const,
                 time: {
-                  tooltipFormat: 'MMM dd, yyyy HH:mm',
+                  tooltipFormat: "MMM dd, yyyy HH:mm",
                 },
                 grid: {
-                  color: actualTheme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+                  color:
+                    actualTheme === "dark"
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "rgba(0, 0, 0, 0.1)",
                 },
                 ticks: {
                   color: actualTheme === "dark" ? "#e5e5e5" : "#666",
@@ -118,7 +127,10 @@ export default function RatingChart({ ratingChanges, minRating, maxRating }: Rat
                 min: Math.max(0, minRating - 100),
                 max: maxRating + 100,
                 grid: {
-                  color: actualTheme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+                  color:
+                    actualTheme === "dark"
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "rgba(0, 0, 0, 0.1)",
                 },
                 ticks: {
                   color: actualTheme === "dark" ? "#e5e5e5" : "#666",
@@ -149,7 +161,7 @@ export default function RatingChart({ ratingChanges, minRating, maxRating }: Rat
               zoom: {
                 pan: {
                   enabled: true,
-                  mode: 'x' as const,
+                  mode: "x" as const,
                 },
                 zoom: {
                   wheel: {
@@ -158,7 +170,7 @@ export default function RatingChart({ ratingChanges, minRating, maxRating }: Rat
                   pinch: {
                     enabled: true,
                   },
-                  mode: 'x' as const,
+                  mode: "x" as const,
                 },
               },
             },
@@ -180,7 +192,7 @@ export default function RatingChart({ ratingChanges, minRating, maxRating }: Rat
     };
 
     loadChart();
-    
+
     return () => {
       isMounted = false;
     };
@@ -204,7 +216,11 @@ export default function RatingChart({ ratingChanges, minRating, maxRating }: Rat
 
   return (
     <div className="w-full h-[300px]">
-      <ChartComponent ratingChanges={ratingChanges} minRating={minRating} maxRating={maxRating} />
+      <ChartComponent
+        ratingChanges={ratingChanges}
+        minRating={minRating}
+        maxRating={maxRating}
+      />
     </div>
   );
 }

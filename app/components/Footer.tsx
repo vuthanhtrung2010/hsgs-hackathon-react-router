@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="w-full py-6 flex flex-col items-center text-sm text-muted-foreground relative">
       {/* Backdrop blur overlay */}
       <div className="absolute inset-0 backdrop-blur-sm bg-background/80"></div>
-      
+
       {/* Content */}
       <div className="flex items-center gap-1 relative z-10">
         Made with <span className="inline-flex items-center">❤️</span> by{" "}

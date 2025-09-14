@@ -147,7 +147,12 @@
 }
 
 /* Prevent FontAwesome icons from being oversized during load */
-.fa, .fas, .far, .fal, .fab, svg[data-icon] {
+.fa,
+.fas,
+.far,
+.fal,
+.fab,
+svg[data-icon] {
   max-width: 2rem !important;
   max-height: 2rem !important;
   display: inline-block;

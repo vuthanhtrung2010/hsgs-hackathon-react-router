@@ -1,21 +1,29 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { AlertCircle, ArrowLeft, GraduationCap, Users } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { AlertCircle, ArrowLeft, GraduationCap, Users } from "lucide-react";
 
 export default function CreateClass() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
-    userNames: ''
+    name: "",
+    userNames: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -29,21 +37,21 @@ export default function CreateClass() {
     setError(null);
 
     if (!formData.name.trim()) {
-      setError('Class name is required');
+      setError("Class name is required");
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api/admin/classes/create', {
-        method: 'POST',
+      const response = await fetch("/api/admin/classes/create", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
           name: formData.name.trim(),
-          userNames: formData.userNames.trim()
+          userNames: formData.userNames.trim(),
         }),
       });
 
@@ -51,13 +59,13 @@ export default function CreateClass() {
 
       if (data.success) {
         // Redirect to classes list with success message
-        navigate('/admin/classes');
+        navigate("/admin/classes");
       } else {
-        setError(data.error || 'Failed to create class');
+        setError(data.error || "Failed to create class");
       }
     } catch (err) {
-      setError('Failed to connect to server');
-      console.error('Error creating class:', err);
+      setError("Failed to connect to server");
+      console.error("Error creating class:", err);
     } finally {
       setLoading(false);
     }
@@ -66,26 +74,27 @@ export default function CreateClass() {
   const getUserCount = () => {
     if (!formData.userNames.trim()) return 0;
     return formData.userNames
-      .split(',')
-      .map(name => name.trim())
-      .filter(name => name.length > 0)
-      .length;
+      .split(",")
+      .map((name) => name.trim())
+      .filter((name) => name.length > 0).length;
   };
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => navigate('/admin/classes')}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/admin/classes")}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Classes
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Create New Class</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Create New Class
+          </h1>
           <p className="text-muted-foreground mt-1">
             Set up a new learning environment for your students
           </p>
@@ -151,7 +160,8 @@ export default function CreateClass() {
                 onChange={handleChange}
               />
               <p className="text-sm text-muted-foreground">
-                Enter student names separated by commas. You can add more students later.
+                Enter student names separated by commas. You can add more
+                students later.
               </p>
             </div>
 
@@ -165,7 +175,7 @@ export default function CreateClass() {
                   <div className="flex items-center gap-2">
                     <GraduationCap className="h-4 w-4 text-primary" />
                     <span className="font-medium">
-                      {formData.name || 'Class Name'}
+                      {formData.name || "Class Name"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -181,13 +191,13 @@ export default function CreateClass() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/admin/classes')}
+                onClick={() => navigate("/admin/classes")}
                 disabled={loading}
               >
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Creating...' : 'Create Class'}
+                {loading ? "Creating..." : "Create Class"}
               </Button>
             </div>
           </form>

@@ -45,7 +45,7 @@ export default function RecommendationsPanel({
 
   // Sort recommendations by rating difficulty
   const sortedRecommendations = [...recommendations].sort(
-    (a, b) => a.rating - b.rating
+    (a, b) => a.rating - b.rating,
   );
 
   return (
@@ -75,7 +75,7 @@ export default function RecommendationsPanel({
           const quizUrl = courseId
             ? new URL(
                 `/courses/${courseId}/quizzes/${rec.quizId}`,
-                canvasBaseUrl
+                canvasBaseUrl,
               ).toString()
             : "#"; // Fallback if environment variables are not set
 
@@ -141,13 +141,13 @@ export default function RecommendationsPanel({
               className={`font-medium ${getRatingClass(
                 Math.round(
                   recommendations.reduce((sum, rec) => sum + rec.rating, 0) /
-                    recommendations.length
-                )
+                    recommendations.length,
+                ),
               )}`}
             >
               {Math.round(
                 recommendations.reduce((sum, rec) => sum + rec.rating, 0) /
-                  recommendations.length
+                  recommendations.length,
               )}
             </span>
           </div>

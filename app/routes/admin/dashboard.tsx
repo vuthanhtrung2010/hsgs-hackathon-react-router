@@ -1,8 +1,20 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { GraduationCap, Users, BookOpen, Plus, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Link } from "react-router";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import {
+  GraduationCap,
+  Users,
+  BookOpen,
+  Plus,
+  AlertCircle,
+} from "lucide-react";
 
 interface DashboardStats {
   classCount: number;
@@ -14,7 +26,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     classCount: 0,
     totalStudents: 0,
-    canvasUserCount: 0
+    canvasUserCount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,20 +37,20 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('/api/admin/stats', {
-        credentials: 'include',
+      const response = await fetch("/api/admin/stats", {
+        credentials: "include",
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setStats(data.stats);
       } else {
-        setError(data.error || 'Failed to fetch stats');
+        setError(data.error || "Failed to fetch stats");
       }
     } catch (error) {
-      console.error('Failed to fetch dashboard stats:', error);
-      setError('Failed to connect to server');
+      console.error("Failed to fetch dashboard stats:", error);
+      setError("Failed to connect to server");
     } finally {
       setLoading(false);
     }
@@ -46,26 +58,26 @@ export default function AdminDashboard() {
 
   const statCards = [
     {
-      title: 'Total Classes',
+      title: "Total Classes",
       value: stats.classCount,
-      description: 'Learning environments created',
+      description: "Learning environments created",
       icon: GraduationCap,
-      color: 'text-blue-600'
+      color: "text-blue-600",
     },
     {
-      title: 'Class Students',
+      title: "Class Students",
       value: stats.totalStudents,
-      description: 'Students in class lists',
+      description: "Students in class lists",
       icon: Users,
-      color: 'text-green-600'
+      color: "text-green-600",
     },
     {
-      title: 'Canvas Users',
+      title: "Canvas Users",
       value: stats.canvasUserCount,
-      description: 'Canvas LMS users synced',
+      description: "Canvas LMS users synced",
       icon: BookOpen,
-      color: 'text-purple-600'
-    }
+      color: "text-purple-600",
+    },
   ];
 
   return (
@@ -73,7 +85,9 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Admin Dashboard
+          </h1>
           <p className="text-muted-foreground mt-1">
             Manage your learning management system
           </p>
@@ -102,7 +116,7 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {loading ? '...' : stat.value}
+                  {loading ? "..." : stat.value}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {stat.description}
@@ -133,7 +147,8 @@ export default function AdminDashboard() {
             Manage Classes
           </CardTitle>
           <CardDescription>
-            View and manage all your classes, add new members, and track progress.
+            View and manage all your classes, add new members, and track
+            progress.
           </CardDescription>
         </CardHeader>
         <CardContent>

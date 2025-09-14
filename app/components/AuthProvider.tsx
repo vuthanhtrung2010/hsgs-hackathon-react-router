@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 interface User {
   id: string;
@@ -34,7 +40,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
@@ -55,11 +61,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const checkSession = async () => {
     try {
-      const response = await fetch('/api/auth/session', {
-        method: 'GET',
-        credentials: 'include',
+      const response = await fetch("/api/auth/session", {
+        method: "GET",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -71,7 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       }
     } catch (error) {
-      console.error('Failed to check session:', error);
+      console.error("Failed to check session:", error);
     } finally {
       setIsLoading(false);
     }
@@ -80,25 +86,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = (sessionToken: string, userData: User) => {
     setUser(userData);
     // Store session token if needed for future requests
-    localStorage.setItem('sessionToken', sessionToken);
+    localStorage.setItem("sessionToken", sessionToken);
     setIsLoading(false);
   };
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       setUser(null);
       setSession(null);
-      localStorage.removeItem('sessionToken');
+      localStorage.removeItem("sessionToken");
     }
   };
 

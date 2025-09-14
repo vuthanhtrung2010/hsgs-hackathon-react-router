@@ -50,7 +50,6 @@ function ListItem({
 }
 
 export function Navbar() {
-
   return (
     <div className="w-full bg-zinc-900 border-b border-zinc-800 relative z-50">
       <div className="flex items-center justify-between">
@@ -126,7 +125,8 @@ export function Navbar() {
                             About HSGS
                           </div>
                           <p className="text-muted-foreground text-sm leading-tight">
-                            This is a hackathon project, not done yeet, sad. 😭😭😭
+                            This is a hackathon project, not done yeet, sad.
+                            😭😭😭
                           </p>
                         </a>
                       </NavigationMenuLink>
@@ -153,10 +153,10 @@ export function Navbar() {
             </NavigationMenuList>
           </NavigationMenu>
         </div>
-          <div className="ml-1 lg:ml-0">
-            <ModeToggle />
-          </div>
+        <div className="ml-1 lg:ml-0">
+          <ModeToggle />
         </div>
       </div>
+    </div>
   );
 }

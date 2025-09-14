@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useTheme } from '~/components/ThemeProvider';
-import { Button } from '~/components/ui/button';
+import React, { useEffect, useState } from "react";
+import { useTheme } from "~/components/ThemeProvider";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '~/components/ui/card';
-import { MagicCard } from '~/components/magicui/magic-card';
-import { Link, useNavigate } from 'react-router';
-import { Home, ArrowLeft, Construction } from 'lucide-react';
+} from "~/components/ui/card";
+import { MagicCard } from "~/components/magicui/magic-card";
+import { Link, useNavigate } from "react-router";
+import { Home, ArrowLeft, Construction } from "lucide-react";
 
 export default function NotFound() {
   const { theme } = useTheme();

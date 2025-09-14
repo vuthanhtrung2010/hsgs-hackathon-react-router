@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, createElement, type ElementType } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  createElement,
+  type ElementType,
+} from "react";
 import { gsap } from "gsap";
 
 interface VariableSpeed {
@@ -81,7 +87,7 @@ const TextType = ({
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(containerRef.current);
@@ -125,7 +131,7 @@ const TextType = ({
 
           setCurrentTextIndex((prev) => (prev + 1) % textArray.length);
           setCurrentCharIndex(0);
-          timeout = setTimeout(() => { }, pauseDuration);
+          timeout = setTimeout(() => {}, pauseDuration);
         } else {
           timeout = setTimeout(() => {
             setDisplayedText((prev) => prev.slice(0, -1));
@@ -136,11 +142,11 @@ const TextType = ({
           timeout = setTimeout(
             () => {
               setDisplayedText(
-                (prev) => prev + processedText[currentCharIndex]
+                (prev) => prev + processedText[currentCharIndex],
               );
               setCurrentCharIndex((prev) => prev + 1);
             },
-            variableSpeed ? getRandomSpeed() : typingSpeed
+            variableSpeed ? getRandomSpeed() : typingSpeed,
           );
         } else if (textArray.length > 1) {
           timeout = setTimeout(() => {
@@ -196,7 +202,7 @@ const TextType = ({
       >
         {cursorCharacter}
       </span>
-    )
+    ),
   );
 };
 

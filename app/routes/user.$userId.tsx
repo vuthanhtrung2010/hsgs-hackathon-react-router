@@ -21,7 +21,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       `/api/users/details/${userId}`,
       process.env.VITE_API_BASE_URL ||
         import.meta.env.VITE_API_BASE_URL ||
-        "https://api.example.com"
+        "https://api.example.com",
     );
 
     const response = await fetch(url.toString(), {
@@ -46,7 +46,9 @@ export async function loader({ params }: Route.LoaderArgs) {
 export function meta({ matches }: Route.MetaArgs) {
   try {
     // Find the user data from the current route's loader
-    const currentMatch = matches.find(match => match?.id === "routes/user.$userId");
+    const currentMatch = matches.find(
+      (match) => match?.id === "routes/user.$userId",
+    );
     const userData = currentMatch?.data as IUserData | undefined;
 
     if (!userData) {
@@ -82,7 +84,7 @@ export default function UserPage({ userRank }: UserPageProps) {
   // Get current course data
   const currentCourse =
     userData?.courses?.find(
-      (course: any) => course.courseId === selectedCourseId
+      (course: any) => course.courseId === selectedCourseId,
     ) || userData?.courses?.[0];
 
   // Set default course
@@ -124,7 +126,7 @@ export default function UserPage({ userRank }: UserPageProps) {
             )}
             <h1
               className={`text-2xl font-bold ${getRatingClass(
-                userData.rating
+                userData.rating,
               )} text-center`}
             >
               {userData.name}

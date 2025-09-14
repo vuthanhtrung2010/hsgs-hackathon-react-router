@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
-import { GraduationCap, Users, Plus, Calendar } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Link } from "react-router";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import { GraduationCap, Users, Plus, Calendar } from "lucide-react";
 
 interface ClassData {
   id: string;
@@ -26,12 +32,12 @@ export default function AdminClasses() {
     try {
       setLoading(true);
       setError(null);
-      
-      const response = await fetch('/api/admin/classes', {
-        method: 'GET',
-        credentials: 'include',
+
+      const response = await fetch("/api/admin/classes", {
+        method: "GET",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -40,21 +46,21 @@ export default function AdminClasses() {
       if (data.success) {
         setClasses(data.classes);
       } else {
-        setError(data.error || 'Failed to fetch classes');
+        setError(data.error || "Failed to fetch classes");
       }
     } catch (err) {
-      setError('Failed to connect to server');
-      console.error('Error fetching classes:', err);
+      setError("Failed to connect to server");
+      console.error("Error fetching classes:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -81,9 +87,9 @@ export default function AdminClasses() {
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-4">
             <p className="text-red-600 text-sm">{error}</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={fetchClasses}
               className="mt-2"
             >
@@ -122,7 +128,8 @@ export default function AdminClasses() {
                 <GraduationCap className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No classes yet</h3>
                 <p className="text-muted-foreground text-center mb-6 max-w-md">
-                  Get started by creating your first class. You can add students and manage content from there.
+                  Get started by creating your first class. You can add students
+                  and manage content from there.
                 </p>
                 <Button asChild>
                   <Link to="/admin/classes/create">
@@ -135,7 +142,10 @@ export default function AdminClasses() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {classes.map((classItem) => (
-                <Card key={classItem.id} className="hover:shadow-md transition-shadow">
+                <Card
+                  key={classItem.id}
+                  className="hover:shadow-md transition-shadow"
+                >
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -159,11 +169,11 @@ export default function AdminClasses() {
                         <Calendar className="h-4 w-4" />
                         Created {formatDate(classItem.createdAt)}
                       </div>
-                      
+
                       <div className="flex gap-2">
-                        <Button 
-                          asChild 
-                          variant="outline" 
+                        <Button
+                          asChild
+                          variant="outline"
                           size="sm"
                           className="flex-1"
                         >
@@ -171,11 +181,7 @@ export default function AdminClasses() {
                             View Details
                           </Link>
                         </Button>
-                        <Button 
-                          asChild 
-                          size="sm"
-                          className="flex-1"
-                        >
+                        <Button asChild size="sm" className="flex-1">
                           <Link to={`/admin/classes/${classItem.id}/manage`}>
                             Manage
                           </Link>
@@ -199,20 +205,33 @@ export default function AdminClasses() {
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold text-primary">{classes.length}</div>
-                <div className="text-sm text-muted-foreground">Total Classes</div>
+                <div className="text-2xl font-bold text-primary">
+                  {classes.length}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Total Classes
+                </div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-green-600">
                   {classes.reduce((sum, c) => sum + c.memberCount, 0)}
                 </div>
-                <div className="text-sm text-muted-foreground">Total Students</div>
+                <div className="text-sm text-muted-foreground">
+                  Total Students
+                </div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-blue-600">
-                  {classes.length > 0 ? Math.round(classes.reduce((sum, c) => sum + c.memberCount, 0) / classes.length) : 0}
+                  {classes.length > 0
+                    ? Math.round(
+                        classes.reduce((sum, c) => sum + c.memberCount, 0) /
+                          classes.length,
+                      )
+                    : 0}
                 </div>
-                <div className="text-sm text-muted-foreground">Avg Students/Class</div>
+                <div className="text-sm text-muted-foreground">
+                  Avg Students/Class
+                </div>
               </div>
             </div>
           </CardContent>

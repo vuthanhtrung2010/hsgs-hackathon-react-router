@@ -57,9 +57,11 @@ export interface IUserData {
   courses?: Course[];
 }
 
-export async function getRankings(courseId?: string): Promise<IUsersListData[]> {
+export async function getRankings(
+  courseId?: string,
+): Promise<IUsersListData[]> {
   try {
-    const url = `/api/ranking/${courseId || 'default'}`;
+    const url = `/api/ranking/${courseId || "default"}`;
     const response = await fetch(url, {
       method: "GET",
       cache: "no-cache",
@@ -89,7 +91,7 @@ export async function getUserData(userId: string): Promise<IUserData> {
       throw new Error(`Failed to fetch user data: ${response.statusText}`);
     }
 
-    const data = await response.json() as IUserData;
+    const data = (await response.json()) as IUserData;
     return data;
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -99,7 +101,7 @@ export async function getUserData(userId: string): Promise<IUserData> {
 
 export async function getCourses(): Promise<{ id: string; name: string }[]> {
   try {
-    const url = '/api/courses';
+    const url = "/api/courses";
     const response = await fetch(url, {
       method: "GET",
       cache: "no-cache",
@@ -114,8 +116,6 @@ export async function getCourses(): Promise<{ id: string; name: string }[]> {
   } catch (error) {
     console.error("Error fetching courses:", error);
     // Return fallback courses if API fails
-    return [
-      { id: "default", name: "Default Course" }
-    ];
+    return [{ id: "default", name: "Default Course" }];
   }
 }

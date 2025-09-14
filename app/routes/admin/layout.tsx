@@ -1,10 +1,6 @@
-import { Outlet, Link, useLocation } from 'react-router';
-import { useAuth } from '../../components/AuthProvider';
-import { 
-  GraduationCap, 
-  Plus,
-  Home
-} from 'lucide-react';
+import { Outlet, Link, useLocation } from "react-router";
+import { useAuth } from "../../components/AuthProvider";
+import { GraduationCap, Plus, Home } from "lucide-react";
 
 export default function AdminLayout() {
   const { user } = useAuth();
@@ -17,7 +13,9 @@ export default function AdminLayout() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="text-muted-foreground mb-4">You need to be logged in to access the admin panel.</p>
+          <p className="text-muted-foreground mb-4">
+            You need to be logged in to access the admin panel.
+          </p>
           <Link to="/login" className="text-blue-600 hover:text-blue-800">
             Go to Login
           </Link>
@@ -28,16 +26,16 @@ export default function AdminLayout() {
 
   const sidebarItems = [
     {
-      href: '/admin',
-      label: 'Dashboard',
+      href: "/admin",
+      label: "Dashboard",
       icon: Home,
-      exact: true
+      exact: true,
     },
     {
-      href: '/admin/classes',
-      label: 'Classes',
+      href: "/admin/classes",
+      label: "Classes",
       icon: GraduationCap,
-      exact: false
+      exact: false,
     },
   ];
 
@@ -55,7 +53,9 @@ export default function AdminLayout() {
         {/* Header */}
         <div className="p-6 border-b border-border">
           <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
-          <p className="text-sm text-muted-foreground mt-1">Welcome, {user.name}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Welcome, {user.name}
+          </p>
         </div>
 
         {/* Navigation */}
@@ -64,15 +64,15 @@ export default function AdminLayout() {
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href, item.exact);
-              
+
               return (
                 <li key={item.href}>
                   <Link
                     to={item.href}
                     className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       active
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
                     }`}
                   >
                     <Icon size={18} />

@@ -41,7 +41,7 @@ export async function loader() {
       "/api/courses",
       process.env.VITE_API_BASE_URL ||
         import.meta.env.VITE_API_BASE_URL ||
-        "https://api.example.com"
+        "https://api.example.com",
     );
 
     const response = await fetch(url.toString(), {
@@ -150,7 +150,7 @@ export default function UsersPage() {
         return 0;
       });
     },
-    [sortField, sortOrder, selectedCourseId]
+    [sortField, sortOrder, selectedCourseId],
   );
 
   // Load users when course changes
@@ -234,7 +234,7 @@ export default function UsersPage() {
 
     if (searchTerm) {
       filtered = filtered.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
