@@ -133,3 +133,7 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@import './styles/rating.css';
+@import './styles/table.css';
+@import './styles/wikijs-backport.css';

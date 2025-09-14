@@ -1,0 +1,331 @@
+/* ---------------------------------
+   Responsive Wiki-like Tables (pure CSS)
+   Backported from SCSS to CSS vars system
+--------------------------------- */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 1rem 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.table-wrapper table {
+  width: 100%;
+  border-collapse: separate; /* SCSS used spacing and radii */
+  border-spacing: 0;
+  table-layout: auto;
+  max-width: 100%;
+  font-size: 0.95rem;
+  background: var(--background);
+  border-radius: 5px;
+}
+
+/* Dense mode (optional utility class) */
+.table-wrapper.dense td,
+.table-wrapper.dense th {
+  font-size: 0.85rem;
+  padding: 0.5rem;
+}
+
+.table-wrapper thead th {
+  padding: 0.75rem;
+  border-bottom: 2px solid var(--border-strong, var(--border));
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--muted) 85%, transparent);
+  font-weight: 600;
+  text-align: center;
+}
+
+.dark .table-wrapper thead th {
+  background: color-mix(in srgb, var(--muted) 20%, transparent);
+  border-bottom-color: var(--border);
+  color: var(--muted-foreground);
+}
+
+/* Rounded corners for header row */
+.table-wrapper thead th:first-child {
+  border-top-left-radius: 7px;
+}
+.table-wrapper thead th:last-child {
+  border-top-right-radius: 7px;
+}
+
+.table-wrapper tbody td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border-muted, var(--muted));
+  color: var(--foreground);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.table-wrapper tbody td:last-child {
+  border-right: none;
+}
+
+/* Zebra rows */
+.table-wrapper tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--muted) 94%, transparent);
+}
+.dark .table-wrapper tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--muted) 14%, transparent);
+}
+
+/* Extra zebra alt (for checkerboard effect if desired) */
+.table-wrapper tbody tr:nth-child(even) td:nth-child(even) {
+  background: color-mix(in srgb, var(--muted) 88%, transparent);
+}
+.dark .table-wrapper tbody tr:nth-child(even) td:nth-child(even) {
+  background: color-mix(in srgb, var(--muted) 18%, transparent);
+}
+
+/* Last row rounded corners */
+.table-wrapper tbody tr:last-child td {
+  border-bottom: none;
+}
+.table-wrapper tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 7px;
+}
+.table-wrapper tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 7px;
+}
+
+/* Hover highlight */
+.table-wrapper tbody tr:hover td {
+  background: color-mix(in srgb, var(--muted) 85%, transparent);
+}
+.dark .table-wrapper tbody tr:hover td {
+  background: color-mix(in srgb, var(--muted) 25%, transparent);
+}
+
+/* Sticky header option */
+.table-wrapper.sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  .table-wrapper table {
+    min-width: 480px;
+    font-size: 0.9rem;
+  }
+}
+
+/* -----------------------------------------------
+   Image utilities (backported from WikiJS's SCSS)
+-------------------------------------------------- */
+
+img {
+  max-width: 100%;
+}
+
+img.align-left {
+  float: left;
+  margin: 0 1rem 1rem 0;
+}
+
+img.align-right {
+  float: right;
+  margin: 0 0 1rem 1rem;
+  z-index: 1;
+  position: relative;
+}
+
+img.align-center {
+  display: block;
+  max-width: 100%;
+  margin: auto;
+}
+
+img.align-abstopright {
+  position: absolute;
+  top: -90px;
+  right: 1rem;
+  height: calc(90px - 32px);
+  width: auto;
+}
+
+/* RTL override */
+.is-rtl img.align-abstopright {
+  left: 1rem;
+  right: initial;
+}
+
+img.decor-shadow {
+  box-shadow: 0 3px 8px 0 rgba(116, 129, 141, 0.1);
+}
+
+img.decor-outline {
+  border: 1px solid var(--border, #ccc);
+}
+
+img.uml-diagram {
+  margin: 1rem 0;
+}
+
+/* Inline code and block-list styles backported from Wiki.js SCSS */
+.content-description {
+  /* Inline code — exact Wiki.js inline code appearance */
+  code,
+  .content-description span.code,
+  code.wiki-inline-code {
+    background-color: var(--wiki-code-bg, #eef2ff);
+    padding: 0 5px;
+    color: var(--wiki-code-fg, #23395b);
+    font-family: 'Roboto Mono', monospace;
+    font-weight: normal;
+    font-size: 1rem;
+    box-shadow: none;
+  }
+
+  code::before,
+  code::after,
+  .content-description span.code::before,
+  .content-description span.code::after {
+    display: none;
+    content: none;
+  }
+
+  /* Dark mode parity for inline code (matches Wiki.js behavior) */
+  .dark & code,
+  .dark & .content-description span.code,
+  .dark & code.wiki-inline-code {
+    background-color: color-mix(in srgb, var(--muted) 6%, transparent);
+    color: var(--wiki-code-fg-dark, #dbeafe);
+  }
+
+  /* ---------- Lists: base reset ---------- */
+  /* Remove default user-agent vertical margins so we fully control spacing */
+  ul,
+  ol,
+  dl {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  /* Use padding on li for vertical rhythm (prevents margin-collapsing) */
+  ul li,
+  ol li {
+    margin: 0; /* reset margins */
+    padding: 0.125rem 0; /* tight, consistent spacing between items */
+    position: relative; /* for custom marker positioning */
+  }
+
+  /* Keep paragraphs inside list items inline so nested lists attach directly */
+  ul > li > p,
+  ol > li > p,
+  li > p {
+    display: inline; /* prevents paragraph block from forcing a larger gap */
+    vertical-align: baseline;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Top-level list indentation */
+  ul,
+  ol {
+    padding-left: 1.8rem;
+  }
+
+  /* Ordered lists leave room for native numbers; unordered align to that */
+  ol {
+    list-style: decimal;
+  }
+  ul {
+    list-style: disc;
+  }
+  ul ul {
+    list-style: circle;
+  }
+  ul ul ul {
+    list-style: square;
+  }
+
+  /* ---------- Nested lists: attach tightly to parent ---------- */
+  /* Remove vertical margins from nested lists and only use indentation */
+  ul ul,
+  ul ol,
+  ol ul,
+  ol ol {
+    margin: 0; /* no extra vertical gap */
+    padding-left: 1rem; /* controlled indent from parent li */
+  }
+
+  /* If a nested list is a direct child of a li, don't add extra top gap */
+  li > ul,
+  li > ol {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 1rem; /* inner indent */
+  }
+
+  /* ---------- Visual marker (arrow) ---------- */
+  /* Replace bullets with right-pointing arrow glyph, positioned in the gutter */
+  ul:not(.tabset-tabs):not(.contains-task-list) {
+    list-style: none;
+  }
+
+  ul:not(.tabset-tabs):not(.contains-task-list) > li::before {
+    position: absolute;
+    left: -1.8rem; /* same gutter as ordered numbers */
+    content: '\25b8';
+    color: var(--muted-foreground, #6b7280);
+    width: 1.35rem;
+    display: inline-block;
+    text-align: center;
+    line-height: 1; /* avoids vertical offset */
+    top: 0.25rem; /* slight vertical alignment with li padding */
+  }
+
+  /* RTL: flip the marker to the right side and use a mirrored glyph */
+  .is-rtl .content-description ul:not(.tabset-tabs):not(.contains-task-list) > li::before {
+    right: -1.8rem;
+    left: auto;
+    content: '\25C3';
+  }
+
+  /* ---------- Task lists (checkboxes) ---------- */
+  .contains-task-list,
+  .task-list {
+    padding-left: 0;
+    list-style: none;
+  }
+  .contains-task-list li,
+  .task-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0.125rem 0; /* slightly tighter than default list items */
+    padding: 0; /* rely on li padding above */
+  }
+  .contains-task-list input[type='checkbox'],
+  .task-list input[type='checkbox'] {
+    margin-top: 0.15rem;
+  }
+
+  /* ---------- Definition lists ---------- */
+  dl {
+    margin: 0.5rem 0;
+  }
+  dt {
+    font-weight: bold;
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+  }
+  dd {
+    margin-left: 1.125em;
+    margin-bottom: 0.75em;
+  }
+
+  /* ---------- Tight lists utility ---------- */
+  .tight-list li {
+    padding: 0.06rem 0;
+  }
+}

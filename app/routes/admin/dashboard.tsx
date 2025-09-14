@@ -14,12 +14,14 @@ import {
   BookOpen,
   Plus,
   AlertCircle,
+  Megaphone,
 } from "lucide-react";
 
 interface DashboardStats {
   classCount: number;
   totalStudents: number;
   canvasUserCount: number;
+  announcementCount?: number;
 }
 
 export default function AdminDashboard() {
@@ -27,6 +29,7 @@ export default function AdminDashboard() {
     classCount: 0,
     totalStudents: 0,
     canvasUserCount: 0,
+    announcementCount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +81,13 @@ export default function AdminDashboard() {
       icon: BookOpen,
       color: "text-purple-600",
     },
+    {
+      title: "Announcements",
+      value: stats.announcementCount || 0,
+      description: "Total announcements created",
+      icon: Megaphone,
+      color: "text-orange-600",
+    },
   ];
 
   return (
@@ -99,11 +109,17 @@ export default function AdminDashboard() {
               Create Class
             </Link>
           </Button>
+          <Button asChild variant="outline">
+            <Link to="/admin/announcements/create">
+              <Plus className="mr-2 h-4 w-4" />
+              New Announcement
+            </Link>
+          </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (

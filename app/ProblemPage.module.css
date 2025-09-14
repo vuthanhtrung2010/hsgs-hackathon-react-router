@@ -1,0 +1,40 @@
+.problemProse h3 code {
+  font-size: 1.125rem; /* !text-lg */
+}
+
+.problemProse pre {
+  padding-left: 0;
+  padding-right: 0;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.problemProse pre [data-line] {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.problemProse code {
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.75; /* loose */
+}
+
+.problemProse pre > code {
+  counter-reset: line;
+}
+
+.problemProse pre code[data-theme],
+.problemProse pre code[data-theme] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .problemProse pre code[data-theme],
+  .problemProse pre code[data-theme] span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
+}

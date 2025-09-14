@@ -13,9 +13,13 @@ export default [
     route("classes", "routes/admin/classes.tsx"),
     route("classes/create", "routes/admin/classes.create.tsx"),
     route("classes/:id", "routes/admin/classes.$id.tsx"),
+    route("announcements", "routes/admin/announcements.tsx"),
+    route("announcements/create", "routes/admin/announcements.create.tsx"),
+    route("announcements/:id/edit", "routes/admin/announcements.$id.edit.tsx"),
   ]),
 
   // API routes
+  route("api/announcements", "routes/api.announcements.ts"),
   route("api/ranking/:courseId", "routes/api.ranking.$courseId.ts"),
   route("api/auth/login", "routes/api.auth.login.ts"),
   route("api/auth/session", "routes/api.auth.session.ts"),
@@ -25,6 +29,10 @@ export default [
   route("api/admin/classes/:id", "routes/api.admin.classes.$id.ts"),
   route("api/admin/classes/update", "routes/api.admin.classes.update.ts"),
   route("api/admin/stats", "routes/api.admin.stats.ts"),
+  route("api/admin/announcements", "routes/api.admin.announcements.ts"),
+  route("api/admin/announcements/create", "routes/api.admin.announcements.create.ts"),
+  route("api/admin/announcements/:id", "routes/api.admin.announcements.$id.ts"),
+  route("api/admin/announcements/update", "routes/api.admin.announcements.update.ts"),
 
   // 404 catch-all
   route("*", "routes/404.tsx"),
