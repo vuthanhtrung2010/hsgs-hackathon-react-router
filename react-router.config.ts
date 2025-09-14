@@ -6,5 +6,5 @@ export default {
   ssr: true,
   async prerender() {
     return ["/"]
-  }
+  },
 } satisfies Config;
