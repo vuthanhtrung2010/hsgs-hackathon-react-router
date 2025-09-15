@@ -6,7 +6,7 @@ export async function action({ request }: { request: Request }) {
   try {
     const body = await request.json();
 
-    const response = await fetch(new URL('/api/admin/announcements', process.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(), {
+    const response = await fetch(new URL('/api/admin/announcements', process.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

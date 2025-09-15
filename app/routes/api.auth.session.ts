@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const response = await fetch(new URL('/api/auth/get-session', process.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(), {
+    const response = await fetch(new URL('/api/auth/get-session', process.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
