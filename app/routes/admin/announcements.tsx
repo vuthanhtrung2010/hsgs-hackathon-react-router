@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { Plus, Megaphone, Calendar } from 'lucide-react';
+import { Plus, Megaphone, Calendar, Trash2 } from 'lucide-react';
+import { SaveDialog } from '../../components/ui/save-dialog';
+import type { SaveDialogContent } from '../../components/ui/save-dialog';
 
 interface Announcement {
   id: string;
@@ -16,6 +18,8 @@ export default function Announcements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDialogContent, setDeleteDialogContent] = useState<SaveDialogContent | null>(null);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -39,6 +43,50 @@ export default function Announcements() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async (announcementId: string, title: string) => {
+    setDeleteDialogContent({
+      title: 'Delete Announcement',
+      description: `Are you sure you want to delete "${title}"? This action cannot be undone.`,
+      type: 'confirm',
+      confirmText: 'Delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/admin/announcements/${announcementId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            setAnnouncements(prev => prev.filter(a => a.id !== announcementId));
+            setDeleteDialogContent({
+              title: 'Success',
+              description: 'Announcement deleted successfully.',
+              type: 'success',
+            });
+            setDeleteDialogOpen(true);
+          } else {
+            setDeleteDialogContent({
+              title: 'Error',
+              description: data.error || 'Failed to delete announcement.',
+              type: 'error',
+            });
+            setDeleteDialogOpen(true);
+          }
+        } catch (err) {
+          console.error('Error deleting announcement:', err);
+          setDeleteDialogContent({
+            title: 'Error',
+            description: 'Failed to connect to server.',
+            type: 'error',
+          });
+          setDeleteDialogOpen(true);
+        }
+      },
+    });
+    setDeleteDialogOpen(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -136,6 +184,14 @@ export default function Announcements() {
                       )}
                     </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(announcement.id, announcement.title)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </CardHeader>
               {announcement.content && (
@@ -149,6 +205,12 @@ export default function Announcements() {
           ))}
         </div>
       )}
+
+      <SaveDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        content={deleteDialogContent}
+      />
     </div>
   );
 }
