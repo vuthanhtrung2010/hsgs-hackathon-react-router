@@ -4,7 +4,7 @@ export async function loader({ request }: { request: Request }) {
   }
 
   try {
-    const response = await fetch(`http://localhost:3001/api/admin/announcements`, {
+    const response = await fetch(new URL('/api/admin/announcements', process.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

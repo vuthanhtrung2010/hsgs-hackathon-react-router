@@ -5,7 +5,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const body = await request.json();
 
     const response = await fetch(
-      `http://localhost:3001/api/admin/classes/${body.id}`,
+      new URL(`/api/admin/classes/${body.id}`, process.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(),
       {
         method: "PUT",
         headers: {

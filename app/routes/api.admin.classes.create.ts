@@ -4,7 +4,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const body = await request.json();
 
-    const response = await fetch("http://localhost:3001/api/admin/classes", {
+    const response = await fetch(new URL('/api/admin/classes', process.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

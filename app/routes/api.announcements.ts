@@ -1,6 +1,6 @@
 import type { Route } from "./+types/api.announcements";
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);

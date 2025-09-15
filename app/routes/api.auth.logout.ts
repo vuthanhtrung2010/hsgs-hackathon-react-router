@@ -2,7 +2,7 @@ import type { ActionFunctionArgs } from "react-router";
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const response = await fetch("http://localhost:3001/api/auth/sign-out", {
+    const response = await fetch(new URL('/api/auth/sign-out', process.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

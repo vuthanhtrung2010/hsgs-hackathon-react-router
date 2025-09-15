@@ -5,7 +5,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const body = await request.json();
 
     const response = await fetch(
-      "http://localhost:3001/api/auth/sign-in/email",
+      new URL('/api/auth/sign-in/email', process.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(),
       {
         method: "POST",
         headers: {
