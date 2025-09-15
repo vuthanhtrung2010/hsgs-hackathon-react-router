@@ -22,7 +22,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "~/components/ui/pagination";
-import { type Problem, type ProblemType } from "~/lib/server-actions/problems";
+import { type Problem } from "~/lib/server-actions/problems";
 import RatingDisplay from "~/components/RatingDisplay";
 import CourseSelector from "~/components/CourseSelector";
 import Loading from "~/components/Loading";
@@ -36,25 +36,6 @@ const PROBLEMS_PER_PAGE = 25;
 
 type SortField = "name" | "rating" | "course";
 type SortOrder = "asc" | "desc" | null;
-
-const PROBLEM_TYPES: ProblemType[] = [
-  "Art",
-  "Business",
-  "Communication",
-  "Crime",
-  "Economy",
-  "Education",
-  "Environment",
-  "Family and children",
-  "Food",
-  "Health",
-  "Language",
-  "Media",
-  "Reading",
-  "Technology",
-  "Transport",
-  "Travel",
-];
 
 export async function loader({}: Route.LoaderArgs): Promise<{
   problems: Problem[];
@@ -119,7 +100,7 @@ export default function Problems() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
   const [selectedProblemTypes, setSelectedProblemTypes] = useState<
-    ProblemType[]
+    string[]
   >([]);
 
   // Initialize with first course from loader
@@ -132,6 +113,15 @@ export default function Problems() {
   useEffect(() => {
     setProblems(initialProblems || []);
   }, [initialProblems]);
+
+  // Collect all unique problem types from the data
+  const availableProblemTypes = React.useMemo(() => {
+    const typeSet = new Set<string>();
+    problems.forEach(problem => {
+      problem.type.forEach(type => typeSet.add(type));
+    });
+    return Array.from(typeSet).sort();
+  }, [problems]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -238,7 +228,7 @@ export default function Problems() {
     setSelectedCourseId(courseId);
   };
 
-  const handleProblemTypeToggle = (type: ProblemType) => {
+  const handleProblemTypeToggle = (type: string) => {
     setSelectedProblemTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
@@ -306,7 +296,7 @@ export default function Problems() {
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
-                {PROBLEM_TYPES.map((type) => (
+                {availableProblemTypes.map((type) => (
                   <Button
                     key={type}
                     variant={

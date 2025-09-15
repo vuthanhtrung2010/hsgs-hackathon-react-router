@@ -1,41 +1,24 @@
 // Badge coloring utility function
-import { type ProblemType } from "./server-actions/problems";
 
-export function getBadgeColor(category: ProblemType): string {
-  switch (category) {
-    case "Art":
-      return "bg-red-500";
-    case "Business":
-      return "bg-blue-500";
-    case "Communication":
-      return "bg-green-500";
-    case "Crime":
-      return "bg-yellow-500";
-    case "Economy":
-      return "bg-purple-500";
-    case "Education":
-      return "bg-pink-500";
-    case "Environment":
-      return "bg-teal-500";
-    case "Family and children":
-      return "bg-orange-500";
-    case "Food":
-      return "bg-lime-500";
-    case "Health":
-      return "bg-cyan-500";
-    case "Language":
-      return "bg-indigo-500";
-    case "Media":
-      return "bg-gray-500";
-    case "Reading":
-      return "bg-slate-500";
-    case "Technology":
-      return "bg-violet-500";
-    case "Transport":
-      return "bg-fuchsia-500";
-    case "Travel":
-      return "bg-amber-500";
-    default:
-      return "";
-  }
+export function getBadgeColor(category: string): string {
+  const colorMap: Record<string, string> = {
+    "Art": "bg-red-500",
+    "Business": "bg-blue-500",
+    "Communication": "bg-green-500",
+    "Crime": "bg-yellow-500",
+    "Economy": "bg-purple-500",
+    "Education": "bg-pink-500",
+    "Environment": "bg-teal-500",
+    "Family and children": "bg-orange-500",
+    "Food": "bg-lime-500",
+    "Health": "bg-cyan-500",
+    "Language": "bg-indigo-500",
+    "Media": "bg-gray-500",
+    "Reading": "bg-slate-500",
+    "Technology": "bg-violet-500",
+    "Transport": "bg-fuchsia-500",
+    "Travel": "bg-amber-500",
+  };
+
+  return colorMap[category] || "bg-gray-400"; // Default color for unknown types
 }

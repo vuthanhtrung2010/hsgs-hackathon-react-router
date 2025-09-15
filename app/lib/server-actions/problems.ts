@@ -25,7 +25,7 @@ export interface Problem {
   problemId: string;
   name: string;
   course: Course;
-  type: ProblemType[];
+  type: string[]; // Array of problem types (can be any strings from quiz titles)
   rating: number;
 }
 
