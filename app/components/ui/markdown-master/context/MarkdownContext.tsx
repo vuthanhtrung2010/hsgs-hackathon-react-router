@@ -1,7 +1,5 @@
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
-import { dracula, solarizedlight, tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
 export interface SaveConfiguration {
   endpoint: string;
   method?: 'PUT' | 'POST' | 'PATCH';
@@ -48,7 +46,6 @@ type MarkdownContextType = {
   selectedText: string;
   setSelectedText: (text: string) => void;
   activeFormats: Record<string, boolean>;
-  getSyntaxHighlighterStyle: () => unknown;
   insertMarkdown: (format: string) => void;
   saveContent: () => void;
   sessionToken?: string;
@@ -170,12 +167,6 @@ export const MarkdownProvider = ({
 
     setActiveFormats(formats);
   }, [selectedText]);
-
-  const getSyntaxHighlighterStyle = () => {
-    if (syntaxTheme === 'tomorrow') return tomorrow;
-    if (syntaxTheme === 'dracula') return dracula;
-    return solarizedlight;
-  };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(markdown);
@@ -514,7 +505,6 @@ export const MarkdownProvider = ({
         selectedText,
         setSelectedText,
         activeFormats,
-        getSyntaxHighlighterStyle,
         insertMarkdown,
         saveContent,
         copyToClipboard,

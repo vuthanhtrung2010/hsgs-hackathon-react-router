@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import rehypeKatex from 'rehype-katex';
-import rehypeRaw from 'rehype-raw';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
+import styles from '~/ProblemPage.module.css';
+import { processMarkdownToHtml } from '~/lib/markdown-processor';
+import 'katex/dist/katex.min.css';
 
 import { ResizablePanel } from '~/components/ui/resizable';
 
@@ -20,10 +17,11 @@ declare global {
 }
 
 export default function MarkdownPreviewMobile() {
-  const { markdown, getSyntaxHighlighterStyle } = useMarkdown();
+  const { markdown } = useMarkdown();
   const previewRef = useRef<HTMLDivElement>(null);
   const isScrollingSelf = useRef<boolean>(false);
   const lastScrollTop = useRef<number>(0);
+  const [rendered, setRendered] = useState<string>('');
 
   // Handle synchronized scrolling with smooth animation
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
@@ -79,6 +77,23 @@ export default function MarkdownPreviewMobile() {
     };
   }, []);
 
+  // Render markdown to HTML when it changes
+  useEffect(() => {
+    let cancelled = false;
+    async function renderMarkdown() {
+      try {
+        const rendered = await processMarkdownToHtml(markdown ?? '');
+        if (!cancelled) setRendered(rendered);
+      } catch {
+        if (!cancelled) setRendered('<p>Failed to render markdown</p>');
+      }
+    }
+    renderMarkdown();
+    return () => {
+      cancelled = true;
+    };
+  }, [markdown]);
+
   return (
     <ResizablePanel defaultSize={35} minSize={25} className="min-h-0">
       <div className="h-full w-full flex flex-col">
@@ -89,34 +104,10 @@ export default function MarkdownPreviewMobile() {
           onScroll={handleScroll}
           style={{ WebkitTapHighlightColor: 'transparent' }}
         >
-          <div className="markdown-body max-w-none prose prose-sm">
-            <ReactMarkdown
-              remarkPlugins={[remarkMath, remarkGfm]}
-              rehypePlugins={[rehypeKatex, rehypeRaw]}
-              components={{
-                code({ className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className || '');
-                  return match ? (
-                    <SyntaxHighlighter
-                      // @ts-expect-error - Type issues with the style property
-                      style={getSyntaxHighlighterStyle()}
-                      language={match[1]}
-                      PreTag="div"
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-                br: () => <br />,
-              }}
-            >
-              {markdown}
-            </ReactMarkdown>
-          </div>
+          <div
+            className={`markdown-body max-w-none prose prose-sm ${styles.problemProse} content-description`}
+            dangerouslySetInnerHTML={{ __html: rendered }}
+          />
         </div>
       </div>
     </ResizablePanel>
