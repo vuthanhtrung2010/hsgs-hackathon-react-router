@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "dotenv -c -- react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
@@ -36,7 +36,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
-    "dotenv-cli": "^8.0.0",
+    "dotenv-cli": "^10.0.0",
     "gsap": "^3.13.0",
     "hast": "^1.0.0",
     "isbot": "^5.1.30",
