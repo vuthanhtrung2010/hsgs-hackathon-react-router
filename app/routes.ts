@@ -16,6 +16,7 @@ export default [
     route("announcements", "routes/admin/announcements.tsx"),
     route("announcements/create", "routes/admin/announcements.create.tsx"),
     route("announcements/:id/edit", "routes/admin/announcements.$id.edit.tsx"),
+    route("gen", "routes/admin/gen.tsx"),
   ]),
 
   // API routes
