@@ -87,11 +87,31 @@ export default function LoginPage() {
         }),
       });
 
+      if (!response.ok) {
+        // Try to get error message from response
+        let errorMessage = "Login failed";
+        try {
+          const errorText = await response.text();
+          if (errorText) {
+            // Try to parse as JSON first
+            try {
+              const errorData = JSON.parse(errorText);
+              errorMessage = errorData.error || errorText;
+            } catch {
+              // If not JSON, use the text as is
+              errorMessage = errorText;
+            }
+          }
+        } catch {
+          // If we can't read the response body, use the default error message
+        }
+        setError(errorMessage);
+        return;
+      }
+
       const result = await response.json();
 
-      if (!response.ok) {
-        setError(result.error || "Login failed");
-      } else if (result.user) {
+      if (result.user) {
         // Login successful, update auth context
         login(result.token || "", result.user);
         navigate(callbackUrl);

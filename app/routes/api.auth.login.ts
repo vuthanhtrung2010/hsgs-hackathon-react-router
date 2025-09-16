@@ -20,14 +20,32 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     );
 
-    const data = await response.json();
-
     if (!response.ok) {
+      // If response is not ok, try to get error message from response
+      let errorMessage = "Login failed";
+      try {
+        const errorData = await response.json();
+        if (errorData && errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch {
+        // If we can't parse JSON, try to get text
+        try {
+          const errorText = await response.text();
+          if (errorText) {
+            errorMessage = errorText;
+          }
+        } catch {
+          // Use default error message
+        }
+      }
       return Response.json(
-        { error: data.error || "Login failed" },
+        { error: errorMessage },
         { status: response.status },
       );
     }
+
+    const data = await response.json();
 
     // Forward the response with any cookies/headers
     const result = Response.json(data, { status: 200 });

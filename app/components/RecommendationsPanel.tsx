@@ -109,9 +109,6 @@ export default function RecommendationsPanel({
                   <span className={`font-medium ${getRatingClass(rec.rating)}`}>
                     {rec.rating}
                   </span>
-                  <span className="text-muted-foreground text-xs px-1 py-0.5 bg-muted rounded">
-                    {rec.cluster}
-                  </span>
                 </div>
                 <span className={`${difficultyColor} font-medium`}>
                   {difficultyText}

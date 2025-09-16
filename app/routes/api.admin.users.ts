@@ -1,10 +1,12 @@
-import type { LoaderFunctionArgs } from "react-router";
+export async function loader({ request }: { request: Request }) {
+  if (request.method !== "GET") {
+    return new Response("Method not allowed", { status: 405 });
+  }
 
-export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const response = await fetch(
       new URL(
-        "/api/auth/get-session",
+        "/api/admin/users",
         process.env.VITE_API_BASE_URL ||
           import.meta.env.VITE_API_BASE_URL ||
           "http://localhost:3001",
@@ -13,15 +15,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          // Forward any cookies from the client request
-          cookie: request.headers.get("cookie") || "",
+          // Forward cookies for auth
+          Cookie: request.headers.get("Cookie") || "",
         },
       },
     );
 
     if (!response.ok) {
       // If response is not ok, try to get error message from response
-      let errorMessage = `Session error: ${response.status} ${response.statusText}`;
+      let errorMessage = `Server error: ${response.status} ${response.statusText}`;
       try {
         const errorData = await response.text();
         if (errorData) {
@@ -31,16 +33,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
         // If we can't read the response body, use the default error message
       }
       return Response.json(
-        { error: errorMessage },
+        {
+          success: false,
+          error: errorMessage,
+        },
         { status: response.status },
       );
     }
 
     const data = await response.json();
-
-    return Response.json(data, { status: 200 });
+    return Response.json(data);
   } catch (error) {
-    console.error("Session check proxy error:", error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Error fetching users:", error);
+    return Response.json(
+      {
+        success: false,
+        error: "Failed to connect to server",
+      },
+      { status: 500 },
+    );
   }
 }

@@ -17,6 +17,7 @@ export default [
     route("announcements/create", "routes/admin/announcements.create.tsx"),
     route("announcements/:id/edit", "routes/admin/announcements.$id.edit.tsx"),
     route("gen", "routes/admin/gen.tsx"),
+    route("users", "routes/admin/users.tsx"),
   ]),
 
   // API routes
@@ -40,6 +41,9 @@ export default [
     "api/admin/announcements/update",
     "routes/api.admin.announcements.update.ts",
   ),
+  route("api/admin/users", "routes/api.admin.users.ts"),
+  route("api/admin/users/:id", "routes/api.admin.users.$id.ts"),
+  route("api/users/profile", "routes/api.users.profile.ts"),
 
   // 404 catch-all
   route("*", "routes/404.tsx"),

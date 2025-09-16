@@ -12,28 +12,8 @@ export interface IUsersListData {
 export interface Recommendations {
   quizId: string;
   quizName: string;
-  cluster: string;
   rating: number;
   canvasUrl: string;
-}
-
-export interface Clusters {
-  ART: number | null;
-  BUSINESS: number | null;
-  COMMUNICATION: number | null;
-  CRIME: number | null;
-  ECONOMY: number | null;
-  EDUCATION: number | null;
-  ENVIRONMENT: number | null;
-  "FAMILY AND CHILDREN": number | null;
-  FOOD: number | null;
-  HEALTH: number | null;
-  LANGUAGE: number | null;
-  MEDIA: number | null;
-  READING: number | null;
-  TECHNOLOGY: number | null;
-  TRANSPORT: number | null;
-  TRAVEL: number | null;
 }
 
 export interface Course {
@@ -46,7 +26,7 @@ export interface Course {
     rating: number;
   }[];
   recommendations?: Recommendations[];
-  clusters: Clusters;
+  clusters: Record<string, any>; // Simplified for compatibility
 }
 
 export interface IUserData {

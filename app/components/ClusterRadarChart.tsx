@@ -8,10 +8,9 @@ import {
   Tooltip,
 } from "recharts";
 import { getRatingClass } from "~/lib/rating";
-import type { Clusters } from "~/lib/server-actions/users";
 
 interface ClusterRadarChartProps {
-  clusters: Clusters;
+  clusters: Record<string, any>; // Simplified clusters structure
   userName: string;
 }
 
