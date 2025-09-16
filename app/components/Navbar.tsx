@@ -241,14 +241,13 @@ export function Navbar() {
                       <NavigationMenuLink asChild>
                         <a
                           className="flex h-full w-full flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none select-none focus:shadow-md"
-                          href="/about"
+                          href="https://github.com/vuthanhtrung2010"
                         >
                           <div className="mt-4 mb-2 text-lg font-bold">
-                            About HSGS
+                            About this project
                           </div>
                           <p className="text-muted-foreground text-sm leading-tight">
-                            This is a hackathon project, not done yeet, sad.
-                            😭😭😭
+                            This is a creative project. Idk what to say here.
                           </p>
                         </a>
                       </NavigationMenuLink>
@@ -263,7 +262,7 @@ export function Navbar() {
                       Source code and contributions.
                     </ListItem>
                     <ListItem
-                      href="/status"
+                      href="https://status.trunghsgs.edu.vn"
                       title="Status"
                       icon={<ActivityIcon size={16} />}
                     >

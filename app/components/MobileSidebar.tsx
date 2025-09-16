@@ -47,7 +47,7 @@ const navigationItems = [
 const aboutItems = [
   {
     title: "Status",
-    url: "/status",
+    url: "https://status.trunghsgs.edu.vn",
     icon: ActivityIcon,
     description: "System status and uptime",
   },
