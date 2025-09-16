@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { jetBrainsMono } from '../lib/fonts';
+import { jetBrainsMono } from "../lib/fonts";
 
-import { ResizablePanel } from '../../resizable';
-import { Textarea } from '../../textarea';
+import { ResizablePanel } from "../../resizable";
+import { Textarea } from "../../textarea";
 
-import { useMarkdown } from '../context/MarkdownContext';
+import { useMarkdown } from "../context/MarkdownContext";
 
 export interface WindowWithEditorScrollSync extends Window {
   editorScrollSyncMobile?: (scrollPercentage: number) => void;
@@ -14,8 +14,13 @@ export interface WindowWithEditorScrollSync extends Window {
 }
 
 export default function MarkdownEditor() {
-  const { markdown, setMarkdown, replaceLatexDelimiters, setSelectedText, insertMarkdown } =
-    useMarkdown();
+  const {
+    markdown,
+    setMarkdown,
+    replaceLatexDelimiters,
+    setSelectedText,
+    insertMarkdown,
+  } = useMarkdown();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [localContent, setLocalContent] = useState(markdown);
@@ -34,7 +39,7 @@ export default function MarkdownEditor() {
         setMarkdown(replaceLatexDelimiters(value));
       }, 50); // 50ms debounce for better responsiveness
     },
-    [setMarkdown, replaceLatexDelimiters]
+    [setMarkdown, replaceLatexDelimiters],
   );
 
   // Handle content change with local state for immediate UI update
@@ -66,13 +71,16 @@ export default function MarkdownEditor() {
 
     // Use requestAnimationFrame for smooth scrolling
     requestAnimationFrame(() => {
-      const previewElement = document.getElementById('markdown-preview-content');
+      const previewElement = document.getElementById(
+        "markdown-preview-content",
+      );
       if (previewElement) {
-        const previewMaxScroll = previewElement.scrollHeight - previewElement.clientHeight;
+        const previewMaxScroll =
+          previewElement.scrollHeight - previewElement.clientHeight;
         if (previewMaxScroll > 0) {
           previewElement.scrollTo({
             top: previewMaxScroll * scrollPercentage,
-            behavior: 'instant', // Use instant to prevent jarring
+            behavior: "instant", // Use instant to prevent jarring
           });
         }
       }
@@ -92,7 +100,7 @@ export default function MarkdownEditor() {
         const targetScrollTop = maxScroll * scrollPercentage;
         textarea.scrollTo({
           top: targetScrollTop,
-          behavior: 'instant',
+          behavior: "instant",
         });
       }
 
@@ -103,7 +111,8 @@ export default function MarkdownEditor() {
     };
 
     // Store the function reference for cleanup
-    (window as WindowWithEditorScrollSync).editorScrollSync = handlePreviewScroll;
+    (window as WindowWithEditorScrollSync).editorScrollSync =
+      handlePreviewScroll;
 
     return () => {
       delete (window as WindowWithEditorScrollSync).editorScrollSync;
@@ -133,38 +142,39 @@ export default function MarkdownEditor() {
       setSelectedText(selectedContent);
     } else {
       // No selection - clear active formats
-      setSelectedText('');
+      setSelectedText("");
     }
   }; // Handle tab key to insert spaces instead of switching focus
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Handle keyboard shortcuts
     if (e.ctrlKey || e.metaKey) {
       switch (e.key.toLowerCase()) {
-        case 'b':
+        case "b":
           e.preventDefault();
-          insertMarkdown('bold');
+          insertMarkdown("bold");
           return;
-        case 'i':
+        case "i":
           e.preventDefault();
-          insertMarkdown('italic');
+          insertMarkdown("italic");
           return;
-        case 'u':
+        case "u":
           e.preventDefault();
-          insertMarkdown('underline');
+          insertMarkdown("underline");
           return;
       }
     }
 
-    if (e.key === 'Tab') {
+    if (e.key === "Tab") {
       e.preventDefault(); // Prevent default tab behavior (focus switching)
 
       const textarea = e.currentTarget;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
-      const spaces = '    '; // 4 spaces for tab
+      const spaces = "    "; // 4 spaces for tab
 
       // Insert spaces at cursor position or replace selection
-      const newValue = localContent.substring(0, start) + spaces + localContent.substring(end);
+      const newValue =
+        localContent.substring(0, start) + spaces + localContent.substring(end);
       setLocalContent(newValue);
       debouncedSetMarkdown(newValue);
 
@@ -176,7 +186,11 @@ export default function MarkdownEditor() {
   };
 
   return (
-    <ResizablePanel defaultSize={50} minSize={30} className="lg:min-h-0 min-h-[45vh]">
+    <ResizablePanel
+      defaultSize={50}
+      minSize={30}
+      className="lg:min-h-0 min-h-[45vh]"
+    >
       <div className="h-full w-full flex flex-col">
         <Textarea
           ref={textareaRef}
@@ -189,8 +203,8 @@ export default function MarkdownEditor() {
           placeholder="Enter your markdown here..."
           style={{
             minHeight: 0,
-            height: '100%',
-            WebkitTapHighlightColor: 'transparent',
+            height: "100%",
+            WebkitTapHighlightColor: "transparent",
           }}
         />
       </div>

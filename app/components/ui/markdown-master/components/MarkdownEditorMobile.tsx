@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { ResizablePanel } from '~/components/ui/resizable';
-import { Textarea } from '~/components/ui/textarea';
+import { ResizablePanel } from "~/components/ui/resizable";
+import { Textarea } from "~/components/ui/textarea";
 
-import { useMarkdown } from '../context/MarkdownContext';
-import { type WindowWithEditorScrollSync } from './MarkdownEditor';
+import { useMarkdown } from "../context/MarkdownContext";
+import { type WindowWithEditorScrollSync } from "./MarkdownEditor";
 
 export default function MarkdownEditorMobile() {
-  const { markdown, setMarkdown, replaceLatexDelimiters, setSelectedText } = useMarkdown();
+  const { markdown, setMarkdown, replaceLatexDelimiters, setSelectedText } =
+    useMarkdown();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [localContent, setLocalContent] = useState(markdown);
@@ -26,7 +27,7 @@ export default function MarkdownEditorMobile() {
         setMarkdown(replaceLatexDelimiters(value));
       }, 150); // 150ms debounce
     },
-    [setMarkdown, replaceLatexDelimiters]
+    [setMarkdown, replaceLatexDelimiters],
   );
 
   // Handle content change with local state for immediate UI update
@@ -58,13 +59,16 @@ export default function MarkdownEditorMobile() {
 
     // Use requestAnimationFrame for smooth scrolling
     requestAnimationFrame(() => {
-      const previewElement = document.getElementById('markdown-preview-content-mobile');
+      const previewElement = document.getElementById(
+        "markdown-preview-content-mobile",
+      );
       if (previewElement) {
-        const previewMaxScroll = previewElement.scrollHeight - previewElement.clientHeight;
+        const previewMaxScroll =
+          previewElement.scrollHeight - previewElement.clientHeight;
         if (previewMaxScroll > 0) {
           previewElement.scrollTo({
             top: previewMaxScroll * scrollPercentage,
-            behavior: 'instant', // Use instant to prevent jarring
+            behavior: "instant", // Use instant to prevent jarring
           });
         }
       }
@@ -84,7 +88,7 @@ export default function MarkdownEditorMobile() {
         const targetScrollTop = maxScroll * scrollPercentage;
         textarea.scrollTo({
           top: targetScrollTop,
-          behavior: 'instant',
+          behavior: "instant",
         });
       }
 
@@ -95,7 +99,8 @@ export default function MarkdownEditorMobile() {
     };
 
     // Store the function reference for cleanup
-    (window as WindowWithEditorScrollSync).editorScrollSyncMobile = handlePreviewScroll;
+    (window as WindowWithEditorScrollSync).editorScrollSyncMobile =
+      handlePreviewScroll;
 
     return () => {
       delete (window as WindowWithEditorScrollSync).editorScrollSyncMobile;
@@ -138,8 +143,8 @@ export default function MarkdownEditorMobile() {
           placeholder="Enter your markdown here..."
           style={{
             minHeight: 0,
-            height: '100%',
-            WebkitTapHighlightColor: 'transparent',
+            height: "100%",
+            WebkitTapHighlightColor: "transparent",
           }}
         />
       </div>

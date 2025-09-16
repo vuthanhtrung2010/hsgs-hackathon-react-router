@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import styles from '~/ProblemPage.module.css';
-import { processMarkdownToHtml } from '~/lib/markdown-processor';
-import 'katex/dist/katex.min.css';
+import styles from "~/ProblemPage.module.css";
+import { processMarkdownToHtml } from "~/lib/markdown-processor";
+import "katex/dist/katex.min.css";
 
-import { ResizablePanel } from '~/components/ui/resizable';
+import { ResizablePanel } from "~/components/ui/resizable";
 
-import { useMarkdown } from '../context/MarkdownContext';
+import { useMarkdown } from "../context/MarkdownContext";
 
 // Add at the top, after imports
 declare global {
@@ -21,7 +21,7 @@ export default function MarkdownPreviewMobile() {
   const previewRef = useRef<HTMLDivElement>(null);
   const isScrollingSelf = useRef<boolean>(false);
   const lastScrollTop = useRef<number>(0);
-  const [rendered, setRendered] = useState<string>('');
+  const [rendered, setRendered] = useState<string>("");
 
   // Handle synchronized scrolling with smooth animation
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
@@ -59,7 +59,7 @@ export default function MarkdownPreviewMobile() {
         const targetScrollTop = maxScroll * scrollPercentage;
         container.scrollTo({
           top: targetScrollTop,
-          behavior: 'instant',
+          behavior: "instant",
         });
       }
 
@@ -82,10 +82,10 @@ export default function MarkdownPreviewMobile() {
     let cancelled = false;
     async function renderMarkdown() {
       try {
-        const rendered = await processMarkdownToHtml(markdown ?? '');
+        const rendered = await processMarkdownToHtml(markdown ?? "");
         if (!cancelled) setRendered(rendered);
       } catch {
-        if (!cancelled) setRendered('<p>Failed to render markdown</p>');
+        if (!cancelled) setRendered("<p>Failed to render markdown</p>");
       }
     }
     renderMarkdown();
@@ -102,7 +102,7 @@ export default function MarkdownPreviewMobile() {
           id="markdown-preview-content-mobile"
           className="flex-1 h-full overflow-auto custom-scrollbar p-3 sm:p-4 touch-manipulation"
           onScroll={handleScroll}
-          style={{ WebkitTapHighlightColor: 'transparent' }}
+          style={{ WebkitTapHighlightColor: "transparent" }}
         >
           <div
             className={`markdown-body max-w-none prose prose-sm ${styles.problemProse} content-description`}

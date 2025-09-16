@@ -3,7 +3,12 @@ import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 export async function loader({ params }: LoaderFunctionArgs) {
   try {
     const response = await fetch(
-      new URL(`/api/admin/classes/${params.id}`, process.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(),
+      new URL(
+        `/api/admin/classes/${params.id}`,
+        process.env.VITE_API_BASE_URL ||
+          import.meta.env.VITE_API_BASE_URL ||
+          "http://localhost:3001",
+      ).toString(),
       {
         method: "GET",
         headers: {
@@ -29,7 +34,12 @@ export async function action({ params, request }: ActionFunctionArgs) {
       const body = await request.json();
 
       const response = await fetch(
-        new URL(`/api/admin/classes/${params.id}`, process.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(),
+        new URL(
+          `/api/admin/classes/${params.id}`,
+          process.env.VITE_API_BASE_URL ||
+            import.meta.env.VITE_API_BASE_URL ||
+            "http://localhost:3001",
+        ).toString(),
         {
           method: "PUT",
           headers: {

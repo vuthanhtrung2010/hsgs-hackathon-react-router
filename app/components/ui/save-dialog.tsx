@@ -1,4 +1,4 @@
-import { Button } from '~/components/ui/button';
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,12 +6,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '~/components/ui/dialog';
+} from "~/components/ui/dialog";
 
 export interface SaveDialogContent {
   title: string;
   description: string;
-  type: 'success' | 'error' | 'confirm';
+  type: "success" | "error" | "confirm";
   onConfirm?: () => void;
   confirmText?: string;
 }
@@ -33,7 +33,7 @@ export function SaveDialog({ open, onOpenChange, content }: SaveDialogProps) {
           <DialogDescription>{content.description}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-4">
-          {content.type === 'confirm' ? (
+          {content.type === "confirm" ? (
             <>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
@@ -44,7 +44,7 @@ export function SaveDialog({ open, onOpenChange, content }: SaveDialogProps) {
                   onOpenChange(false);
                 }}
               >
-                {content.confirmText || 'Confirm'}
+                {content.confirmText || "Confirm"}
               </Button>
             </>
           ) : (

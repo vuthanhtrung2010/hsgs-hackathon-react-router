@@ -178,7 +178,7 @@ img.uml-diagram {
     background-color: var(--wiki-code-bg, #eef2ff);
     padding: 0 5px;
     color: var(--wiki-code-fg, #23395b);
-    font-family: 'Roboto Mono', monospace;
+    font-family: "Roboto Mono", monospace;
     font-weight: normal;
     font-size: 1rem;
     box-shadow: none;
@@ -275,7 +275,7 @@ img.uml-diagram {
   ul:not(.tabset-tabs):not(.contains-task-list) > li::before {
     position: absolute;
     left: -1.8rem; /* same gutter as ordered numbers */
-    content: '\25b8';
+    content: "\25b8";
     color: var(--muted-foreground, #6b7280);
     width: 1.35rem;
     display: inline-block;
@@ -285,10 +285,13 @@ img.uml-diagram {
   }
 
   /* RTL: flip the marker to the right side and use a mirrored glyph */
-  .is-rtl .content-description ul:not(.tabset-tabs):not(.contains-task-list) > li::before {
+  .is-rtl
+    .content-description
+    ul:not(.tabset-tabs):not(.contains-task-list)
+    > li::before {
     right: -1.8rem;
     left: auto;
-    content: '\25C3';
+    content: "\25C3";
   }
 
   /* ---------- Task lists (checkboxes) ---------- */
@@ -305,8 +308,8 @@ img.uml-diagram {
     margin: 0.125rem 0; /* slightly tighter than default list items */
     padding: 0; /* rely on li padding above */
   }
-  .contains-task-list input[type='checkbox'],
-  .task-list input[type='checkbox'] {
+  .contains-task-list input[type="checkbox"],
+  .task-list input[type="checkbox"] {
     margin-top: 0.15rem;
   }
 

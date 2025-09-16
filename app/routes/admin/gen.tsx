@@ -13,7 +13,13 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { Badge } from "~/components/ui/badge";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import type { Route } from "./+types/gen";
@@ -22,13 +28,10 @@ const DIFFICULTY_LEVELS = [
   "Nhận biết",
   "Thông hiểu",
   "Vận dụng",
-  "Vận dụng cao"
+  "Vận dụng cao",
 ];
 
-const QUESTION_TYPES = [
-  "Multiple choice",
-  "Short answer"
-];
+const QUESTION_TYPES = ["Multiple choice", "Short answer"];
 
 interface MathQuestion {
   id: string;
@@ -48,7 +51,9 @@ export async function loader({}: Route.LoaderArgs): Promise<{
       import.meta.env.VITE_API_BASE_URL ||
       "https://api.example.com";
 
-    const coursesResponse = await fetch(new URL("/api/courses", baseUrl).toString());
+    const coursesResponse = await fetch(
+      new URL("/api/courses", baseUrl).toString(),
+    );
     const courses = coursesResponse.ok
       ? ((await coursesResponse.json()) as any[])
       : [];
@@ -72,13 +77,15 @@ export default function MathGeneration() {
 
   // Manual question creation
   const [questions, setQuestions] = useState<MathQuestion[]>([]);
-  const [currentQuestion, setCurrentQuestion] = useState<Partial<MathQuestion>>({
-    topic: "",
-    grade: 11,
-    difficulty: DIFFICULTY_LEVELS[0],
-    question: QUESTION_TYPES[0],
-    n: 10,
-  });
+  const [currentQuestion, setCurrentQuestion] = useState<Partial<MathQuestion>>(
+    {
+      topic: "",
+      grade: 11,
+      difficulty: DIFFICULTY_LEVELS[0],
+      question: QUESTION_TYPES[0],
+      n: 10,
+    },
+  );
 
   useEffect(() => {
     if (courses.length > 0 && !selectedCourseId) {
@@ -89,7 +96,7 @@ export default function MathGeneration() {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (!file.name.endsWith('.csv')) {
+      if (!file.name.endsWith(".csv")) {
         setError("Please select a CSV file");
         return;
       }
@@ -134,9 +141,9 @@ export default function MathGeneration() {
       // Handle file download
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = 'response.txt';
+      a.download = "response.txt";
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(downloadUrl);
@@ -151,7 +158,13 @@ export default function MathGeneration() {
   };
 
   const addQuestion = () => {
-    if (!currentQuestion.topic || !currentQuestion.grade || !currentQuestion.difficulty || !currentQuestion.question || !currentQuestion.n) {
+    if (
+      !currentQuestion.topic ||
+      !currentQuestion.grade ||
+      !currentQuestion.difficulty ||
+      !currentQuestion.question ||
+      !currentQuestion.n
+    ) {
       setError("Please fill in all fields");
       return;
     }
@@ -177,7 +190,7 @@ export default function MathGeneration() {
   };
 
   const removeQuestion = (id: string) => {
-    setQuestions(questions.filter(q => q.id !== id));
+    setQuestions(questions.filter((q) => q.id !== id));
   };
 
   const generateFromManual = async () => {
@@ -192,11 +205,19 @@ export default function MathGeneration() {
 
     try {
       // Create CSV content from manual questions
-      const csvContent = "topic,grade,difficulty,question,n\n" +
-        questions.map(q => `"${q.topic}",${q.grade},"${q.difficulty}","${q.question}",${q.n}`).join("\n");
+      const csvContent =
+        "topic,grade,difficulty,question,n\n" +
+        questions
+          .map(
+            (q) =>
+              `"${q.topic}",${q.grade},"${q.difficulty}","${q.question}",${q.n}`,
+          )
+          .join("\n");
 
-      const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-      const csvFile = new File([csvBlob], 'manual_questions.csv', { type: 'text/csv' });
+      const csvBlob = new Blob([csvContent], { type: "text/csv" });
+      const csvFile = new File([csvBlob], "manual_questions.csv", {
+        type: "text/csv",
+      });
 
       const genApiUrl =
         process.env.VITE_GEN_API_BASE_URL ||
@@ -223,9 +244,9 @@ export default function MathGeneration() {
       // Handle file download
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = 'response.txt';
+      a.download = "response.txt";
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(downloadUrl);
@@ -260,7 +281,9 @@ export default function MathGeneration() {
 
       {success && (
         <Alert className="mb-6 border-green-200 bg-green-50">
-          <AlertDescription className="text-green-800">{success}</AlertDescription>
+          <AlertDescription className="text-green-800">
+            {success}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -276,7 +299,10 @@ export default function MathGeneration() {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="course-select">Course</Label>
-              <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+              <Select
+                value={selectedCourseId}
+                onValueChange={setSelectedCourseId}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a course" />
                 </SelectTrigger>
@@ -332,7 +358,10 @@ export default function MathGeneration() {
             >
               {isGenerating ? (
                 <>
-                  <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    className="animate-spin mr-2"
+                  />
                   Generating...
                 </>
               ) : (
@@ -360,7 +389,12 @@ export default function MathGeneration() {
                 <Input
                   id="topic"
                   value={currentQuestion.topic || ""}
-                  onChange={(e) => setCurrentQuestion({...currentQuestion, topic: e.target.value})}
+                  onChange={(e) =>
+                    setCurrentQuestion({
+                      ...currentQuestion,
+                      topic: e.target.value,
+                    })
+                  }
                   placeholder="Enter topic"
                 />
               </div>
@@ -371,7 +405,12 @@ export default function MathGeneration() {
                   id="manual-grade"
                   type="number"
                   value={currentQuestion.grade || 11}
-                  onChange={(e) => setCurrentQuestion({...currentQuestion, grade: parseInt(e.target.value) || 11})}
+                  onChange={(e) =>
+                    setCurrentQuestion({
+                      ...currentQuestion,
+                      grade: parseInt(e.target.value) || 11,
+                    })
+                  }
                   min="1"
                   max="12"
                 />
@@ -383,7 +422,12 @@ export default function MathGeneration() {
                 <Label htmlFor="difficulty">Difficulty</Label>
                 <Select
                   value={currentQuestion.difficulty}
-                  onValueChange={(value) => setCurrentQuestion({...currentQuestion, difficulty: value})}
+                  onValueChange={(value) =>
+                    setCurrentQuestion({
+                      ...currentQuestion,
+                      difficulty: value,
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -402,7 +446,9 @@ export default function MathGeneration() {
                 <Label htmlFor="question-type">Question Type</Label>
                 <Select
                   value={currentQuestion.question}
-                  onValueChange={(value) => setCurrentQuestion({...currentQuestion, question: value})}
+                  onValueChange={(value) =>
+                    setCurrentQuestion({ ...currentQuestion, question: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -424,7 +470,12 @@ export default function MathGeneration() {
                 id="count"
                 type="number"
                 value={currentQuestion.n || 10}
-                onChange={(e) => setCurrentQuestion({...currentQuestion, n: parseInt(e.target.value) || 10})}
+                onChange={(e) =>
+                  setCurrentQuestion({
+                    ...currentQuestion,
+                    n: parseInt(e.target.value) || 10,
+                  })
+                }
                 min="1"
               />
             </div>
@@ -446,11 +497,15 @@ export default function MathGeneration() {
           <CardContent>
             <div className="space-y-2">
               {questions.map((question) => (
-                <div key={question.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={question.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="flex-1">
                     <div className="font-medium">{question.topic}</div>
                     <div className="text-sm text-muted-foreground">
-                      Grade {question.grade} • {question.difficulty} • {question.question} • {question.n} questions
+                      Grade {question.grade} • {question.difficulty} •{" "}
+                      {question.question} • {question.n} questions
                     </div>
                   </div>
                   <Button
@@ -468,12 +523,17 @@ export default function MathGeneration() {
             <div className="mt-4 flex gap-4">
               <Button
                 onClick={generateFromManual}
-                disabled={questions.length === 0 || !selectedCourseId || isGenerating}
+                disabled={
+                  questions.length === 0 || !selectedCourseId || isGenerating
+                }
                 className="flex-1"
               >
                 {isGenerating ? (
                   <>
-                    <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />
+                    <FontAwesomeIcon
+                      icon={faSpinner}
+                      className="animate-spin mr-2"
+                    />
                     Generating...
                   </>
                 ) : (
@@ -506,10 +566,14 @@ export default function MathGeneration() {
             Your CSV file must contain these columns:
           </p>
           <div className="bg-muted p-3 rounded-lg font-mono text-sm">
-            topic,grade,difficulty,question,n<br />
-            "Giới hạn dãy số - Hàm số",11,"Nhận biết","Multiple choice",20<br />
-            "Giới hạn dãy số - Hàm số",11,"Thông hiểu","Multiple choice",10<br />
-            "Giới hạn dãy số - Hàm số",11,"Vận dụng","Short answer",10<br />
+            topic,grade,difficulty,question,n
+            <br />
+            "Giới hạn dãy số - Hàm số",11,"Nhận biết","Multiple choice",20
+            <br />
+            "Giới hạn dãy số - Hàm số",11,"Thông hiểu","Multiple choice",10
+            <br />
+            "Giới hạn dãy số - Hàm số",11,"Vận dụng","Short answer",10
+            <br />
             "Giới hạn dãy số - Hàm số",11,"Vận dụng cao","Short answer",10
           </div>
           <div className="mt-3 space-y-2">

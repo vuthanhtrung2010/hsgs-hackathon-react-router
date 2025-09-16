@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-import { useSave } from '~/hooks/use-save';
-import { CopyIcon, SaveIcon, TrashIcon } from 'lucide-react';
+import { useSave } from "~/hooks/use-save";
+import { CopyIcon, SaveIcon, TrashIcon } from "lucide-react";
 
-import { Button } from '~/components/ui/button';
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,11 +12,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '~/components/ui/dialog';
-import { SaveDialog } from '~/components/ui/save-dialog';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
+} from "~/components/ui/dialog";
+import { SaveDialog } from "~/components/ui/save-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
-import { useMarkdown } from '../context/MarkdownContext';
+import { useMarkdown } from "../context/MarkdownContext";
 
 interface SaveData {
   [key: string]: string;
@@ -36,7 +41,8 @@ export default function ActionButtons() {
     showTitle,
   } = useMarkdown();
 
-  const { save, isLoading, dialogOpen, setDialogOpen, dialogContent } = useSave<SaveData>();
+  const { save, isLoading, dialogOpen, setDialogOpen, dialogContent } =
+    useSave<SaveData>();
 
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
@@ -51,14 +57,14 @@ export default function ActionButtons() {
     if (!hasUnsavedChanges) return false;
 
     // Build payload using the configured key
-    const payloadKey = saveConfig.payloadKey || 'description';
+    const payloadKey = saveConfig.payloadKey || "description";
     const payload: SaveData = { [payloadKey]: markdown };
 
     const success = await save(payload, {
       endpoint: saveConfig.endpoint,
-      method: saveConfig.method || 'PUT',
+      method: saveConfig.method || "PUT",
       headers: {
-        Authorization: sessionToken ? `Bearer ${sessionToken}` : '',
+        Authorization: sessionToken ? `Bearer ${sessionToken}` : "",
         ...saveConfig.headers,
       },
       onSuccess: saveConfig.onSuccess,
@@ -88,7 +94,7 @@ export default function ActionButtons() {
   // Keyboard shortcut for save (Ctrl+S / Cmd+S)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+      if ((event.ctrlKey || event.metaKey) && event.key === "s") {
         event.preventDefault(); // Prevent browser's default save behavior
         // Only save if not already loading (same as button behavior)
         if (!isLoading) {
@@ -97,9 +103,9 @@ export default function ActionButtons() {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleSave, isLoading]);
 
@@ -126,7 +132,7 @@ export default function ActionButtons() {
                   disabled={isLoading}
                 >
                   <SaveIcon className="w-4 h-4 mr-2" />
-                  Save{hasUnsavedChanges && '*'}
+                  Save{hasUnsavedChanges && "*"}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -157,7 +163,10 @@ export default function ActionButtons() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Dialog open={clearDialogOpen} onOpenChange={setClearDialogOpen}>
+                <Dialog
+                  open={clearDialogOpen}
+                  onOpenChange={setClearDialogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
@@ -172,15 +181,21 @@ export default function ActionButtons() {
                     <DialogHeader>
                       <DialogTitle>Clear Document</DialogTitle>
                       <DialogDescription>
-                        Are you sure you want to clear the current document? This action cannot be
-                        undone.
+                        Are you sure you want to clear the current document?
+                        This action cannot be undone.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="mt-4">
-                      <Button variant="outline" onClick={() => setClearDialogOpen(false)}>
+                      <Button
+                        variant="outline"
+                        onClick={() => setClearDialogOpen(false)}
+                      >
                         Cancel
                       </Button>
-                      <Button variant="destructive" onClick={handleClearDocument}>
+                      <Button
+                        variant="destructive"
+                        onClick={handleClearDocument}
+                      >
                         Clear Document
                       </Button>
                     </DialogFooter>
@@ -206,14 +221,20 @@ export default function ActionButtons() {
       </div>
 
       {/* Save Dialog */}
-      <SaveDialog open={dialogOpen} onOpenChange={setDialogOpen} content={dialogContent} />
+      <SaveDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        content={dialogContent}
+      />
 
       {/* Copy Success Dialog */}
       <Dialog open={copyDialogOpen} onOpenChange={setCopyDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Copied</DialogTitle>
-            <DialogDescription>Problem description copied to clipboard.</DialogDescription>
+            <DialogDescription>
+              Problem description copied to clipboard.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setCopyDialogOpen(false)}>

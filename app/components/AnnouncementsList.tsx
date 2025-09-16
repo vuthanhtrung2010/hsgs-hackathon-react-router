@@ -17,8 +17,8 @@ export function AnnouncementsList() {
         const data = await getAnnouncements();
         setAnnouncements(data);
       } catch (err) {
-        setError('Failed to load announcements');
-        console.error('Error fetching announcements:', err);
+        setError("Failed to load announcements");
+        console.error("Error fetching announcements:", err);
       } finally {
         setLoading(false);
       }
@@ -54,10 +54,7 @@ export function AnnouncementsList() {
   return (
     <div className="space-y-6">
       {announcements.map((announcement) => (
-        <AnnouncementCard
-          key={announcement.id}
-          announcement={announcement}
-        />
+        <AnnouncementCard key={announcement.id} announcement={announcement} />
       ))}
     </div>
   );

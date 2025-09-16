@@ -11,17 +11,23 @@ interface AnnouncementCardProps {
   onClick?: () => void;
 }
 
-export function AnnouncementCard({ announcement, onClick }: AnnouncementCardProps) {
-  const [renderedContent, setRenderedContent] = useState<string>('');
+export function AnnouncementCard({
+  announcement,
+  onClick,
+}: AnnouncementCardProps) {
+  const [renderedContent, setRenderedContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
-  const createdDate = new Date(announcement.createdAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  const createdDate = new Date(announcement.createdAt).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    },
+  );
 
   useEffect(() => {
     const processMarkdown = async () => {
@@ -29,8 +35,8 @@ export function AnnouncementCard({ announcement, onClick }: AnnouncementCardProp
         const html = await renderMarkdown(announcement.content);
         setRenderedContent(html);
       } catch (error) {
-        console.error('Error rendering markdown:', error);
-        setRenderedContent('<p>Failed to render content</p>');
+        console.error("Error rendering markdown:", error);
+        setRenderedContent("<p>Failed to render content</p>");
       } finally {
         setIsLoading(false);
       }
@@ -40,7 +46,7 @@ export function AnnouncementCard({ announcement, onClick }: AnnouncementCardProp
   }, [announcement.content]);
 
   return (
-    <Card 
+    <Card
       className="transition-all border-l-4 border-l-blue-500 mb-6"
       onClick={onClick}
     >
@@ -62,9 +68,7 @@ export function AnnouncementCard({ announcement, onClick }: AnnouncementCardProp
           </div>
         ) : announcement.content ? (
           <div className={`${styles.problemProse} prose content-description`}>
-            <div 
-              dangerouslySetInnerHTML={{ __html: renderedContent }}
-            />
+            <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
           </div>
         ) : (
           <p className="text-muted-foreground italic">No content</p>

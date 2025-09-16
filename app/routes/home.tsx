@@ -33,7 +33,8 @@ export default function Home() {
             />
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Stay updated with the latest announcements and important information for the hackathon.
+            Stay updated with the latest announcements and important information
+            for the hackathon.
           </p>
         </div>
       </div>
@@ -42,9 +43,11 @@ export default function Home() {
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">📢 Announcements</h2>
-          <p className="text-muted-foreground">Latest updates and important information</p>
+          <p className="text-muted-foreground">
+            Latest updates and important information
+          </p>
         </div>
-        
+
         <AnnouncementsList />
       </div>
     </div>

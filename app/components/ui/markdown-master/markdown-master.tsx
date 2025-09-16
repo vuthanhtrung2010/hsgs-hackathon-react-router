@@ -1,16 +1,16 @@
-import { ResizableHandle, ResizablePanelGroup } from '../resizable';
+import { ResizableHandle, ResizablePanelGroup } from "../resizable";
 
-import ActionButtons from './components/ActionButtons';
-import FormatToolbar from './components/FormatToolbar';
-import MarkdownEditor from './components/MarkdownEditor';
-import MarkdownEditorMobile from './components/MarkdownEditorMobile';
-import MarkdownPreview from './components/MarkdownPreview';
-import MarkdownPreviewMobile from './components/MarkdownPreviewMobile';
-import { MarkdownProvider } from './context/MarkdownContext';
+import ActionButtons from "./components/ActionButtons";
+import FormatToolbar from "./components/FormatToolbar";
+import MarkdownEditor from "./components/MarkdownEditor";
+import MarkdownEditorMobile from "./components/MarkdownEditorMobile";
+import MarkdownPreview from "./components/MarkdownPreview";
+import MarkdownPreviewMobile from "./components/MarkdownPreviewMobile";
+import { MarkdownProvider } from "./context/MarkdownContext";
 
 export interface SaveConfiguration {
   endpoint: string;
-  method?: 'PUT' | 'POST' | 'PATCH';
+  method?: "PUT" | "POST" | "PATCH";
   payloadKey?: string; // Key to use for the content in the payload (default: "description")
   headers?: Record<string, string>;
   onSuccess?: {
@@ -49,7 +49,7 @@ export default function MarkdownMaster({
   initialContent,
   saveConfig,
   sessionToken,
-  placeholder = 'Start writing your content...',
+  placeholder = "Start writing your content...",
   showTitle = true,
 }: IMarkdownMasterProps) {
   return (
@@ -85,7 +85,10 @@ export default function MarkdownMaster({
         <div className="flex-1 w-full px-2 sm:px-3 lg:px-4 pb-0 min-h-0 overflow-hidden">
           {/* Desktop layout with resizable panels */}
           <div className="hidden lg:flex w-full h-full">
-            <ResizablePanelGroup direction="horizontal" className="w-full h-full rounded-lg border">
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="w-full h-full rounded-lg border"
+            >
               <MarkdownEditor />
               <ResizableHandle />
               <MarkdownPreview />
@@ -94,7 +97,10 @@ export default function MarkdownMaster({
 
           {/* Mobile layout with vertical resizable panels */}
           <div className="flex lg:hidden w-full h-full">
-            <ResizablePanelGroup direction="vertical" className="w-full h-full rounded-lg border">
+            <ResizablePanelGroup
+              direction="vertical"
+              className="w-full h-full rounded-lg border"
+            >
               <MarkdownEditorMobile />
               <ResizableHandle withHandle />
               <MarkdownPreviewMobile />

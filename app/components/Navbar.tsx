@@ -72,25 +72,29 @@ export function Navbar() {
     const containerRect = container.getBoundingClientRect();
     const rect = el.getBoundingClientRect();
     // account for horizontal scroll inside the container
-    const left = Math.round(rect.left - containerRect.left + container.scrollLeft);
+    const left = Math.round(
+      rect.left - containerRect.left + container.scrollLeft,
+    );
     const width = Math.round(rect.width);
     setIndicator({ left, width, opacity: 1 });
   };
 
   const computeActiveLink = () => {
     if (!navListRef.current) return null;
-    const links = Array.from(navListRef.current.querySelectorAll<HTMLElement>('[data-nav]'));
+    const links = Array.from(
+      navListRef.current.querySelectorAll<HTMLElement>("[data-nav]"),
+    );
     if (links.length === 0) return null;
 
     // pick the best matching href (longest prefix match)
     // special-case root ('/') so it only matches exactly
     let best: { el: HTMLElement | null; len: number } = { el: null, len: 0 };
     links.forEach((el) => {
-      const href = el.getAttribute('data-href') || '';
+      const href = el.getAttribute("data-href") || "";
       if (!href) return;
-      if (href === '/') {
+      if (href === "/") {
         // only match root exactly
-        if (pathname === '/') {
+        if (pathname === "/") {
           if (href.length > best.len) best = { el, len: href.length };
         }
       } else {
@@ -103,30 +107,36 @@ export function Navbar() {
     // fallback: if we have a link with href exactly matching pathname
     // otherwise return null (don't default to the first link) so we don't
     // highlight Home on unrelated routes like /accounts/security
-    return links.find((el) => el.getAttribute('data-href') === pathname) || null;
+    return (
+      links.find((el) => el.getAttribute("data-href") === pathname) || null
+    );
   };
 
   React.useLayoutEffect(() => {
     // update on path change
     const active = computeActiveLink();
     // use rAF to avoid layout thrashing
-    const raf = requestAnimationFrame(() => updateIndicator(active as HTMLElement | null));
+    const raf = requestAnimationFrame(() =>
+      updateIndicator(active as HTMLElement | null),
+    );
 
     // update on resize
     const onResize = () => {
       const active2 = computeActiveLink();
-      requestAnimationFrame(() => updateIndicator(active2 as HTMLElement | null));
+      requestAnimationFrame(() =>
+        updateIndicator(active2 as HTMLElement | null),
+      );
     };
-    window.addEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
     return () => {
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener("resize", onResize);
       cancelAnimationFrame(raf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const getGravatarURL = (email: string) => {
-    const hash = btoa(email.toLowerCase().trim()).replace(/[^a-z0-9]/g, '');
+    const hash = btoa(email.toLowerCase().trim()).replace(/[^a-z0-9]/g, "");
     return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=32`;
   };
 
@@ -184,8 +194,12 @@ export function Navbar() {
                     data-nav
                     data-href="/"
                     className="relative inline-block px-3 py-2 z-30 !text-zinc-100"
-                    onMouseEnter={(e) => updateIndicator(e.currentTarget as HTMLElement)}
-                    onMouseLeave={() => updateIndicator(computeActiveLink() as HTMLElement | null)}
+                    onMouseEnter={(e) =>
+                      updateIndicator(e.currentTarget as HTMLElement)
+                    }
+                    onMouseLeave={() =>
+                      updateIndicator(computeActiveLink() as HTMLElement | null)
+                    }
                   >
                     Home
                   </Link>
@@ -203,8 +217,12 @@ export function Navbar() {
                     data-nav
                     data-href="/problems"
                     className="relative inline-block px-3 py-2 z-30 !text-zinc-100"
-                    onMouseEnter={(e) => updateIndicator(e.currentTarget as HTMLElement)}
-                    onMouseLeave={() => updateIndicator(computeActiveLink() as HTMLElement | null)}
+                    onMouseEnter={(e) =>
+                      updateIndicator(e.currentTarget as HTMLElement)
+                    }
+                    onMouseLeave={() =>
+                      updateIndicator(computeActiveLink() as HTMLElement | null)
+                    }
                   >
                     Problems
                   </Link>
@@ -222,8 +240,12 @@ export function Navbar() {
                     data-nav
                     data-href="/users"
                     className="relative inline-block px-3 py-2 z-30 !text-zinc-100"
-                    onMouseEnter={(e) => updateIndicator(e.currentTarget as HTMLElement)}
-                    onMouseLeave={() => updateIndicator(computeActiveLink() as HTMLElement | null)}
+                    onMouseEnter={(e) =>
+                      updateIndicator(e.currentTarget as HTMLElement)
+                    }
+                    onMouseLeave={() =>
+                      updateIndicator(computeActiveLink() as HTMLElement | null)
+                    }
                   >
                     Users
                   </Link>

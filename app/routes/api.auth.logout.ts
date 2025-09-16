@@ -2,14 +2,22 @@ import type { ActionFunctionArgs } from "react-router";
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const response = await fetch(new URL('/api/auth/sign-out', process.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001').toString(), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Forward any cookies from the client request
-        cookie: request.headers.get("cookie") || "",
+    const response = await fetch(
+      new URL(
+        "/api/auth/sign-out",
+        process.env.VITE_API_BASE_URL ||
+          import.meta.env.VITE_API_BASE_URL ||
+          "http://localhost:3001",
+      ).toString(),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Forward any cookies from the client request
+          cookie: request.headers.get("cookie") || "",
+        },
       },
-    });
+    );
 
     if (!response.ok) {
       return Response.json(

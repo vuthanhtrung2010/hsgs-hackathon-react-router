@@ -15,10 +15,10 @@ import {
   Strikethrough,
   Table,
   Underline,
-} from 'lucide-react';
-import { PlusIcon, TrashIcon } from 'lucide-react';
+} from "lucide-react";
+import { PlusIcon, TrashIcon } from "lucide-react";
 
-import { Button } from '~/components/ui/button';
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -26,12 +26,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '~/components/ui/dialog';
-import { Input } from '~/components/ui/input';
-import { Separator } from '~/components/ui/separator';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
+} from "~/components/ui/dialog";
+import { Input } from "~/components/ui/input";
+import { Separator } from "~/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
-import { useMarkdown } from '../context/MarkdownContext';
+import { useMarkdown } from "../context/MarkdownContext";
 
 export default function FormatToolbar() {
   const {
@@ -56,9 +61,9 @@ export default function FormatToolbar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={activeFormats.bold ? 'default' : 'ghost'}
+                  variant={activeFormats.bold ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => insertMarkdown('bold')}
+                  onClick={() => insertMarkdown("bold")}
                 >
                   <Bold className="w-4 h-4" />
                 </Button>
@@ -73,9 +78,9 @@ export default function FormatToolbar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={activeFormats.italic ? 'default' : 'ghost'}
+                  variant={activeFormats.italic ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => insertMarkdown('italic')}
+                  onClick={() => insertMarkdown("italic")}
                 >
                   <Italic className="w-4 h-4" />
                 </Button>
@@ -90,9 +95,9 @@ export default function FormatToolbar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={activeFormats.strikethrough ? 'default' : 'ghost'}
+                  variant={activeFormats.strikethrough ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => insertMarkdown('strikethrough')}
+                  onClick={() => insertMarkdown("strikethrough")}
                 >
                   <Strikethrough className="w-4 h-4" />
                 </Button>
@@ -107,9 +112,9 @@ export default function FormatToolbar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={activeFormats.underline ? 'default' : 'ghost'}
+                  variant={activeFormats.underline ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => insertMarkdown('underline')}
+                  onClick={() => insertMarkdown("underline")}
                 >
                   <Underline className="w-4 h-4" />
                 </Button>
@@ -128,7 +133,11 @@ export default function FormatToolbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => insertMarkdown('list')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => insertMarkdown("list")}
+                >
                   <List className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
@@ -141,7 +150,11 @@ export default function FormatToolbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => insertMarkdown('ordered-list')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => insertMarkdown("ordered-list")}
+                >
                   <ListOrdered className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
@@ -154,7 +167,11 @@ export default function FormatToolbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => insertMarkdown('quote')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => insertMarkdown("quote")}
+                >
                   <Quote className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
@@ -172,7 +189,11 @@ export default function FormatToolbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => insertMarkdown('h1')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => insertMarkdown("h1")}
+                >
                   <Heading1 className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
@@ -185,7 +206,11 @@ export default function FormatToolbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => insertMarkdown('h2')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => insertMarkdown("h2")}
+                >
                   <Heading2 className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
@@ -198,7 +223,11 @@ export default function FormatToolbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => insertMarkdown('h3')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => insertMarkdown("h3")}
+                >
                   <Heading3 className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
@@ -217,9 +246,9 @@ export default function FormatToolbar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={activeFormats.code ? 'default' : 'ghost'}
+                  variant={activeFormats.code ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => insertMarkdown('code')}
+                  onClick={() => insertMarkdown("code")}
                 >
                   <Code className="w-4 h-4" />
                 </Button>
@@ -233,7 +262,11 @@ export default function FormatToolbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => insertMarkdown('math')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => insertMarkdown("math")}
+                >
                   <Sigma className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
@@ -246,7 +279,11 @@ export default function FormatToolbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => insertMarkdown('image')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => insertMarkdown("image")}
+                >
                   {/* eslint-disable-next-line jsx-a11y/alt-text */}
                   <Image className="w-4 h-4" />
                 </Button>
@@ -260,7 +297,11 @@ export default function FormatToolbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => insertMarkdown('link')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => insertMarkdown("link")}
+                >
                   <Link className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
@@ -288,8 +329,8 @@ export default function FormatToolbar() {
                     <DialogHeader>
                       <DialogTitle>Insert Markdown Table</DialogTitle>
                       <DialogDescription>
-                        Create a table by adding or removing rows and columns, then copy or insert
-                        the generated Markdown.
+                        Create a table by adding or removing rows and columns,
+                        then copy or insert the generated Markdown.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -313,7 +354,11 @@ export default function FormatToolbar() {
                                     <Input
                                       value={cell}
                                       onChange={(e) =>
-                                        updateTableCell(rowIndex, colIndex, e.target.value)
+                                        updateTableCell(
+                                          rowIndex,
+                                          colIndex,
+                                          e.target.value,
+                                        )
                                       }
                                       className="w-full"
                                     />
@@ -350,7 +395,9 @@ export default function FormatToolbar() {
                         <Button onClick={copyMarkdownTable} variant="outline">
                           Copy Markdown
                         </Button>
-                        <Button onClick={insertMarkdownTable}>Insert Table</Button>
+                        <Button onClick={insertMarkdownTable}>
+                          Insert Table
+                        </Button>
                       </div>
                     </div>
                   </DialogContent>
@@ -380,93 +427,93 @@ export default function FormatToolbar() {
                     </DialogHeader>
                     <div className="grid grid-cols-8 gap-2 max-h-[300px] overflow-auto">
                       {[
-                        '😀',
-                        '😃',
-                        '😄',
-                        '😁',
-                        '😆',
-                        '😅',
-                        '😂',
-                        '🤣',
-                        '😊',
-                        '😇',
-                        '🙂',
-                        '🙃',
-                        '😉',
-                        '😌',
-                        '😍',
-                        '🥰',
-                        '😘',
-                        '😗',
-                        '😙',
-                        '😚',
-                        '😋',
-                        '😛',
-                        '😝',
-                        '😜',
-                        '🤪',
-                        '🤨',
-                        '🧐',
-                        '🤓',
-                        '😎',
-                        '🤩',
-                        '🥳',
-                        '😏',
-                        '😒',
-                        '😞',
-                        '😔',
-                        '😟',
-                        '😕',
-                        '🙁',
-                        '☹️',
-                        '😣',
-                        '😖',
-                        '😫',
-                        '😩',
-                        '🥺',
-                        '😢',
-                        '😭',
-                        '😤',
-                        '😠',
-                        '😡',
-                        '🤬',
-                        '🤯',
-                        '😳',
-                        '🥵',
-                        '🥶',
-                        '😱',
-                        '😨',
-                        '😰',
-                        '😥',
-                        '😓',
-                        '🤗',
-                        '🤔',
-                        '🤭',
-                        '🤫',
-                        '🤥',
-                        '😶',
-                        '😐',
-                        '😑',
-                        '😬',
-                        '🙄',
-                        '😯',
-                        '😦',
-                        '😧',
-                        '😮',
-                        '😲',
-                        '🥱',
-                        '😴',
-                        '🤤',
-                        '😪',
-                        '😵',
-                        '🤐',
-                        '🥴',
-                        '🤢',
-                        '🤮',
-                        '🤧',
-                        '😷',
-                        '🤒',
-                        '🤕',
+                        "😀",
+                        "😃",
+                        "😄",
+                        "😁",
+                        "😆",
+                        "😅",
+                        "😂",
+                        "🤣",
+                        "😊",
+                        "😇",
+                        "🙂",
+                        "🙃",
+                        "😉",
+                        "😌",
+                        "😍",
+                        "🥰",
+                        "😘",
+                        "😗",
+                        "😙",
+                        "😚",
+                        "😋",
+                        "😛",
+                        "😝",
+                        "😜",
+                        "🤪",
+                        "🤨",
+                        "🧐",
+                        "🤓",
+                        "😎",
+                        "🤩",
+                        "🥳",
+                        "😏",
+                        "😒",
+                        "😞",
+                        "😔",
+                        "😟",
+                        "😕",
+                        "🙁",
+                        "☹️",
+                        "😣",
+                        "😖",
+                        "😫",
+                        "😩",
+                        "🥺",
+                        "😢",
+                        "😭",
+                        "😤",
+                        "😠",
+                        "😡",
+                        "🤬",
+                        "🤯",
+                        "😳",
+                        "🥵",
+                        "🥶",
+                        "😱",
+                        "😨",
+                        "😰",
+                        "😥",
+                        "😓",
+                        "🤗",
+                        "🤔",
+                        "🤭",
+                        "🤫",
+                        "🤥",
+                        "😶",
+                        "😐",
+                        "😑",
+                        "😬",
+                        "🙄",
+                        "😯",
+                        "😦",
+                        "😧",
+                        "😮",
+                        "😲",
+                        "🥱",
+                        "😴",
+                        "🤤",
+                        "😪",
+                        "😵",
+                        "🤐",
+                        "🥴",
+                        "🤢",
+                        "🤮",
+                        "🤧",
+                        "😷",
+                        "🤒",
+                        "🤕",
                       ].map((emoji, index) => (
                         <Button
                           key={index}

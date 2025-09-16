@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Plus, Megaphone, Calendar, Trash2 } from 'lucide-react';
-import { SaveDialog } from '../../components/ui/save-dialog';
-import type { SaveDialogContent } from '../../components/ui/save-dialog';
+import { useState, useEffect } from "react";
+import { Link } from "react-router";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Plus, Megaphone, Calendar, Trash2 } from "lucide-react";
+import { SaveDialog } from "../../components/ui/save-dialog";
+import type { SaveDialogContent } from "../../components/ui/save-dialog";
 
 interface Announcement {
   id: string;
@@ -19,7 +24,8 @@ export default function Announcements() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteDialogContent, setDeleteDialogContent] = useState<SaveDialogContent | null>(null);
+  const [deleteDialogContent, setDeleteDialogContent] =
+    useState<SaveDialogContent | null>(null);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -27,19 +33,19 @@ export default function Announcements() {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await fetch('/api/admin/announcements', {
-        credentials: 'include',
+      const response = await fetch("/api/admin/announcements", {
+        credentials: "include",
       });
       const data = await response.json();
 
       if (data.success) {
         setAnnouncements(data.announcements);
       } else {
-        setError(data.error || 'Failed to fetch announcements');
+        setError(data.error || "Failed to fetch announcements");
       }
     } catch (err) {
-      setError('Failed to connect to server');
-      console.error('Error fetching announcements:', err);
+      setError("Failed to connect to server");
+      console.error("Error fetching announcements:", err);
     } finally {
       setLoading(false);
     }
@@ -47,40 +53,45 @@ export default function Announcements() {
 
   const handleDelete = async (announcementId: string, title: string) => {
     setDeleteDialogContent({
-      title: 'Delete Announcement',
+      title: "Delete Announcement",
       description: `Are you sure you want to delete "${title}"? This action cannot be undone.`,
-      type: 'confirm',
-      confirmText: 'Delete',
+      type: "confirm",
+      confirmText: "Delete",
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/admin/announcements/${announcementId}`, {
-            method: 'DELETE',
-            credentials: 'include',
-          });
+          const response = await fetch(
+            `/api/admin/announcements/${announcementId}`,
+            {
+              method: "DELETE",
+              credentials: "include",
+            },
+          );
           const data = await response.json();
 
           if (data.success) {
-            setAnnouncements(prev => prev.filter(a => a.id !== announcementId));
+            setAnnouncements((prev) =>
+              prev.filter((a) => a.id !== announcementId),
+            );
             setDeleteDialogContent({
-              title: 'Success',
-              description: 'Announcement deleted successfully.',
-              type: 'success',
+              title: "Success",
+              description: "Announcement deleted successfully.",
+              type: "success",
             });
             setDeleteDialogOpen(true);
           } else {
             setDeleteDialogContent({
-              title: 'Error',
-              description: data.error || 'Failed to delete announcement.',
-              type: 'error',
+              title: "Error",
+              description: data.error || "Failed to delete announcement.",
+              type: "error",
             });
             setDeleteDialogOpen(true);
           }
         } catch (err) {
-          console.error('Error deleting announcement:', err);
+          console.error("Error deleting announcement:", err);
           setDeleteDialogContent({
-            title: 'Error',
-            description: 'Failed to connect to server.',
-            type: 'error',
+            title: "Error",
+            description: "Failed to connect to server.",
+            type: "error",
           });
           setDeleteDialogOpen(true);
         }
@@ -90,12 +101,12 @@ export default function Announcements() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -164,12 +175,15 @@ export default function Announcements() {
       {announcements.length > 0 && (
         <div className="grid gap-4">
           {announcements.map((announcement) => (
-            <Card key={announcement.id} className="hover:shadow-md transition-shadow">
+            <Card
+              key={announcement.id}
+              className="hover:shadow-md transition-shadow"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <CardTitle className="text-lg">
-                      <Link 
+                      <Link
                         to={`/admin/announcements/${announcement.id}/edit`}
                         className="hover:text-primary transition-colors"
                       >
@@ -180,14 +194,18 @@ export default function Announcements() {
                       <Calendar className="h-4 w-4" />
                       <span>Created {formatDate(announcement.createdAt)}</span>
                       {announcement.updatedAt !== announcement.createdAt && (
-                        <span>• Updated {formatDate(announcement.updatedAt)}</span>
+                        <span>
+                          • Updated {formatDate(announcement.updatedAt)}
+                        </span>
                       )}
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(announcement.id, announcement.title)}
+                    onClick={() =>
+                      handleDelete(announcement.id, announcement.title)
+                    }
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <Trash2 className="h-4 w-4" />

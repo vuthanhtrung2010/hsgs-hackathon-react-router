@@ -31,9 +31,15 @@ export default [
   route("api/admin/classes/update", "routes/api.admin.classes.update.ts"),
   route("api/admin/stats", "routes/api.admin.stats.ts"),
   route("api/admin/announcements", "routes/api.admin.announcements.ts"),
-  route("api/admin/announcements/create", "routes/api.admin.announcements.create.ts"),
+  route(
+    "api/admin/announcements/create",
+    "routes/api.admin.announcements.create.ts",
+  ),
   route("api/admin/announcements/:id", "routes/api.admin.announcements.$id.ts"),
-  route("api/admin/announcements/update", "routes/api.admin.announcements.update.ts"),
+  route(
+    "api/admin/announcements/update",
+    "routes/api.admin.announcements.update.ts",
+  ),
 
   // 404 catch-all
   route("*", "routes/404.tsx"),

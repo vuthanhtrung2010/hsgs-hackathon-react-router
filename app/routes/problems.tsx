@@ -94,9 +94,9 @@ export default function Problems() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
-  const [selectedProblemTypes, setSelectedProblemTypes] = useState<
-    string[]
-  >([]);
+  const [selectedProblemTypes, setSelectedProblemTypes] = useState<string[]>(
+    [],
+  );
 
   // Initialize with first course from loader
   useEffect(() => {
@@ -112,8 +112,8 @@ export default function Problems() {
   // Collect all unique problem types from the data
   const availableProblemTypes = React.useMemo(() => {
     const typeSet = new Set<string>();
-    problems.forEach(problem => {
-      problem.type.forEach(type => typeSet.add(type));
+    problems.forEach((problem) => {
+      problem.type.forEach((type) => typeSet.add(type));
     });
     return Array.from(typeSet).sort();
   }, [problems]);

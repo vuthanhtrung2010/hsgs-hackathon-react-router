@@ -1,32 +1,32 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import styles from '~/ProblemPage.module.css';
-import { processMarkdownToHtml } from '~/lib/markdown-processor';
-import 'katex/dist/katex.min.css';
+import styles from "~/ProblemPage.module.css";
+import { processMarkdownToHtml } from "~/lib/markdown-processor";
+import "katex/dist/katex.min.css";
 
-import { ResizablePanel } from '~/components/ui/resizable';
+import { ResizablePanel } from "~/components/ui/resizable";
 
-import { useMarkdown } from '../context/MarkdownContext';
-import type { WindowWithEditorScrollSync } from './MarkdownEditor';
+import { useMarkdown } from "../context/MarkdownContext";
+import type { WindowWithEditorScrollSync } from "./MarkdownEditor";
 
 export default function MarkdownPreview() {
   const { markdown } = useMarkdown();
   const previewRef = useRef<HTMLDivElement>(null);
   const isScrollingSelf = useRef(false);
-  const [rendered, setRendered] = useState<string>('');
+  const [rendered, setRendered] = useState<string>("");
 
   // Cleanup CSS inspector classes
   useEffect(() => {
     return () => {
       document
-        .querySelectorAll('.css-inspector-selected')
-        .forEach((el) => el.classList.remove('css-inspector-selected'));
+        .querySelectorAll(".css-inspector-selected")
+        .forEach((el) => el.classList.remove("css-inspector-selected"));
       document
-        .querySelectorAll('.css-inspector-hover')
-        .forEach((el) => el.classList.remove('css-inspector-hover'));
+        .querySelectorAll(".css-inspector-hover")
+        .forEach((el) => el.classList.remove("css-inspector-hover"));
       document
-        .querySelectorAll('.css-inspector-multi-selected')
-        .forEach((el) => el.classList.remove('css-inspector-multi-selected'));
+        .querySelectorAll(".css-inspector-multi-selected")
+        .forEach((el) => el.classList.remove("css-inspector-multi-selected"));
     };
   }, []);
 
@@ -55,14 +55,15 @@ export default function MarkdownPreview() {
       if (maxScroll > 0) {
         container.scrollTo({
           top: maxScroll * scrollPercentage,
-          behavior: 'instant',
+          behavior: "instant",
         });
       }
       setTimeout(() => {
         isScrollingSelf.current = false;
       }, 50);
     };
-    (window as WindowWithEditorScrollSync).previewScrollSync = handleEditorScroll;
+    (window as WindowWithEditorScrollSync).previewScrollSync =
+      handleEditorScroll;
     return () => {
       delete (window as WindowWithEditorScrollSync).previewScrollSync;
     };
@@ -73,10 +74,10 @@ export default function MarkdownPreview() {
     let cancelled = false;
     async function renderMarkdown() {
       try {
-        const rendered = await processMarkdownToHtml(markdown ?? '');
+        const rendered = await processMarkdownToHtml(markdown ?? "");
         if (!cancelled) setRendered(rendered);
       } catch {
-        if (!cancelled) setRendered('<p>Failed to render markdown</p>');
+        if (!cancelled) setRendered("<p>Failed to render markdown</p>");
       }
     }
     renderMarkdown();
@@ -86,14 +87,18 @@ export default function MarkdownPreview() {
   }, [markdown]);
 
   return (
-    <ResizablePanel defaultSize={50} minSize={20} className="lg:min-h-0 min-h-[35vh]">
+    <ResizablePanel
+      defaultSize={50}
+      minSize={20}
+      className="lg:min-h-0 min-h-[35vh]"
+    >
       <div className={`h-full w-full flex flex-col problemProse prose`}>
         <div
           ref={previewRef}
           id="markdown-preview-content"
           className={`flex-1 overflow-auto custom-scrollbar p-3 sm:p-4 lg:p-6 touch-manipulation ${styles.problemProse} content-description`}
           onScroll={handleScroll}
-          style={{ WebkitTapHighlightColor: 'transparent' }}
+          style={{ WebkitTapHighlightColor: "transparent" }}
           dangerouslySetInnerHTML={{ __html: rendered }}
         />
       </div>

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { ThemeProvider as AppThemeProvider } from '../../../ThemeProvider';
+import * as React from "react";
+import { ThemeProvider as AppThemeProvider } from "../../../ThemeProvider";
 
 interface ThemeProviderProps {
   children: React.ReactNode;

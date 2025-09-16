@@ -134,6 +134,6 @@ body {
   }
 }
 
-@import './styles/rating.css';
-@import './styles/table.css';
-@import './styles/wikijs-backport.css';
+@import "./styles/rating.css";
+@import "./styles/table.css";
+@import "./styles/wikijs-backport.css";
