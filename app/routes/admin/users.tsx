@@ -31,6 +31,7 @@ interface EditingUser {
   name: string;
   email: string;
   password?: string;
+  oldPassword?: string;
 }
 
 export default function UserManagement() {
@@ -95,6 +96,7 @@ export default function UserManagement() {
       name: user.name,
       email: user.email,
       password: "",
+      oldPassword: "",
     });
     setError("");
     setSuccess("");
@@ -121,6 +123,14 @@ export default function UserManagement() {
       return;
     }
 
+    // Validate old password if new password is provided
+    if (editingUser.password && editingUser.password.trim()) {
+      if (!editingUser.oldPassword || !editingUser.oldPassword.trim()) {
+        setError("Current password is required when changing password");
+        return;
+      }
+    }
+
     setUpdating(true);
     setError("");
     setSuccess("");
@@ -137,7 +147,8 @@ export default function UserManagement() {
             name: editingUser.name.trim(),
             email: editingUser.email.toLowerCase().trim(),
             ...(editingUser.password && editingUser.password.trim() && {
-              password: editingUser.password.trim()
+              password: editingUser.password.trim(),
+              oldPassword: editingUser.oldPassword?.trim()
             }),
           }),
         }
@@ -315,6 +326,23 @@ export default function UserManagement() {
                       className="w-full"
                     />
                   </div>
+
+                  {(editingUser?.id === user.id && editingUser.password && editingUser.password.trim()) && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Current Password (required to change password)
+                      </label>
+                      <Input
+                        type="password"
+                        value={editingUser.oldPassword || ""}
+                        onChange={(e) => {
+                          setEditingUser({ ...editingUser, oldPassword: e.target.value });
+                        }}
+                        placeholder="Enter your current password"
+                        className="w-full"
+                      />
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between pt-4">
                     <div className="flex items-center space-x-4">
