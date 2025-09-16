@@ -1,6 +1,7 @@
 export interface Course {
   courseId: string;
   name: string;
+  canvasUrl: string;
 }
 
 export type ProblemType =
@@ -54,6 +55,7 @@ export async function getProblems(): Promise<Problem[]> {
         course: {
           courseId: "cs101",
           name: "Introduction to Programming",
+          canvasUrl: "https://canvas.example.com/courses/cs101",
         },
         type: ["Technology", "Education"],
         rating: 4.5,
@@ -64,6 +66,7 @@ export async function getProblems(): Promise<Problem[]> {
         course: {
           courseId: "cs102",
           name: "Data Structures",
+          canvasUrl: "https://canvas.example.com/courses/cs102",
         },
         type: ["Technology", "Language"],
         rating: 4.2,
@@ -74,6 +77,7 @@ export async function getProblems(): Promise<Problem[]> {
         course: {
           courseId: "env101",
           name: "Environmental Science",
+          canvasUrl: "https://canvas.example.com/courses/env101",
         },
         type: ["Environment", "Business"],
         rating: 4.8,
@@ -84,6 +88,7 @@ export async function getProblems(): Promise<Problem[]> {
         course: {
           courseId: "med101",
           name: "Medical Informatics",
+          canvasUrl: "https://canvas.example.com/courses/med101",
         },
         type: ["Health", "Technology"],
         rating: 4.6,
@@ -94,6 +99,7 @@ export async function getProblems(): Promise<Problem[]> {
         course: {
           courseId: "media101",
           name: "Digital Media",
+          canvasUrl: "https://canvas.example.com/courses/media101",
         },
         type: ["Media", "Technology", "Communication"],
         rating: 4.3,
@@ -104,6 +110,7 @@ export async function getProblems(): Promise<Problem[]> {
         course: {
           courseId: "econ101",
           name: "Economics",
+          canvasUrl: "https://canvas.example.com/courses/econ101",
         },
         type: ["Economy", "Business"],
         rating: 4.7,
@@ -114,6 +121,7 @@ export async function getProblems(): Promise<Problem[]> {
         course: {
           courseId: "ops101",
           name: "Operations Research",
+          canvasUrl: "https://canvas.example.com/courses/ops101",
         },
         type: ["Transport", "Technology"],
         rating: 4.4,
@@ -124,6 +132,7 @@ export async function getProblems(): Promise<Problem[]> {
         course: {
           courseId: "food101",
           name: "Food Science",
+          canvasUrl: "https://canvas.example.com/courses/food101",
         },
         type: ["Food", "Health"],
         rating: 4.6,

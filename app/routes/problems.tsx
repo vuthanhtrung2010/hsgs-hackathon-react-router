@@ -81,11 +81,6 @@ export function meta({}: Route.MetaArgs): Route.MetaDescriptors {
 }
 
 export default function Problems() {
-  const canvasLMSBaseUrl =
-    process.env.VITE_CANVAS_API_BASE_URL ||
-    import.meta.env.VITE_CANVAS_API_BASE_URL ||
-    "https://canvas.example.com";
-
   const { problems: initialProblems, courses } = useLoaderData<{
     problems: Problem[];
     courses: any[];
@@ -441,7 +436,7 @@ export default function Problems() {
                         <Link
                           to={`${new URL(
                             `/courses/${problem.course.courseId}/quizzes/${problem.problemId}`,
-                            canvasLMSBaseUrl,
+                            problem.course.canvasUrl,
                           )}`}
                           className="text-primary hover:underline font-medium"
                         >

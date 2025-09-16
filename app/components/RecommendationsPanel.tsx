@@ -12,17 +12,17 @@ interface RecommendationsProps {
   recommendations?: Recommendations[];
   userRating: number;
   courseId: string;
+  canvasUrl?: string;
 }
 
 export default function RecommendationsPanel({
   recommendations,
   userRating,
-  courseId = process.env.VITE_CANVAS_COURSE_ID ||
-    import.meta.env.VITE_CANVAS_COURSE_ID ||
-    "0",
+  courseId,
+  canvasUrl,
 }: RecommendationsProps) {
-  // Canvas URL configuration
-  const canvasBaseUrl =
+  // Canvas URL configuration - use prop if provided, otherwise fallback to env
+  const canvasBaseUrl = canvasUrl ||
     process.env.VITE_CANVAS_API_BASE_URL ||
     import.meta.env.VITE_CANVAS_API_BASE_URL ||
     "https://canvas.instructure.com";

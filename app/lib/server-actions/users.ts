@@ -14,6 +14,7 @@ export interface Recommendations {
   quizName: string;
   cluster: string;
   rating: number;
+  canvasUrl: string;
 }
 
 export interface Clusters {
