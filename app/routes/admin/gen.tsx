@@ -186,19 +186,13 @@ export default function MathGeneration() {
     setSuccess("");
 
     try {
-      const genApiUrl =
-        process.env.VITE_GEN_API_BASE_URL ||
-        import.meta.env.VITE_GEN_API_BASE_URL ||
-        "http://localhost:8000";
-
       const formData = new FormData();
       formData.append("course", selectedCourseId);
       formData.append("name", quizName);
       formData.append("grade", grade.toString());
       formData.append("file", csvFile);
 
-      const url = new URL("/math", genApiUrl);
-      const response = await fetch(url.toString(), {
+      const response = await fetch("/api/admin/gen", {
         method: "POST",
         body: formData,
       });
@@ -291,19 +285,13 @@ export default function MathGeneration() {
         type: "text/csv",
       });
 
-      const genApiUrl =
-        process.env.VITE_GEN_API_BASE_URL ||
-        import.meta.env.VITE_GEN_API_BASE_URL ||
-        "http://localhost:8000";
-
       const formData = new FormData();
       formData.append("course", selectedCourseId);
       formData.append("name", quizName);
       formData.append("grade", grade.toString());
       formData.append("file", csvFile);
 
-      const url = new URL("/math", genApiUrl);
-      const response = await fetch(url.toString(), {
+      const response = await fetch("/api/admin/gen", {
         method: "POST",
         body: formData,
       });
