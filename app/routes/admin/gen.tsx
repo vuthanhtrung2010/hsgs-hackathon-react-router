@@ -3,7 +3,6 @@ import { useLoaderData } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalculator,
-  faUpload,
   faPlus,
   faTrash,
   faSpinner,
@@ -127,8 +126,6 @@ export default function MathGeneration() {
   const { courses } = useLoaderData<{ courses: any[] }>();
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
   const [quizName, setQuizName] = useState("Test_quiz");
-  const [grade, setGrade] = useState<number>(11);
-  const [csvFile, setCsvFile] = useState<File | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -146,6 +143,7 @@ export default function MathGeneration() {
     },
   );
   const [openTopicSelector, setOpenTopicSelector] = useState(false);
+  const [openCourseSelector, setOpenCourseSelector] = useState(false);
 
   const handleTopicSelect = (topicOption: typeof TOPIC_OPTIONS[0]) => {
     setCurrentQuestion({
@@ -157,69 +155,16 @@ export default function MathGeneration() {
     setOpenTopicSelector(false);
   };
 
+  const handleCourseSelect = (courseId: string) => {
+    setSelectedCourseId(courseId);
+    setOpenCourseSelector(false);
+  };
+
   useEffect(() => {
     if (courses.length > 0 && !selectedCourseId) {
       setSelectedCourseId(courses[0].id);
     }
   }, [courses, selectedCourseId]);
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (!file.name.endsWith(".csv")) {
-        setError("Please select a CSV file");
-        return;
-      }
-      setCsvFile(file);
-      setError("");
-    }
-  };
-
-  const generateFromCSV = async () => {
-    if (!csvFile || !selectedCourseId) {
-      setError("Please select a course and CSV file");
-      return;
-    }
-
-    setIsGenerating(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const formData = new FormData();
-      formData.append("course", selectedCourseId);
-      formData.append("name", quizName);
-      formData.append("grade", grade.toString());
-      formData.append("file", csvFile);
-
-      const response = await fetch("/api/admin/gen", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate math questions");
-      }
-
-      // Handle file download
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = downloadUrl;
-      a.download = "response.txt";
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(downloadUrl);
-      document.body.removeChild(a);
-
-      setSuccess("Math questions generated successfully!");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const addQuestion = () => {
     if (
@@ -288,7 +233,6 @@ export default function MathGeneration() {
       const formData = new FormData();
       formData.append("course", selectedCourseId);
       formData.append("name", quizName);
-      formData.append("grade", grade.toString());
       formData.append("file", csvFile);
 
       const response = await fetch("/api/admin/gen", {
@@ -347,33 +291,57 @@ export default function MathGeneration() {
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* CSV Upload Method */}
+      <div className="grid grid-cols-1 gap-6">
+        {/* Course and Quiz Settings */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faUpload} />
-              CSV Upload
-            </CardTitle>
+            <CardTitle>Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="course-select">Course</Label>
-              <Select
-                value={selectedCourseId}
-                onValueChange={setSelectedCourseId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a course" />
-                </SelectTrigger>
-                <SelectContent>
-                  {courses.map((course) => (
-                    <SelectItem key={course.id} value={course.id}>
-                      {course.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={openCourseSelector} onOpenChange={setOpenCourseSelector}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openCourseSelector}
+                    className="w-full justify-between"
+                  >
+                    {selectedCourseId
+                      ? courses.find((course) => course.id === selectedCourseId)?.name
+                      : "Select course..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search courses..." />
+                    <CommandList>
+                      <CommandEmpty>No courses found.</CommandEmpty>
+                      <CommandGroup>
+                        {courses.map((course) => (
+                          <CommandItem
+                            key={course.id}
+                            value={course.name}
+                            onSelect={() => handleCourseSelect(course.id)}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedCourseId === course.id
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {course.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div>
@@ -385,52 +353,6 @@ export default function MathGeneration() {
                 placeholder="Enter quiz name"
               />
             </div>
-
-            <div>
-              <Label htmlFor="grade">Grade</Label>
-              <Input
-                id="grade"
-                type="number"
-                value={grade}
-                onChange={(e) => setGrade(parseInt(e.target.value) || 11)}
-                min="1"
-                max="12"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="csv-file">CSV File</Label>
-              <Input
-                id="csv-file"
-                type="file"
-                accept=".csv"
-                onChange={handleFileUpload}
-              />
-              <p className="text-sm text-muted-foreground mt-1">
-                CSV must contain: topic, grade, difficulty, question, n
-              </p>
-            </div>
-
-            <Button
-              onClick={generateFromCSV}
-              disabled={!csvFile || !selectedCourseId || isGenerating}
-              className="w-full"
-            >
-              {isGenerating ? (
-                <>
-                  <FontAwesomeIcon
-                    icon={faSpinner}
-                    className="animate-spin mr-2"
-                  />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <FontAwesomeIcon icon={faCalculator} className="mr-2" />
-                  Generate from CSV
-                </>
-              )}
-            </Button>
           </CardContent>
         </Card>
 
@@ -635,50 +557,6 @@ export default function MathGeneration() {
         </Card>
       )}
 
-      {/* CSV Format Help */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>CSV Format</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-3">
-            Your CSV file must contain these columns:
-          </p>
-          <div className="bg-muted p-3 rounded-lg font-mono text-sm">
-            topic,grade,difficulty,question,n
-            <br />
-            "Giới hạn dãy số - Hàm số",11,"Nhận biết","Multiple choice",20
-            <br />
-            "Giới hạn dãy số - Hàm số",11,"Thông hiểu","Multiple choice",10
-            <br />
-            "Giới hạn dãy số - Hàm số",11,"Vận dụng","Short answer",10
-            <br />
-            "Giới hạn dãy số - Hàm số",11,"Vận dụng cao","Short answer",10
-          </div>
-          <div className="mt-3 space-y-2">
-            <div>
-              <strong>Difficulty options:</strong>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {DIFFICULTY_LEVELS.map((level) => (
-                  <Badge key={level} variant="secondary" className="text-xs">
-                    {level}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            <div>
-              <strong>Question types:</strong>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {QUESTION_TYPES.map((type) => (
-                  <Badge key={type} variant="secondary" className="text-xs">
-                    {type}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
