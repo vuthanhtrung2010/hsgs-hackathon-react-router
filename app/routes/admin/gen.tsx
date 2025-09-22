@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalculator,
   faUpload,
-  faDownload,
   faPlus,
   faTrash,
   faSpinner,
@@ -22,7 +21,65 @@ import {
 } from "~/components/ui/select";
 import { Badge } from "~/components/ui/badge";
 import { Alert, AlertDescription } from "~/components/ui/alert";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "~/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "~/lib/utils";
 import type { Route } from "./+types/gen";
+
+const DEFAULT_TOPICS = {
+  10: [
+    "Mệnh đề - Tập hợp",
+    "Bất phương trình và hệ bất phương trình bậc nhất hai ẩn",
+    "Hệ thức lượng trong tam giác",
+    "Vector",
+    "Các số đặc trưng của mẫu số liệu, không ghép nhóm",
+    "Hàm số, đồ thị và ứng dụng",
+    "Phương pháp tọa độ trong mặt phẳng",
+    "Đại số tổ hợp",
+    "Tính xác suất theo định nghĩa cổ điển"
+  ],
+  11: [
+    "Hàm số lượng giác - Phương trình lượng giác",
+    "Dãy số - Cấp số cộng - Cấp số nhân",
+    "Các số đặc trưng đo xu thế trung tâm của mẫu số liệu ghép nhóm",
+    "Quan hệ song song trong không gian",
+    "Giới hạn - Hàm số liên tục",
+    "Hàm số mũ - Hàm số Logarit",
+    "Quan hệ vuông góc trong không gian",
+    "Các quy tắc tính xác suất",
+    "Đạo hàm"
+  ],
+  12: [
+    "Ứng dụng đạo hàm để khảo sát và vẽ đồ thị hàm số",
+    "Vector và hệ trục tọa độ trong không gian",
+    "Các số đặc trưng đo mức độ phân tán của mẫu số liệu ghép nhóm",
+    "Nguyên hàm - Tích phân",
+    "Phương pháp tọa độ trong không gian",
+    "Xác suất có điều kiện"
+  ]
+};
+
+// Create flat list of topics with class information
+const TOPIC_OPTIONS = Object.entries(DEFAULT_TOPICS).flatMap(([grade, topics]) =>
+  topics.map(topic => ({
+    value: `${grade}-${topic}`,
+    label: topic,
+    topic,
+    grade: parseInt(grade)
+  }))
+);
 
 const DIFFICULTY_LEVELS = [
   "Nhận biết",
@@ -40,6 +97,7 @@ interface MathQuestion {
   difficulty: string;
   question: string;
   n: number;
+  topicValue?: string; // Store the selected topic value for display
 }
 
 export async function loader({}: Route.LoaderArgs): Promise<{
@@ -81,11 +139,23 @@ export default function MathGeneration() {
     {
       topic: "",
       grade: 11,
+      topicValue: "",
       difficulty: DIFFICULTY_LEVELS[0],
       question: QUESTION_TYPES[0],
       n: 10,
     },
   );
+  const [openTopicSelector, setOpenTopicSelector] = useState(false);
+
+  const handleTopicSelect = (topicOption: typeof TOPIC_OPTIONS[0]) => {
+    setCurrentQuestion({
+      ...currentQuestion,
+      topic: topicOption.topic,
+      grade: topicOption.grade,
+      topicValue: topicOption.value,
+    });
+    setOpenTopicSelector(false);
+  };
 
   useEffect(() => {
     if (courses.length > 0 && !selectedCourseId) {
@@ -161,6 +231,7 @@ export default function MathGeneration() {
     if (
       !currentQuestion.topic ||
       !currentQuestion.grade ||
+      !currentQuestion.topicValue ||
       !currentQuestion.difficulty ||
       !currentQuestion.question ||
       !currentQuestion.n
@@ -182,6 +253,7 @@ export default function MathGeneration() {
     setCurrentQuestion({
       topic: "",
       grade: 11,
+      topicValue: "",
       difficulty: DIFFICULTY_LEVELS[0],
       question: QUESTION_TYPES[0],
       n: 10,
@@ -383,38 +455,57 @@ export default function MathGeneration() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="topic">Topic</Label>
-                <Input
-                  id="topic"
-                  value={currentQuestion.topic || ""}
-                  onChange={(e) =>
-                    setCurrentQuestion({
-                      ...currentQuestion,
-                      topic: e.target.value,
-                    })
-                  }
-                  placeholder="Enter topic"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="manual-grade">Grade</Label>
-                <Input
-                  id="manual-grade"
-                  type="number"
-                  value={currentQuestion.grade || 11}
-                  onChange={(e) =>
-                    setCurrentQuestion({
-                      ...currentQuestion,
-                      grade: parseInt(e.target.value) || 11,
-                    })
-                  }
-                  min="1"
-                  max="12"
-                />
-              </div>
+            <div>
+              <Label htmlFor="topic">Topic</Label>
+              <Popover open={openTopicSelector} onOpenChange={setOpenTopicSelector}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openTopicSelector}
+                    className="w-full justify-between"
+                  >
+                    {currentQuestion.topic
+                      ? TOPIC_OPTIONS.find(
+                          (topic) => topic.value === currentQuestion.topicValue
+                        )?.label
+                      : "Select topic..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search topics..." />
+                    <CommandList>
+                      <CommandEmpty>No topics found.</CommandEmpty>
+                      <CommandGroup>
+                        {TOPIC_OPTIONS.map((topicOption) => (
+                          <CommandItem
+                            key={topicOption.value}
+                            value={topicOption.label}
+                            onSelect={() => handleTopicSelect(topicOption)}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                currentQuestion.topicValue === topicOption.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            <div className="flex flex-col">
+                              <span>{topicOption.label}</span>
+                              <span className="text-xs text-muted-foreground">
+                                Class {topicOption.grade}
+                              </span>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
