@@ -50,18 +50,45 @@ export default function ClusterRadarChart({
   clusters,
   userName,
 }: ClusterRadarChartProps) {
+  // Check if clusters is empty or null
+  const hasSkillsData = clusters && Object.keys(clusters).length > 0;
+  
   // Transform clusters data for radar chart
-  const radarData = Object.entries(clusters).map(([key, value]) => ({
-    subject: formatClusterName(key),
-    rating: Math.round(value || 0),
-    fullMark: 2400, // Max rating for reference
-  }));
+  const radarData = hasSkillsData 
+    ? Object.entries(clusters).map(([key, value]) => ({
+        subject: formatClusterName(key),
+        rating: Math.round(value || 0),
+        fullMark: 2400, // Max rating for reference
+      }))
+    : [];
 
   // Calculate average rating across all clusters
-  const averageRating = Math.round(
-    Object.values(clusters).reduce((sum, rating) => sum + (rating || 0), 0) /
-      Object.keys(clusters).length,
-  );
+  const averageRating = hasSkillsData
+    ? Math.round(
+        Object.values(clusters).reduce((sum, rating) => sum + (rating || 0), 0) /
+          Object.keys(clusters).length,
+      )
+    : 0;
+
+  // Show a message when no skills data is available
+  if (!hasSkillsData) {
+    return (
+      <div className="bg-card border rounded-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Skills Analysis</h2>
+          <div className="text-sm text-muted-foreground">
+            Avg: <span className="font-bold text-muted-foreground">N/A</span>
+          </div>
+        </div>
+        <div className="w-full h-[400px] flex items-center justify-center">
+          <div className="text-center text-muted-foreground">
+            <p className="text-lg mb-2">No skills data available</p>
+            <p className="text-sm">Complete some quizzes to see your skills analysis</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-card border rounded-lg p-6">
