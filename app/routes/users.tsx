@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useLoaderData } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -24,7 +24,6 @@ import { getRatingTitle } from "~/lib/rating";
 import RatingDisplay from "~/components/RatingDisplay";
 import CourseSelector from "~/components/CourseSelector";
 import "~/styles/rating.css";
-import "~/styles/table.css";
 import Loading from "~/components/Loading";
 import NameDisplay from "~/components/NameDisplay";
 import type { Route } from "./+types/users";
@@ -304,21 +303,17 @@ export default function UsersPage() {
             )}
           </div>
         </div>
-        <div className="table-wrapper">
-          <div className="table-scroll">
-            <table className="data-table">
+        <div className="rounded-md border">
+          <div className="overflow-x-auto">
+            <table className="w-full">
               <thead>
-                <tr className="data-table-header">
-                  <th
-                    className="data-table-header-cell center"
-                    style={{ width: "4rem" }}
-                  >
+                <tr className="border-b bg-gray-800 dark:bg-white">
+                  <th className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 first:rounded-tl-md w-[4rem]">
                     Rank
                   </th>
                   <th
-                    className="data-table-header-cell center sortable"
+                    className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 w-[8rem] cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
                     onClick={() => handleSort("rating")}
-                    style={{ width: "8rem" }}
                   >
                     <div className="flex items-center justify-center gap-2">
                       Rating
@@ -329,7 +324,7 @@ export default function UsersPage() {
                     </div>
                   </th>
                   <th
-                    className="data-table-header-cell sortable"
+                    className="h-12 px-4 text-left align-middle font-medium text-white dark:text-gray-900 rounded-tr-md cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
                     onClick={() => handleSort("name")}
                   >
                     <div className="flex items-center gap-2">
@@ -347,8 +342,7 @@ export default function UsersPage() {
                   <tr>
                     <td
                       colSpan={3}
-                      className="data-table-body-cell center"
-                      style={{ height: "6rem" }}
+                      className="h-24 px-4 text-center text-muted-foreground"
                     >
                       <div className="flex items-center justify-center">
                         <Loading />
@@ -359,10 +353,9 @@ export default function UsersPage() {
                   <tr>
                     <td
                       colSpan={3}
-                      className="data-table-body-cell center"
-                      style={{ height: "6rem" }}
+                      className="h-24 px-4 text-center text-muted-foreground"
                     >
-                      <span className="text-muted-foreground">
+                      <span>
                         {searchTerm
                           ? "No users found matching your search."
                           : "No users available."}
@@ -377,25 +370,22 @@ export default function UsersPage() {
                         ? user.course.rating
                         : 1500;
                     return (
-                      <tr key={user.id} className="data-table-body-row">
-                        <td className="data-table-body-cell center">
+                      <tr key={user.id} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle text-center border-r border-border">
                           <span className="font-bold text-lg">
                             #{startIndex + index + 1}
                           </span>
                         </td>
-                        <td
-                          className="data-table-body-cell center"
-                          style={{ verticalAlign: "middle" }}
-                        >
+                        <td className="p-4 align-middle text-center border-r border-border">
                           <RatingDisplay
                             rating={Math.round(rating)}
                             showIcon={true}
                           />
                         </td>
-                        <td className="data-table-body-cell">
+                        <td className="p-4 align-middle">
                           <Link
                             to={`/user/${user.id}`}
-                            className="username-link"
+                            className="text-primary hover:underline font-medium"
                             title={getRatingTitle(Math.round(rating))}
                           >
                             <NameDisplay

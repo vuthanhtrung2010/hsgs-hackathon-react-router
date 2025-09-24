@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Link, useLoaderData } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -28,7 +28,6 @@ import CourseSelector from "~/components/CourseSelector";
 import Loading from "~/components/Loading";
 import { getBadgeColor } from "~/lib/badge";
 import "~/styles/rating.css";
-import "~/styles/table.css";
 import type { Route } from "./+types/problems";
 import { Config } from "~/config";
 
@@ -110,7 +109,7 @@ export default function Problems() {
   }, [initialProblems]);
 
   // Collect all unique problem types from the data
-  const availableProblemTypes = React.useMemo(() => {
+  const availableProblemTypes = useMemo(() => {
     const typeSet = new Set<string>();
     problems.forEach((problem) => {
       problem.type.forEach((type) => typeSet.add(type));
@@ -351,13 +350,13 @@ export default function Problems() {
         </div>
 
         {/* Problems Table */}
-        <div className="table-wrapper">
-          <div className="table-scroll">
-            <table className="data-table">
+        <div className="rounded-md border">
+          <div className="overflow-x-auto">
+            <table className="w-full">
               <thead>
-                <tr className="data-table-header">
+                <tr className="border-b bg-gray-800 dark:bg-white">
                   <th
-                    className="data-table-header-cell sortable"
+                    className="h-12 px-4 text-left align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 first:rounded-tl-md cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
                     onClick={() => handleSort("name")}
                   >
                     <div className="flex items-center gap-2">
@@ -369,9 +368,8 @@ export default function Problems() {
                     </div>
                   </th>
                   <th
-                    className="data-table-header-cell center sortable"
+                    className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 w-[8rem] cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
                     onClick={() => handleSort("rating")}
-                    style={{ width: "8rem" }}
                   >
                     <div className="flex items-center justify-center gap-2">
                       Rating
@@ -381,16 +379,12 @@ export default function Problems() {
                       />
                     </div>
                   </th>
-                  <th
-                    className="data-table-header-cell"
-                    style={{ width: "12rem" }}
-                  >
+                  <th className="h-12 px-4 text-left align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 w-[12rem]">
                     Types
                   </th>
                   <th
-                    className="data-table-header-cell sortable"
+                    className="h-12 px-4 text-left align-middle font-medium text-white dark:text-gray-900 w-[10rem] rounded-tr-md cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
                     onClick={() => handleSort("course")}
-                    style={{ width: "10rem" }}
                   >
                     <div className="flex items-center gap-2">
                       Course
@@ -407,8 +401,7 @@ export default function Problems() {
                   <tr>
                     <td
                       colSpan={4}
-                      className="data-table-body-cell center"
-                      style={{ height: "6rem" }}
+                      className="h-24 px-4 text-center text-muted-foreground"
                     >
                       <div className="flex items-center justify-center">
                         <Loading />
@@ -419,10 +412,9 @@ export default function Problems() {
                   <tr>
                     <td
                       colSpan={4}
-                      className="data-table-body-cell center"
-                      style={{ height: "6rem" }}
+                      className="h-24 px-4 text-center text-muted-foreground"
                     >
-                      <span className="text-muted-foreground">
+                      <span>
                         {searchTerm || selectedProblemTypes.length > 0
                           ? "No problems found matching your filters."
                           : "No problems available."}
@@ -431,28 +423,25 @@ export default function Problems() {
                   </tr>
                 ) : (
                   currentProblems.map((problem) => (
-                    <tr key={problem.problemId} className="data-table-body-row">
-                      <td className="data-table-body-cell">
+                    <tr key={problem.problemId} className="border-b transition-colors hover:bg-muted/50">
+                      <td className="p-4 align-middle border-r border-border">
                         <Link
                           to={`${new URL(
                             `/courses/${problem.course.courseId}/quizzes/${problem.problemId}`,
                             problem.course.canvasUrl,
                           )}`}
-                          className="text-primary hover:underline font-medium"
+                          className="text-primary hover:underline font-medium break-words"
                         >
                           {problem.name}
                         </Link>
                       </td>
-                      <td
-                        className="data-table-body-cell center"
-                        style={{ verticalAlign: "middle" }}
-                      >
+                      <td className="p-4 align-middle text-center border-r border-border">
                         <RatingDisplay
                           rating={Math.round(problem.rating)}
                           showIcon={true}
                         />
                       </td>
-                      <td className="data-table-body-cell">
+                      <td className="p-4 align-middle border-r border-border">
                         <div className="flex flex-wrap gap-1">
                           {problem.type.map((type) => (
                             <Badge
@@ -467,8 +456,8 @@ export default function Problems() {
                           ))}
                         </div>
                       </td>
-                      <td className="data-table-body-cell">
-                        <span className="text-sm text-muted-foreground">
+                      <td className="p-4 align-middle">
+                        <span className="text-sm text-muted-foreground break-words">
                           {problem.course.name}
                         </span>
                       </td>
