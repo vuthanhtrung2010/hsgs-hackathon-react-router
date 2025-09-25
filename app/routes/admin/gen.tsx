@@ -240,12 +240,24 @@ export default function MathGeneration() {
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate math questions");
+      // Check if response is JSON
+      const contentType = response.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        const jsonData = await response.json();
+
+        if (!response.ok || !jsonData.success) {
+          throw new Error(jsonData.error || "Failed to generate math questions");
+        }
+
+        // Success with quiz link
+        if (jsonData.link_to_quiz) {
+          setSuccess(`Quiz created: ${jsonData.link_to_quiz}`);
+          setQuestions([]); // Clear questions after successful generation
+          return;
+        }
       }
 
-      // Handle file download
+      // Handle file download (test mode)
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -286,7 +298,21 @@ export default function MathGeneration() {
       {success && (
         <Alert className="mb-6 border-green-200 bg-green-50">
           <AlertDescription className="text-green-800">
-            {success}
+            {success.startsWith("Quiz created:") ? (
+              <span>
+                Quiz created:{" "}
+                <a
+                  href={success.replace("Quiz created: ", "")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-green-600"
+                >
+                  {success.replace("Quiz created: ", "")}
+                </a>
+              </span>
+            ) : (
+              success
+            )}
           </AlertDescription>
         </Alert>
       )}

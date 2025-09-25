@@ -27,7 +27,27 @@ export async function action({ request }: { request: Request }) {
       );
     }
 
-    // Return the file response directly
+    // Check if response is JSON (contains link_to_quiz or error)
+    const contentType = response.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
+      const jsonData = await response.json();
+
+      if (jsonData.link_to_quiz) {
+        // Success with quiz link
+        return Response.json({
+          success: true,
+          link_to_quiz: jsonData.link_to_quiz
+        });
+      } else if (jsonData.error) {
+        // Error response
+        return Response.json({
+          success: false,
+          error: jsonData.error
+        });
+      }
+    }
+
+    // Return the file response directly (for test mode)
     const blob = await response.blob();
     return new Response(blob, {
       status: 200,
