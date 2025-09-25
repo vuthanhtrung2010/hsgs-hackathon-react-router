@@ -31,10 +31,10 @@ export default function RatingDisplay({
   const ratingClass = getRatingClass(rating);
   const ratingTitle = getRatingTitle(rating);
 
-  if (rating === 0) {
+  if (rating === 0 || rating === 1500) {
     return (
       <span className={`rate-group ${className}`} title="Unrated">
-        {/* Empty for unrated users */}
+        {/* Empty for unrated users (0 or base rating 1500) */}
       </span>
     );
   }

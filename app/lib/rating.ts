@@ -1,7 +1,7 @@
 // DMOJ-style rating system utilities
 
 export function getRatingClass(rating: number): string {
-  if (rating === 0) return ""; // No class for unrated users
+  if (rating === 0 || rating === 1500) return ""; // No class for unrated users (0 or base rating 1500)
   if (rating >= 3000) return "rate-admin";
   if (rating >= 2400) return "rate-target";
   if (rating >= 2100) return "rate-grandmaster";
@@ -13,7 +13,7 @@ export function getRatingClass(rating: number): string {
 }
 
 export function getRatingTitle(rating: number): string {
-  if (rating === 0) return "Unrated";
+  if (rating === 0 || rating === 1500) return "Unrated";
   if (rating >= 3000) return "Admin";
   if (rating >= 2400) return "Target";
   if (rating >= 2100) return "Grandmaster";
@@ -25,6 +25,6 @@ export function getRatingTitle(rating: number): string {
 }
 
 export function formatRating(rating: number): string {
-  if (rating === 0) return "";
+  if (rating === 0 || rating === 1500) return "";
   return rating.toFixed(0);
 }
