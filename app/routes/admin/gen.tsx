@@ -173,9 +173,11 @@ export default function MathGeneration() {
       !currentQuestion.topicValue ||
       !currentQuestion.difficulty ||
       !currentQuestion.question ||
-      !currentQuestion.n
+      !currentQuestion.n ||
+      currentQuestion.n < 1 ||
+      currentQuestion.n > 50
     ) {
-      setError("Please fill in all fields");
+      setError("Please fill in all fields and ensure number of questions is between 1 and 50");
       return;
     }
 
@@ -497,13 +499,15 @@ export default function MathGeneration() {
                 id="count"
                 type="number"
                 value={currentQuestion.n || 10}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const value = parseInt(e.target.value) || 10;
                   setCurrentQuestion({
                     ...currentQuestion,
-                    n: parseInt(e.target.value) || 10,
-                  })
-                }
+                    n: Math.min(50, Math.max(1, value)),
+                  });
+                }}
                 min="1"
+                max="50"
               />
             </div>
 
