@@ -1,12 +1,21 @@
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "~/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { Button } from "~/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCourses } from "~/lib/server-actions/users";
+import { cn } from "~/lib/utils";
 
 interface CourseData {
   id: string;
@@ -28,6 +37,7 @@ export default function CourseSelector({
 }: CourseSelectorProps) {
   const [courses, setCourses] = useState<CourseData[]>(propCourses || []);
   const [loading, setLoading] = useState(!propCourses);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     async function loadCourses() {
@@ -54,30 +64,60 @@ export default function CourseSelector({
     }
   }, [propCourses, selectedCourseId, onCourseChange]);
 
+  // Use prop courses if provided, otherwise use state courses
+  const displayCourses = propCourses || courses;
+  const selectedCourse = displayCourses.find((course) => course.id === selectedCourseId);
+
   if (loading) {
     return (
-      <div
-        className={`w-48 h-10 bg-muted animate-pulse rounded-md ${className}`}
-      />
+      <Button variant="outline" className={cn("w-[200px] justify-between", className)} disabled>
+        Loading...
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
     );
   }
 
-  if (courses.length === 0) {
-    return null;
-  }
-
   return (
-    <Select value={selectedCourseId} onValueChange={onCourseChange}>
-      <SelectTrigger className={`w-48 ${className}`}>
-        <SelectValue placeholder="Select a course" />
-      </SelectTrigger>
-      <SelectContent>
-        {courses.map((course) => (
-          <SelectItem key={course.id} value={course.id}>
-            {course.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={cn("w-[200px] justify-between", className)}
+        >
+          {selectedCourse ? selectedCourse.name : "Select course..."}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0">
+        <Command>
+          <CommandInput placeholder="Search courses..." />
+          <CommandList>
+            <CommandEmpty>No course found.</CommandEmpty>
+            <CommandGroup>
+              {displayCourses.map((course) => (
+                <CommandItem
+                  key={course.id}
+                  value={course.name}
+                  onSelect={() => {
+                    onCourseChange(course.id);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedCourseId === course.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {course.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }
