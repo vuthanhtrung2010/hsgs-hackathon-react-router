@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link, useLoaderData, useSearchParams } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -74,6 +74,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function UsersPage() {
   const courses = useLoaderData<{ id: string; name: string }[]>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [users, setUsers] = useState<IUsersListData[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<IUsersListData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -84,12 +85,27 @@ export default function UsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
 
-  // Initialize with first course from loader
+  // Initialize with course from query string or first course sorted by name
   useEffect(() => {
     if (courses && courses.length > 0 && !selectedCourseId) {
-      setSelectedCourseId(courses[0].id);
+      // Sort courses by name
+      const sortedCourses = [...courses].sort((a, b) => a.name.localeCompare(b.name));
+      
+      // Check for course query parameter
+      const courseParam = searchParams.get("course");
+      const foundCourse = courseParam ? sortedCourses.find(c => c.id === courseParam) : null;
+      
+      if (foundCourse) {
+        setSelectedCourseId(foundCourse.id);
+      } else {
+        // Remove invalid course param and use first course
+        if (courseParam) {
+          setSearchParams(new URLSearchParams());
+        }
+        setSelectedCourseId(sortedCourses[0].id);
+      }
     }
-  }, [courses, selectedCourseId]);
+  }, [courses, selectedCourseId, searchParams, setSearchParams]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -245,6 +261,8 @@ export default function UsersPage() {
 
   const handleCourseChange = (courseId: string) => {
     setSelectedCourseId(courseId);
+    // Update URL with course query parameter
+    setSearchParams({ course: courseId });
   };
 
   return (
@@ -266,7 +284,7 @@ export default function UsersPage() {
             <CourseSelector
               selectedCourseId={selectedCourseId}
               onCourseChange={handleCourseChange}
-              courses={courses}
+              courses={[...courses].sort((a, b) => a.name.localeCompare(b.name))}
             />
           </div>
 
