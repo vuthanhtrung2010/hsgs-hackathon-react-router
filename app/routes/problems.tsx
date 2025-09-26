@@ -426,10 +426,7 @@ export default function Problems() {
                     <tr key={problem.problemId} className="border-b transition-colors hover:bg-muted/50">
                       <td className="p-4 align-middle border-r border-border">
                         <Link
-                          to={`${new URL(
-                            `/courses/${problem.course.courseId}/quizzes/${problem.problemId}`,
-                            problem.course.canvasUrl,
-                          )}`}
+                          to={problem.course.canvasUrl}
                           className="text-primary hover:underline font-medium break-words"
                         >
                           {problem.name}

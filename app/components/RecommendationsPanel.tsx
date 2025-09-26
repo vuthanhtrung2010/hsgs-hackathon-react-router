@@ -12,22 +12,13 @@ interface RecommendationsProps {
   recommendations?: Recommendations[];
   userRating: number;
   courseId: string;
-  canvasUrl?: string;
 }
 
 export default function RecommendationsPanel({
   recommendations,
   userRating,
   courseId,
-  canvasUrl,
 }: RecommendationsProps) {
-  // Canvas URL configuration - use prop if provided, otherwise fallback to env
-  const canvasBaseUrl =
-    canvasUrl ||
-    process.env.VITE_CANVAS_API_BASE_URL ||
-    import.meta.env.VITE_CANVAS_API_BASE_URL ||
-    "https://canvas.instructure.com";
-
   if (!recommendations || recommendations.length === 0) {
     return (
       <div className="bg-card border rounded-lg p-6 h-fit">
@@ -73,12 +64,7 @@ export default function RecommendationsPanel({
             difficultyText = "Practice";
           }
 
-          const quizUrl = courseId
-            ? new URL(
-                `/courses/${courseId}/quizzes/${rec.quizId}`,
-                canvasBaseUrl,
-              ).toString()
-            : "#"; // Fallback if environment variables are not set
+          const quizUrl = rec.canvasUrl || "#"; // Use the canvasUrl provided by the backend
 
           return (
             <a
