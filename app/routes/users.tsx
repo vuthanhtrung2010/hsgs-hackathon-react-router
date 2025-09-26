@@ -31,7 +31,7 @@ import { Config } from "~/config";
 
 const USERS_PER_PAGE = 50;
 
-type SortField = "name" | "rating";
+type SortField = "name" | "rating" | "quizzes";
 type SortOrder = "asc" | "desc" | null;
 
 export async function loader() {
@@ -158,6 +158,19 @@ export default function UsersPage() {
 
             const comparison = (aValue as number) - (bValue as number);
             return sortOrder === "asc" ? comparison : -comparison;
+          case "quizzes":
+            // Get the quiz count for the selected course
+            aValue =
+              a.course && a.course.courseId.toString() === selectedCourseId
+                ? a.course.quizzesCompleted || 0
+                : 0;
+            bValue =
+              b.course && b.course.courseId.toString() === selectedCourseId
+                ? b.course.quizzesCompleted || 0
+                : 0;
+
+            const quizComparison = (aValue as number) - (bValue as number);
+            return sortOrder === "asc" ? quizComparison : -quizComparison;
           default:
             return 0;
         }
@@ -200,6 +213,7 @@ export default function UsersPage() {
               courseId: parseInt(selectedCourseId),
               courseName: "IELTS Practice",
               rating: 1581,
+              quizzesCompleted: 25
             },
           },
           {
@@ -210,6 +224,7 @@ export default function UsersPage() {
               courseId: parseInt(selectedCourseId),
               courseName: "IELTS Practice",
               rating: 1541,
+              quizzesCompleted: 18
             },
           },
           {
@@ -220,6 +235,7 @@ export default function UsersPage() {
               courseId: parseInt(selectedCourseId),
               courseName: "IELTS Practice",
               rating: 1501,
+              quizzesCompleted: 12
             },
           },
         ];
@@ -342,7 +358,7 @@ export default function UsersPage() {
                     </div>
                   </th>
                   <th
-                    className="h-12 px-4 text-left align-middle font-medium text-white dark:text-gray-900 rounded-tr-md cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
+                    className="h-12 px-4 text-left align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
                     onClick={() => handleSort("name")}
                   >
                     <div className="flex items-center gap-2">
@@ -353,13 +369,25 @@ export default function UsersPage() {
                       />
                     </div>
                   </th>
+                  <th
+                    className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 rounded-tr-md w-[6rem] cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
+                    onClick={() => handleSort("quizzes")}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      Quizzes
+                      <FontAwesomeIcon
+                        icon={getSortIcon("quizzes")}
+                        className="w-3 h-3"
+                      />
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
                     <td
-                      colSpan={3}
+                      colSpan={4}
                       className="h-24 px-4 text-center text-muted-foreground"
                     >
                       <div className="flex items-center justify-center">
@@ -370,7 +398,7 @@ export default function UsersPage() {
                 ) : currentUsers.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={3}
+                      colSpan={4}
                       className="h-24 px-4 text-center text-muted-foreground"
                     >
                       <span>
@@ -400,7 +428,7 @@ export default function UsersPage() {
                             showIcon={true}
                           />
                         </td>
-                        <td className="p-4 align-middle">
+                        <td className="p-4 align-middle border-r border-border">
                           <Link
                             to={`/user/${user.id}`}
                             className="text-primary hover:underline font-medium"
@@ -411,6 +439,11 @@ export default function UsersPage() {
                               rating={Math.round(rating)}
                             />
                           </Link>
+                        </td>
+                        <td className="p-4 align-middle text-center">
+                          <span className="font-medium text-sm">
+                            {user.course.quizzesCompleted || 0}
+                          </span>
                         </td>
                       </tr>
                     );

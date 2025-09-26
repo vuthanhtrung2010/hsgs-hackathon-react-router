@@ -6,6 +6,7 @@ export interface IUsersListData {
     courseId: number;
     courseName: string;
     rating: number;
+    quizzesCompleted?: number; // Number of completed quizzes
   };
 }
 
