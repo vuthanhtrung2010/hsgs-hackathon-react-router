@@ -22,8 +22,11 @@ export async function action({ request }: { request: Request }) {
     if (!response.ok) {
       const errorData = await response.json();
       return Response.json(
-        { success: false, error: errorData.error || "Failed to generate math questions" },
-        { status: response.status }
+        {
+          success: false,
+          error: errorData.error || "Failed to generate math questions",
+        },
+        { status: response.status },
       );
     }
 
@@ -36,13 +39,13 @@ export async function action({ request }: { request: Request }) {
         // Success with quiz link
         return Response.json({
           success: true,
-          link_to_quiz: jsonData.link_to_quiz
+          link_to_quiz: jsonData.link_to_quiz,
         });
       } else if (jsonData.error) {
         // Error response
         return Response.json({
           success: false,
-          error: jsonData.error
+          error: jsonData.error,
         });
       }
     }
@@ -52,15 +55,18 @@ export async function action({ request }: { request: Request }) {
     return new Response(blob, {
       status: 200,
       headers: {
-        "Content-Type": response.headers.get("Content-Type") || "application/octet-stream",
-        "Content-Disposition": response.headers.get("Content-Disposition") || 'attachment; filename="response.txt"',
+        "Content-Type":
+          response.headers.get("Content-Type") || "application/octet-stream",
+        "Content-Disposition":
+          response.headers.get("Content-Disposition") ||
+          'attachment; filename="response.txt"',
       },
     });
   } catch (error) {
     console.error("Math generation proxy error:", error);
     return Response.json(
       { success: false, error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

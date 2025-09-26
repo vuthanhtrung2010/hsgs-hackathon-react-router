@@ -52,9 +52,9 @@ export default function ClusterRadarChart({
 }: ClusterRadarChartProps) {
   // Check if clusters is empty or null
   const hasSkillsData = clusters && Object.keys(clusters).length > 0;
-  
+
   // Transform clusters data for radar chart
-  const radarData = hasSkillsData 
+  const radarData = hasSkillsData
     ? Object.entries(clusters).map(([key, value]) => ({
         subject: formatClusterName(key),
         rating: Math.round(value || 0),
@@ -65,8 +65,10 @@ export default function ClusterRadarChart({
   // Calculate average rating across all clusters
   const averageRating = hasSkillsData
     ? Math.round(
-        Object.values(clusters).reduce((sum, rating) => sum + (rating || 0), 0) /
-          Object.keys(clusters).length,
+        Object.values(clusters).reduce(
+          (sum, rating) => sum + (rating || 0),
+          0,
+        ) / Object.keys(clusters).length,
       )
     : 0;
 
@@ -83,7 +85,9 @@ export default function ClusterRadarChart({
         <div className="w-full h-[400px] flex items-center justify-center">
           <div className="text-center text-muted-foreground">
             <p className="text-lg mb-2">No skills data available</p>
-            <p className="text-sm">Complete some quizzes to see your skills analysis</p>
+            <p className="text-sm">
+              Complete some quizzes to see your skills analysis
+            </p>
           </div>
         </div>
       </div>

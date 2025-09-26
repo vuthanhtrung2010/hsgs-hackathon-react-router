@@ -84,7 +84,9 @@ export default function UserManagement() {
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      setError(error instanceof Error ? error.message : "Failed to fetch user profile");
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch user profile",
+      );
     } finally {
       setLoading(false);
     }
@@ -136,23 +138,21 @@ export default function UserManagement() {
     setSuccess("");
 
     try {
-      const response = await fetch(
-        `/api/users/profile`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: editingUser.name.trim(),
-            email: editingUser.email.toLowerCase().trim(),
-            ...(editingUser.password && editingUser.password.trim() && {
+      const response = await fetch(`/api/users/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: editingUser.name.trim(),
+          email: editingUser.email.toLowerCase().trim(),
+          ...(editingUser.password &&
+            editingUser.password.trim() && {
               password: editingUser.password.trim(),
-              oldPassword: editingUser.oldPassword?.trim()
+              oldPassword: editingUser.oldPassword?.trim(),
             }),
-          }),
-        }
-      );
+        }),
+      });
 
       if (!response.ok) {
         // Try to get error message from response
@@ -179,12 +179,10 @@ export default function UserManagement() {
 
       if (data.success) {
         // Update the user in the local state
-        setUsers(prevUsers =>
-          prevUsers.map(user =>
-            user.id === editingUser.id
-              ? { ...user, ...data.user }
-              : user
-          )
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === editingUser.id ? { ...user, ...data.user } : user,
+          ),
         );
 
         setSuccess("Profile updated successfully");
@@ -194,7 +192,9 @@ export default function UserManagement() {
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      setError(error instanceof Error ? error.message : "Failed to update profile");
+      setError(
+        error instanceof Error ? error.message : "Failed to update profile",
+      );
     } finally {
       setUpdating(false);
     }
@@ -211,7 +211,11 @@ export default function UserManagement() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <FontAwesomeIcon icon={faSpinner} spin className="text-2xl text-gray-500" />
+        <FontAwesomeIcon
+          icon={faSpinner}
+          spin
+          className="text-2xl text-gray-500"
+        />
         <span className="ml-2 text-gray-500">Loading profile...</span>
       </div>
     );
@@ -231,7 +235,10 @@ export default function UserManagement() {
 
       {error && (
         <Alert className="mb-6 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
-          <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-600" />
+          <FontAwesomeIcon
+            icon={faExclamationTriangle}
+            className="text-red-600"
+          />
           <AlertDescription className="text-red-800 dark:text-red-200">
             {error}
           </AlertDescription>
@@ -266,14 +273,23 @@ export default function UserManagement() {
                         Full Name
                       </label>
                       <Input
-                        value={editingUser?.id === user.id ? editingUser.name : user.name}
+                        value={
+                          editingUser?.id === user.id
+                            ? editingUser.name
+                            : user.name
+                        }
                         onChange={(e) => {
                           if (editingUser?.id === user.id) {
-                            setEditingUser({ ...editingUser, name: e.target.value });
+                            setEditingUser({
+                              ...editingUser,
+                              name: e.target.value,
+                            });
                           } else {
                             startEditing(user);
                             setTimeout(() => {
-                              setEditingUser(prev => prev ? { ...prev, name: e.target.value } : null);
+                              setEditingUser((prev) =>
+                                prev ? { ...prev, name: e.target.value } : null,
+                              );
                             }, 0);
                           }
                         }}
@@ -287,14 +303,25 @@ export default function UserManagement() {
                         Email Address
                       </label>
                       <Input
-                        value={editingUser?.id === user.id ? editingUser.email : user.email}
+                        value={
+                          editingUser?.id === user.id
+                            ? editingUser.email
+                            : user.email
+                        }
                         onChange={(e) => {
                           if (editingUser?.id === user.id) {
-                            setEditingUser({ ...editingUser, email: e.target.value });
+                            setEditingUser({
+                              ...editingUser,
+                              email: e.target.value,
+                            });
                           } else {
                             startEditing(user);
                             setTimeout(() => {
-                              setEditingUser(prev => prev ? { ...prev, email: e.target.value } : null);
+                              setEditingUser((prev) =>
+                                prev
+                                  ? { ...prev, email: e.target.value }
+                                  : null,
+                              );
                             }, 0);
                           }
                         }}
@@ -311,14 +338,25 @@ export default function UserManagement() {
                     </label>
                     <Input
                       type="password"
-                      value={editingUser?.id === user.id ? editingUser.password || "" : ""}
+                      value={
+                        editingUser?.id === user.id
+                          ? editingUser.password || ""
+                          : ""
+                      }
                       onChange={(e) => {
                         if (editingUser?.id === user.id) {
-                          setEditingUser({ ...editingUser, password: e.target.value });
+                          setEditingUser({
+                            ...editingUser,
+                            password: e.target.value,
+                          });
                         } else {
                           startEditing(user);
                           setTimeout(() => {
-                            setEditingUser(prev => prev ? { ...prev, password: e.target.value } : null);
+                            setEditingUser((prev) =>
+                              prev
+                                ? { ...prev, password: e.target.value }
+                                : null,
+                            );
                           }, 0);
                         }
                       }}
@@ -327,22 +365,27 @@ export default function UserManagement() {
                     />
                   </div>
 
-                  {(editingUser?.id === user.id && editingUser.password && editingUser.password.trim()) && (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Current Password (required to change password)
-                      </label>
-                      <Input
-                        type="password"
-                        value={editingUser.oldPassword || ""}
-                        onChange={(e) => {
-                          setEditingUser({ ...editingUser, oldPassword: e.target.value });
-                        }}
-                        placeholder="Enter your current password"
-                        className="w-full"
-                      />
-                    </div>
-                  )}
+                  {editingUser?.id === user.id &&
+                    editingUser.password &&
+                    editingUser.password.trim() && (
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Current Password (required to change password)
+                        </label>
+                        <Input
+                          type="password"
+                          value={editingUser.oldPassword || ""}
+                          onChange={(e) => {
+                            setEditingUser({
+                              ...editingUser,
+                              oldPassword: e.target.value,
+                            });
+                          }}
+                          placeholder="Enter your current password"
+                          className="w-full"
+                        />
+                      </div>
+                    )}
 
                   <div className="flex items-center justify-between pt-4">
                     <div className="flex items-center space-x-4">

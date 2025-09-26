@@ -66,11 +66,17 @@ export default function CourseSelector({
 
   // Use prop courses if provided, otherwise use state courses
   const displayCourses = propCourses || courses;
-  const selectedCourse = displayCourses.find((course) => course.id === selectedCourseId);
+  const selectedCourse = displayCourses.find(
+    (course) => course.id === selectedCourseId,
+  );
 
   if (loading) {
     return (
-      <Button variant="outline" className={cn("w-[200px] justify-between", className)} disabled>
+      <Button
+        variant="outline"
+        className={cn("w-[200px] justify-between", className)}
+        disabled
+      >
         Loading...
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
@@ -108,7 +114,9 @@ export default function CourseSelector({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      selectedCourseId === course.id ? "opacity-100" : "opacity-0"
+                      selectedCourseId === course.id
+                        ? "opacity-100"
+                        : "opacity-0",
                     )}
                   />
                   {course.name}

@@ -89,12 +89,16 @@ export default function UsersPage() {
   useEffect(() => {
     if (courses && courses.length > 0 && !selectedCourseId) {
       // Sort courses by name
-      const sortedCourses = [...courses].sort((a, b) => a.name.localeCompare(b.name));
-      
+      const sortedCourses = [...courses].sort((a, b) =>
+        a.name.localeCompare(b.name),
+      );
+
       // Check for course query parameter
       const courseParam = searchParams.get("course");
-      const foundCourse = courseParam ? sortedCourses.find(c => c.id === courseParam) : null;
-      
+      const foundCourse = courseParam
+        ? sortedCourses.find((c) => c.id === courseParam)
+        : null;
+
       if (foundCourse) {
         setSelectedCourseId(foundCourse.id);
       } else {
@@ -213,7 +217,7 @@ export default function UsersPage() {
               courseId: parseInt(selectedCourseId),
               courseName: "IELTS Practice",
               rating: 1581,
-              quizzesCompleted: 25
+              quizzesCompleted: 25,
             },
           },
           {
@@ -224,7 +228,7 @@ export default function UsersPage() {
               courseId: parseInt(selectedCourseId),
               courseName: "IELTS Practice",
               rating: 1541,
-              quizzesCompleted: 18
+              quizzesCompleted: 18,
             },
           },
           {
@@ -235,7 +239,7 @@ export default function UsersPage() {
               courseId: parseInt(selectedCourseId),
               courseName: "IELTS Practice",
               rating: 1501,
-              quizzesCompleted: 12
+              quizzesCompleted: 12,
             },
           },
         ];
@@ -300,7 +304,9 @@ export default function UsersPage() {
             <CourseSelector
               selectedCourseId={selectedCourseId}
               onCourseChange={handleCourseChange}
-              courses={[...courses].sort((a, b) => a.name.localeCompare(b.name))}
+              courses={[...courses].sort((a, b) =>
+                a.name.localeCompare(b.name),
+              )}
             />
           </div>
 
@@ -416,7 +422,10 @@ export default function UsersPage() {
                         ? user.course.rating
                         : 1500;
                     return (
-                      <tr key={user.id} className="border-b transition-colors hover:bg-muted/50">
+                      <tr
+                        key={user.id}
+                        className="border-b transition-colors hover:bg-muted/50"
+                      >
                         <td className="p-4 align-middle text-center border-r border-border">
                           <span className="font-bold text-lg">
                             #{startIndex + index + 1}

@@ -47,7 +47,7 @@ const DEFAULT_TOPICS = {
     "Hàm số, đồ thị và ứng dụng",
     "Phương pháp tọa độ trong mặt phẳng",
     "Đại số tổ hợp",
-    "Tính xác suất theo định nghĩa cổ điển"
+    "Tính xác suất theo định nghĩa cổ điển",
   ],
   11: [
     "Hàm số lượng giác - Phương trình lượng giác",
@@ -58,7 +58,7 @@ const DEFAULT_TOPICS = {
     "Hàm số mũ - Hàm số Logarit",
     "Quan hệ vuông góc trong không gian",
     "Các quy tắc tính xác suất",
-    "Đạo hàm"
+    "Đạo hàm",
   ],
   12: [
     "Ứng dụng đạo hàm để khảo sát và vẽ đồ thị hàm số",
@@ -66,18 +66,19 @@ const DEFAULT_TOPICS = {
     "Các số đặc trưng đo mức độ phân tán của mẫu số liệu ghép nhóm",
     "Nguyên hàm - Tích phân",
     "Phương pháp tọa độ trong không gian",
-    "Xác suất có điều kiện"
-  ]
+    "Xác suất có điều kiện",
+  ],
 };
 
 // Create flat list of topics with class information
-const TOPIC_OPTIONS = Object.entries(DEFAULT_TOPICS).flatMap(([grade, topics]) =>
-  topics.map(topic => ({
-    value: `${grade}-${topic}`,
-    label: topic,
-    topic,
-    grade: parseInt(grade)
-  }))
+const TOPIC_OPTIONS = Object.entries(DEFAULT_TOPICS).flatMap(
+  ([grade, topics]) =>
+    topics.map((topic) => ({
+      value: `${grade}-${topic}`,
+      label: topic,
+      topic,
+      grade: parseInt(grade),
+    })),
 );
 
 const DIFFICULTY_LEVELS = [
@@ -145,7 +146,7 @@ export default function MathGeneration() {
   const [openTopicSelector, setOpenTopicSelector] = useState(false);
   const [openCourseSelector, setOpenCourseSelector] = useState(false);
 
-  const handleTopicSelect = (topicOption: typeof TOPIC_OPTIONS[0]) => {
+  const handleTopicSelect = (topicOption: (typeof TOPIC_OPTIONS)[0]) => {
     setCurrentQuestion({
       ...currentQuestion,
       topic: topicOption.topic,
@@ -177,7 +178,9 @@ export default function MathGeneration() {
       currentQuestion.n < 1 ||
       currentQuestion.n > 50
     ) {
-      setError("Please fill in all fields and ensure number of questions is between 1 and 50");
+      setError(
+        "Please fill in all fields and ensure number of questions is between 1 and 50",
+      );
       return;
     }
 
@@ -248,7 +251,9 @@ export default function MathGeneration() {
         const jsonData = await response.json();
 
         if (!response.ok || !jsonData.success) {
-          throw new Error(jsonData.error || "Failed to generate math questions");
+          throw new Error(
+            jsonData.error || "Failed to generate math questions",
+          );
         }
 
         // Success with quiz link
@@ -328,7 +333,10 @@ export default function MathGeneration() {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="course-select">Course</Label>
-              <Popover open={openCourseSelector} onOpenChange={setOpenCourseSelector}>
+              <Popover
+                open={openCourseSelector}
+                onOpenChange={setOpenCourseSelector}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -337,7 +345,8 @@ export default function MathGeneration() {
                     className="w-full justify-between"
                   >
                     {selectedCourseId
-                      ? courses.find((course) => course.id === selectedCourseId)?.name
+                      ? courses.find((course) => course.id === selectedCourseId)
+                          ?.name
                       : "Select course..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -359,7 +368,7 @@ export default function MathGeneration() {
                                 "mr-2 h-4 w-4",
                                 selectedCourseId === course.id
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             {course.name}
@@ -395,7 +404,10 @@ export default function MathGeneration() {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="topic">Topic</Label>
-              <Popover open={openTopicSelector} onOpenChange={setOpenTopicSelector}>
+              <Popover
+                open={openTopicSelector}
+                onOpenChange={setOpenTopicSelector}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -405,7 +417,7 @@ export default function MathGeneration() {
                   >
                     {currentQuestion.topic
                       ? TOPIC_OPTIONS.find(
-                          (topic) => topic.value === currentQuestion.topicValue
+                          (topic) => topic.value === currentQuestion.topicValue,
                         )?.label
                       : "Select topic..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -428,7 +440,7 @@ export default function MathGeneration() {
                                 "mr-2 h-4 w-4",
                                 currentQuestion.topicValue === topicOption.value
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <div className="flex flex-col">
@@ -586,7 +598,6 @@ export default function MathGeneration() {
           </CardContent>
         </Card>
       )}
-
     </div>
   );
 }

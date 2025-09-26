@@ -423,7 +423,10 @@ export default function Problems() {
                   </tr>
                 ) : (
                   currentProblems.map((problem) => (
-                    <tr key={problem.problemId} className="border-b transition-colors hover:bg-muted/50">
+                    <tr
+                      key={problem.problemId}
+                      className="border-b transition-colors hover:bg-muted/50"
+                    >
                       <td className="p-4 align-middle border-r border-border">
                         <Link
                           to={problem.course.canvasUrl}

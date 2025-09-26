@@ -1,6 +1,13 @@
 import { Outlet, Link, useLocation } from "react-router";
 import { useAuth } from "../../components/AuthProvider";
-import { GraduationCap, Plus, Home, Megaphone, Calculator, Users } from "lucide-react";
+import {
+  GraduationCap,
+  Plus,
+  Home,
+  Megaphone,
+  Calculator,
+  Users,
+} from "lucide-react";
 
 export default function AdminLayout() {
   const { user } = useAuth();
