@@ -159,8 +159,12 @@ export default function UsersPage() {
               b.course && b.course.courseId.toString() === selectedCourseId
                 ? b.course.rating
                 : 1500;
+            
+            // Treat default rating (1500) as 0 for sorting purposes
+            const ratingA = aValue === 1500 ? 0 : aValue;
+            const ratingB = bValue === 1500 ? 0 : bValue;
 
-            const comparison = (aValue as number) - (bValue as number);
+            const comparison = (ratingA as number) - (ratingB as number);
             return sortOrder === "asc" ? comparison : -comparison;
           case "quizzes":
             // Get the quiz count for the selected course
