@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link, useLoaderData, useSearchParams } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -22,11 +22,10 @@ import {
 import { type IUsersListData } from "~/lib/server-actions/users";
 import { getRatingTitle } from "~/lib/rating";
 import RatingDisplay from "~/components/RatingDisplay";
-import CourseSelector from "~/components/CourseSelector";
 import "~/styles/rating.css";
 import Loading from "~/components/Loading";
 import NameDisplay from "~/components/NameDisplay";
-import type { Route } from "./+types/users";
+import type { Route } from "./+types/ranking.$randomizedCourseId";
 import { Config } from "~/config";
 
 const USERS_PER_PAGE = 50;
@@ -34,13 +33,15 @@ const USERS_PER_PAGE = 50;
 type SortField = "name" | "rating" | "quizzes";
 type SortOrder = "asc" | "desc" | null;
 
-export async function loader() {
+export async function loader({ params }: Route.LoaderArgs) {
+  const { randomizedCourseId } = params;
+
   try {
     const url = new URL(
-      "/api/courses",
+      `/api/ranking/${randomizedCourseId}`,
       process.env.VITE_API_BASE_URL ||
         import.meta.env.VITE_API_BASE_URL ||
-        "https://api.example.com",
+        "https://api.example.com"
     );
 
     const response = await fetch(url.toString(), {
@@ -51,65 +52,44 @@ export async function loader() {
     });
 
     if (!response.ok) {
-      return [{ id: "default", name: "Default Course" }];
+      throw new Error("Failed to fetch rankings");
     }
 
-    const courses = await response.json();
-    return courses;
+    const data = await response.json();
+    return { users: data, randomizedCourseId };
   } catch (error) {
-    console.error("Error fetching courses:", error);
-    return [{ id: "default", name: "Default Course" }];
+    console.error("Error fetching rankings:", error);
+    return { users: [], randomizedCourseId };
   }
 }
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ data }: Route.MetaArgs) {
+  const courseName = data?.users?.[0]?.course?.courseName || "Course";
   return [
-    { title: `Leaderboard - ${Config.siteDescription}` },
+    { title: `${courseName} - Leaderboard - ${Config.siteDescription}` },
     {
       name: "description",
-      content: `Leaderboard of users on ${Config.sitename}. View user ratings, ranks, and statistics.`,
+      content: `Leaderboard for ${courseName} on ${Config.sitename}. View user ratings, ranks, and statistics.`,
     },
   ];
 }
 
-export default function UsersPage() {
-  const courses = useLoaderData<{ id: string; name: string }[]>();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [users, setUsers] = useState<IUsersListData[]>([]);
+export default function RankingRoute() {
+  const { users: initialUsers, randomizedCourseId } = useLoaderData<{
+    users: IUsersListData[];
+    randomizedCourseId: string;
+  }>();
+  
+  const [users, setUsers] = useState<IUsersListData[]>(initialUsers);
   const [filteredUsers, setFilteredUsers] = useState<IUsersListData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<SortField>("rating");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize with course from query string or first course sorted by name
-  useEffect(() => {
-    if (courses && courses.length > 0 && !selectedCourseId) {
-      // Sort courses by name
-      const sortedCourses = [...courses].sort((a, b) =>
-        a.name.localeCompare(b.name),
-      );
-
-      // Check for course query parameter
-      const courseParam = searchParams.get("course");
-      const foundCourse = courseParam
-        ? sortedCourses.find((c) => c.id === courseParam)
-        : null;
-
-      if (foundCourse) {
-        setSelectedCourseId(foundCourse.id);
-      } else {
-        // Remove invalid course param and use first course
-        if (courseParam) {
-          setSearchParams(new URLSearchParams());
-        }
-        setSelectedCourseId(sortedCourses[0].id);
-      }
-    }
-  }, [courses, selectedCourseId, searchParams, setSearchParams]);
+  const courseName = users[0]?.course?.courseName || "Course Leaderboard";
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -150,15 +130,8 @@ export default function UsersPage() {
             }
             break;
           case "rating":
-            // Get the rating for the selected course
-            aValue =
-              a.course && a.course.courseId.toString() === selectedCourseId
-                ? a.course.rating
-                : 1500;
-            bValue =
-              b.course && b.course.courseId.toString() === selectedCourseId
-                ? b.course.rating
-                : 1500;
+            aValue = a.course?.rating || 1500;
+            bValue = b.course?.rating || 1500;
             
             // Treat default rating (1500) as 0 for sorting purposes
             const ratingA = aValue === 1500 ? 0 : aValue;
@@ -167,15 +140,8 @@ export default function UsersPage() {
             const comparison = (ratingA as number) - (ratingB as number);
             return sortOrder === "asc" ? comparison : -comparison;
           case "quizzes":
-            // Get the quiz count for the selected course
-            aValue =
-              a.course && a.course.courseId.toString() === selectedCourseId
-                ? a.course.quizzesCompleted || 0
-                : 0;
-            bValue =
-              b.course && b.course.courseId.toString() === selectedCourseId
-                ? b.course.quizzesCompleted || 0
-                : 0;
+            aValue = a.course?.quizzesCompleted || 0;
+            bValue = b.course?.quizzesCompleted || 0;
 
             const quizComparison = (aValue as number) - (bValue as number);
             return sortOrder === "asc" ? quizComparison : -quizComparison;
@@ -186,75 +152,8 @@ export default function UsersPage() {
         return 0;
       });
     },
-    [sortField, sortOrder, selectedCourseId],
+    [sortField, sortOrder],
   );
-
-  // Load users when course changes
-  useEffect(() => {
-    async function loadUsers() {
-      if (!selectedCourseId) return;
-
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/ranking/${selectedCourseId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch users");
-        }
-
-        const usersData = await response.json();
-        setUsers(usersData);
-      } catch (error) {
-        console.error("Failed to load users:", error);
-        // Use mock data as fallback
-        const mockUsers: IUsersListData[] = [
-          {
-            id: "26078",
-            name: "Học Sinh",
-            shortName: "Học Sinh",
-            course: {
-              courseId: parseInt(selectedCourseId),
-              courseName: "IELTS Practice",
-              rating: 1581,
-              quizzesCompleted: 25,
-            },
-          },
-          {
-            id: "26079",
-            name: "Nguyễn Hòa Bình",
-            shortName: "Nguyễn Hòa Bình",
-            course: {
-              courseId: parseInt(selectedCourseId),
-              courseName: "IELTS Practice",
-              rating: 1541,
-              quizzesCompleted: 18,
-            },
-          },
-          {
-            id: "26071",
-            name: "An Hiep",
-            shortName: "An Hiep",
-            course: {
-              courseId: parseInt(selectedCourseId),
-              courseName: "IELTS Practice",
-              rating: 1501,
-              quizzesCompleted: 12,
-            },
-          },
-        ];
-        setUsers(mockUsers);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadUsers();
-  }, [selectedCourseId]);
 
   const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
   const startIndex = (currentPage - 1) * USERS_PER_PAGE;
@@ -283,12 +182,6 @@ export default function UsersPage() {
     setCurrentPage(1);
   }, [searchTerm, users, sortField, sortOrder, sortUsers]);
 
-  const handleCourseChange = (courseId: string) => {
-    setSelectedCourseId(courseId);
-    // Update URL with course query parameter
-    setSearchParams({ course: courseId });
-  };
-
   return (
     <main className="max-w-7xl mx-auto py-8 px-4">
       {!isLoaded && <Loading />}
@@ -298,21 +191,9 @@ export default function UsersPage() {
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-4 flex items-center">
             <FontAwesomeIcon icon={faTrophy} className="mr-2 trophy-icon" />
-            Leaderboard
+            {courseName} - Leaderboard
           </h1>
           <hr className="mb-6" />
-
-          {/* Course Selector */}
-          <div className="mb-4 flex items-center gap-4">
-            <span className="text-sm font-medium">Course:</span>
-            <CourseSelector
-              selectedCourseId={selectedCourseId}
-              onCourseChange={handleCourseChange}
-              courses={[...courses].sort((a, b) =>
-                a.name.localeCompare(b.name),
-              )}
-            />
-          </div>
 
           <div className="search-controls">
             <div className="search-input-container">
@@ -420,11 +301,7 @@ export default function UsersPage() {
                   </tr>
                 ) : (
                   currentUsers.map((user, index) => {
-                    const rating =
-                      user.course &&
-                      user.course.courseId.toString() === selectedCourseId
-                        ? user.course.rating
-                        : 1500;
+                    const rating = user.course?.rating || 1500;
                     return (
                       <tr
                         key={user.id}
@@ -455,7 +332,7 @@ export default function UsersPage() {
                         </td>
                         <td className="p-4 align-middle text-center">
                           <span className="font-medium text-sm">
-                            {user.course.quizzesCompleted || 0}
+                            {user.course?.quizzesCompleted || 0}
                           </span>
                         </td>
                       </tr>
