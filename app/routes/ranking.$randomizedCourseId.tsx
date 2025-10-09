@@ -27,6 +27,7 @@ import Loading from "~/components/Loading";
 import NameDisplay from "~/components/NameDisplay";
 import type { Route } from "./+types/ranking.$randomizedCourseId";
 import { Config } from "~/config";
+import { data } from "react-router";
 
 const USERS_PER_PAGE = 50;
 
@@ -51,12 +52,14 @@ export async function loader({ params }: Route.LoaderArgs) {
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch rankings");
+    if (!response.ok && response.status === 404) {
+      throw data("Course not found", { status: 404 });
+    } else if (!response.ok) {
+      throw data("Failed to fetch rankings", { status: response.status });
     }
 
-    const data = await response.json();
-    return { users: data, randomizedCourseId };
+    const realData = await response.json();
+    return { users: realData, randomizedCourseId };
   } catch (error) {
     console.error("Error fetching rankings:", error);
     return { users: [], randomizedCourseId };
@@ -79,7 +82,7 @@ export default function RankingRoute() {
     users: IUsersListData[];
     randomizedCourseId: string;
   }>();
-  
+
   const [users, setUsers] = useState<IUsersListData[]>(initialUsers);
   const [filteredUsers, setFilteredUsers] = useState<IUsersListData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -132,7 +135,7 @@ export default function RankingRoute() {
           case "rating":
             aValue = a.course?.rating || 1500;
             bValue = b.course?.rating || 1500;
-            
+
             // Treat default rating (1500) as 0 for sorting purposes
             const ratingA = aValue === 1500 ? 0 : aValue;
             const ratingB = bValue === 1500 ? 0 : bValue;
@@ -152,7 +155,7 @@ export default function RankingRoute() {
         return 0;
       });
     },
-    [sortField, sortOrder],
+    [sortField, sortOrder]
   );
 
   const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
@@ -172,7 +175,7 @@ export default function RankingRoute() {
 
     if (searchTerm) {
       filtered = filtered.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        user.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 

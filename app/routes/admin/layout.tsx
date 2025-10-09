@@ -6,6 +6,7 @@ import {
   Megaphone,
   Calculator,
   Users,
+  FileQuestion,
 } from "lucide-react";
 
 export default function AdminLayout() {
@@ -41,6 +42,12 @@ export default function AdminLayout() {
       href: "/admin/announcements",
       label: "Announcements",
       icon: Megaphone,
+      exact: false,
+    },
+    {
+      href: "/admin/courses",
+      label: "Courses",
+      icon: FileQuestion,
       exact: false,
     },
     {
@@ -100,20 +107,6 @@ export default function AdminLayout() {
               );
             })}
           </ul>
-
-          {/* Quick Actions */}
-          <div className="mt-8">
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              Quick Actions
-            </h3>
-            <Link
-              to="/admin/classes/create"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:text-primary/80 rounded-md hover:bg-accent"
-            >
-              <Plus size={16} />
-              Create Class
-            </Link>
-          </div>
         </nav>
 
         {/* Footer */}

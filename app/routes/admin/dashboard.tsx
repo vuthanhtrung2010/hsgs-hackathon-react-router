@@ -10,7 +10,6 @@ import {
 import { Button } from "../../components/ui/button";
 import {
   GraduationCap,
-  Users,
   BookOpen,
   Plus,
   AlertCircle,
@@ -18,16 +17,12 @@ import {
 } from "lucide-react";
 
 interface DashboardStats {
-  classCount: number;
-  totalStudents: number;
   canvasUserCount: number;
   announcementCount?: number;
 }
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
-    classCount: 0,
-    totalStudents: 0,
     canvasUserCount: 0,
     announcementCount: 0,
   });
@@ -60,20 +55,6 @@ export default function AdminDashboard() {
   };
 
   const statCards = [
-    {
-      title: "Total Classes",
-      value: stats.classCount,
-      description: "Learning environments created",
-      icon: GraduationCap,
-      color: "text-blue-600",
-    },
-    {
-      title: "Class Students",
-      value: stats.totalStudents,
-      description: "Students in class lists",
-      icon: Users,
-      color: "text-green-600",
-    },
     {
       title: "Canvas Users",
       value: stats.canvasUserCount,
