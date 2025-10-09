@@ -10,9 +10,6 @@ export default [
   // Admin routes
   route("admin", "routes/admin/layout.tsx", [
     index("routes/admin/dashboard.tsx"),
-    route("classes", "routes/admin/classes.tsx"),
-    route("classes/create", "routes/admin/classes.create.tsx"),
-    route("classes/:id", "routes/admin/classes.$id.tsx"),
     route("announcements", "routes/admin/announcements.tsx"),
     route("announcements/create", "routes/admin/announcements.create.tsx"),
     route("announcements/:id/edit", "routes/admin/announcements.$id.edit.tsx"),
@@ -25,10 +22,6 @@ export default [
   route("api/auth/login", "routes/api.auth.login.ts"),
   route("api/auth/session", "routes/api.auth.session.ts"),
   route("api/auth/logout", "routes/api.auth.logout.ts"),
-  route("api/admin/classes", "routes/api.admin.classes.ts"),
-  route("api/admin/classes/create", "routes/api.admin.classes.create.ts"),
-  route("api/admin/classes/:id", "routes/api.admin.classes.$id.ts"),
-  route("api/admin/classes/update", "routes/api.admin.classes.update.ts"),
   route("api/admin/stats", "routes/api.admin.stats.ts"),
   route("api/admin/announcements", "routes/api.admin.announcements.ts"),
   route(

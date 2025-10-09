@@ -229,29 +229,6 @@ export function Navbar() {
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
-              {/* Users */}
-              <NavigationMenuItem>
-                <NavigationMenuLink
-                  asChild
-                  className={`${navigationMenuTriggerStyle()} !bg-transparent !text-zinc-100 !hover:bg-transparent hover:text-zinc-100 focus:!text-zinc-100 data-[active=true]:!bg-transparent data-[active=true]:!hover:bg-transparent data-[active=true]:!text-zinc-100 data-[state=open]:!text-zinc-100`}
-                >
-                  <Link
-                    to="/users"
-                    data-nav
-                    data-href="/users"
-                    className="relative inline-block px-3 py-2 z-30 !text-zinc-100"
-                    onMouseEnter={(e) =>
-                      updateIndicator(e.currentTarget as HTMLElement)
-                    }
-                    onMouseLeave={() =>
-                      updateIndicator(computeActiveLink() as HTMLElement | null)
-                    }
-                  >
-                    Users
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-
               {/* About - with dropdown */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-zinc-900 text-zinc-100 hover:bg-zinc-800 hover:text-zinc-100 data-[state=open]:bg-zinc-800">

@@ -1,7 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router";
 import { useAuth } from "../../components/AuthProvider";
 import {
-  GraduationCap,
   Plus,
   Home,
   Megaphone,
@@ -37,12 +36,6 @@ export default function AdminLayout() {
       label: "Dashboard",
       icon: Home,
       exact: true,
-    },
-    {
-      href: "/admin/classes",
-      label: "Classes",
-      icon: GraduationCap,
-      exact: false,
     },
     {
       href: "/admin/announcements",
