@@ -5,6 +5,7 @@ export default [
   route("login", "routes/login.tsx"),
   route("ranking/:randomizedCourseId", "routes/ranking.$randomizedCourseId.tsx"),
   route("user/:userId", "routes/user.$userId.tsx"),
+  route("user/:userId/submissions", "routes/user.$userId.submissions.tsx"),
   route("problems", "routes/problems.tsx"),
 
   // Admin routes
