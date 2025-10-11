@@ -7,8 +7,11 @@ export interface IUsersListData {
     courseName: string;
     rating: number;
     quizzesCompleted?: number; // Number of completed quizzes
+    debt?: number; // Number of assignments not completed
     quote?: string | null; // Course motivational quote
     quoteAuthor?: string | null; // Quote author
+    showDebt?: boolean; // Whether to show debt leaderboard
+    assignmentCount?: number; // Total assignments in course
   };
 }
 

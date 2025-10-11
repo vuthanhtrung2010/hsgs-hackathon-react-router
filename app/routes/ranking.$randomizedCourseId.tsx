@@ -32,7 +32,7 @@ import { data } from "react-router";
 
 const USERS_PER_PAGE = 50;
 
-type SortField = "name" | "rating" | "quizzes";
+type SortField = "name" | "rating" | "quizzes" | "debt";
 type SortOrder = "asc" | "desc" | null;
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -95,6 +95,7 @@ export default function RankingRoute() {
   const courseName = users[0]?.course?.courseName || "Course Leaderboard";
   const courseQuote = users[0]?.course?.quote;
   const quoteAuthor = users[0]?.course?.quoteAuthor;
+  const showDebt = users[0]?.course?.showDebt || false;
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -150,6 +151,12 @@ export default function RankingRoute() {
 
             const quizComparison = (aValue as number) - (bValue as number);
             return sortOrder === "asc" ? quizComparison : -quizComparison;
+          case "debt":
+            aValue = a.course?.debt || 0;
+            bValue = b.course?.debt || 0;
+
+            const debtComparison = (aValue as number) - (bValue as number);
+            return sortOrder === "asc" ? debtComparison : -debtComparison;
           default:
             return 0;
         }
@@ -305,7 +312,7 @@ export default function RankingRoute() {
                     </div>
                   </th>
                   <th
-                    className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 rounded-tr-md w-[6rem] cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
+                    className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 w-[6rem] cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
                     onClick={() => handleSort("quizzes")}
                   >
                     <div className="flex items-center justify-center gap-2">
@@ -316,13 +323,27 @@ export default function RankingRoute() {
                       />
                     </div>
                   </th>
+                  {showDebt && (
+                    <th 
+                      className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 rounded-tr-md w-[6rem] cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
+                      onClick={() => handleSort("debt")}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        Debt
+                        <FontAwesomeIcon
+                          icon={getSortIcon("debt")}
+                          className="w-3 h-3"
+                        />
+                      </div>
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={showDebt ? 5 : 4}
                       className="h-24 px-4 text-center text-muted-foreground"
                     >
                       <div className="flex items-center justify-center">
@@ -333,7 +354,7 @@ export default function RankingRoute() {
                 ) : currentUsers.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={showDebt ? 5 : 4}
                       className="h-24 px-4 text-center text-muted-foreground"
                     >
                       <span>
@@ -379,6 +400,13 @@ export default function RankingRoute() {
                             {user.course?.quizzesCompleted || 0}
                           </span>
                         </td>
+                        {showDebt && (
+                          <td className="p-4 align-middle text-center">
+                            <span className="font-medium text-sm text-red-600 dark:text-red-400">
+                              {user.course?.debt || 0}
+                            </span>
+                          </td>
+                        )}
                       </tr>
                     );
                   })
