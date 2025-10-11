@@ -7,6 +7,7 @@ import {
   faSortUp,
   faSortDown,
   faTrophy,
+  faQuoteLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
@@ -78,9 +79,8 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function RankingRoute() {
-  const { users: initialUsers, randomizedCourseId } = useLoaderData<{
+  const { users: initialUsers } = useLoaderData<{
     users: IUsersListData[];
-    randomizedCourseId: string;
   }>();
 
   const [users, setUsers] = useState<IUsersListData[]>(initialUsers);
@@ -93,6 +93,8 @@ export default function RankingRoute() {
   const [isLoading, setIsLoading] = useState(false);
 
   const courseName = users[0]?.course?.courseName || "Course Leaderboard";
+  const courseQuote = users[0]?.course?.quote;
+  const quoteAuthor = users[0]?.course?.quoteAuthor;
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -197,6 +199,45 @@ export default function RankingRoute() {
             {courseName} - Leaderboard
           </h1>
           <hr className="mb-6" />
+
+          {/* Quote Box */}
+          {courseQuote && (
+            <div className="relative mb-6 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 shadow-lg overflow-hidden">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-16 translate-x-16"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full translate-y-12 -translate-x-12"></div>
+              
+              <div className="relative p-6 md:p-8">
+                <div className="flex items-start gap-4">
+                  {/* Quote icon */}
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                      <FontAwesomeIcon
+                        icon={faQuoteLeft}
+                        className="text-primary text-xl"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Quote text and author */}
+                  <div className="flex-1 pt-1">
+                    <blockquote className="text-lg md:text-xl font-medium text-foreground/90 italic leading-relaxed mb-3">
+                      "{courseQuote}"
+                    </blockquote>
+                    {quoteAuthor && (
+                      <cite className="not-italic text-sm md:text-base font-semibold text-primary flex items-center gap-2">
+                        <span className="inline-block w-8 h-0.5 bg-primary/50 rounded-full"></span>
+                        {quoteAuthor}
+                      </cite>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Bottom border accent */}
+                <div className="mt-4 h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+              </div>
+            </div>
+          )}
 
           <div className="search-controls">
             <div className="search-input-container">

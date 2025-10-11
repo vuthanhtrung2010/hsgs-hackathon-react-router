@@ -7,6 +7,8 @@ export interface IUsersListData {
     courseName: string;
     rating: number;
     quizzesCompleted?: number; // Number of completed quizzes
+    quote?: string | null; // Course motivational quote
+    quoteAuthor?: string | null; // Quote author
   };
 }
 
