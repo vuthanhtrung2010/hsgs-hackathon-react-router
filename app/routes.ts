@@ -12,7 +12,7 @@ export default [
   route("admin", "routes/admin/layout.tsx", [
     index("routes/admin/dashboard.tsx"),
     route("announcements", "routes/admin/announcements.tsx"),
-    route("announcements/create", "routes/admin/announcements.create.tsx"),
+    route("announcements/:randomizedCourseId/create", "routes/admin/announcements.create.tsx"),
     route("announcements/:id/edit", "routes/admin/announcements.$id.edit.tsx"),
     route("gen", "routes/admin/gen.tsx"),
     route("users", "routes/admin/users.tsx"),
@@ -20,14 +20,14 @@ export default [
   ]),
 
   // API routes
-  route("api/announcements", "routes/api.announcements.ts"),
+  route("api/announcements/:randomizedCourseId", "routes/api.announcements.ts"),
   route("api/auth/login", "routes/api.auth.login.ts"),
   route("api/auth/session", "routes/api.auth.session.ts"),
   route("api/auth/logout", "routes/api.auth.logout.ts"),
   route("api/admin/stats", "routes/api.admin.stats.ts"),
-  route("api/admin/announcements", "routes/api.admin.announcements.ts"),
+  route("api/admin/announcements/:randomizedCourseId", "routes/api.admin.announcements.ts"),
   route(
-    "api/admin/announcements/create",
+    "api/admin/announcements/:randomizedCourseId/create",
     "routes/api.admin.announcements.create.ts",
   ),
   route("api/admin/announcements/:id", "routes/api.admin.announcements.$id.ts"),

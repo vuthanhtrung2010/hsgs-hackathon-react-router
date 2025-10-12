@@ -5,13 +5,14 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   "http://localhost:3001";
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const { randomizedCourseId } = params;
   const url = new URL(request.url);
   const sortBy = url.searchParams.get("sortBy") || "createdAt";
   const order = url.searchParams.get("order") || "desc";
 
   try {
-    const apiUrl = new URL("/api/announcements", API_BASE_URL);
+    const apiUrl = new URL(`/api/announcements/${randomizedCourseId}`, API_BASE_URL);
     apiUrl.searchParams.set("sortBy", sortBy);
     apiUrl.searchParams.set("order", order);
 

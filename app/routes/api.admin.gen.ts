@@ -1,4 +1,6 @@
-export async function action({ request }: { request: Request }) {
+import type { Route } from "./+types/api.admin.gen";
+
+export async function action({ request }: Route.ActionArgs) {
   if (request.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }

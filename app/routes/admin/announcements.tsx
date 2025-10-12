@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import {
   Card,
   CardContent,
@@ -10,6 +10,7 @@ import { Button } from "../../components/ui/button";
 import { Plus, Megaphone, Calendar, Trash2 } from "lucide-react";
 import { SaveDialog } from "../../components/ui/save-dialog";
 import type { SaveDialogContent } from "../../components/ui/save-dialog";
+import CourseSelector from "../../components/CourseSelector";
 
 interface Announcement {
   id: string;
@@ -19,7 +20,34 @@ interface Announcement {
   updatedAt: string;
 }
 
+interface Course {
+  id: string;
+  name: string;
+  randomId: string;
+}
+
+export async function loader() {
+  try {
+    const baseUrl =
+      process.env.VITE_API_BASE_URL ||
+      import.meta.env.VITE_API_BASE_URL ||
+      "http://localhost:3001";
+
+    const response = await fetch(new URL("/api/courses", baseUrl).toString());
+    const courses = response.ok ? ((await response.json()) as Course[]) : [];
+
+    return { courses };
+  } catch (error) {
+    console.error("Error loading courses:", error);
+    return { courses: [] };
+  }
+}
+
 export default function Announcements() {
+  const { courses } = useLoaderData<{ courses: Course[] }>();
+  const [selectedCourseId, setSelectedCourseId] = useState<string>(
+    courses[0]?.randomId || "",
+  );
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,14 +56,22 @@ export default function Announcements() {
     useState<SaveDialogContent | null>(null);
 
   useEffect(() => {
-    fetchAnnouncements();
-  }, []);
+    if (selectedCourseId) {
+      fetchAnnouncements();
+    }
+  }, [selectedCourseId]);
 
   const fetchAnnouncements = async () => {
+    if (!selectedCourseId) return;
+
+    setLoading(true);
     try {
-      const response = await fetch("/api/admin/announcements", {
-        credentials: "include",
-      });
+      const response = await fetch(
+        `/api/admin/announcements/${selectedCourseId}`,
+        {
+          credentials: "include",
+        },
+      );
       const data = await response.json();
 
       if (data.success) {
@@ -132,15 +168,22 @@ export default function Announcements() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Announcements</h1>
           <p className="text-muted-foreground mt-1">
-            Manage and create announcements for your organization
+            Manage and create announcements for your courses
           </p>
         </div>
-        <Button asChild>
-          <Link to="/admin/announcements/create">
-            <Plus className="h-4 w-4 mr-2" />
-            New Announcement
-          </Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <CourseSelector
+            selectedCourseId={selectedCourseId}
+            onCourseChange={setSelectedCourseId}
+            courses={courses.map((c) => ({ id: c.randomId, name: c.name }))}
+          />
+          <Button asChild>
+            <Link to={`/admin/announcements/${selectedCourseId}/create`}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Announcement
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Error State */}
@@ -162,7 +205,7 @@ export default function Announcements() {
               Create your first announcement to get started.
             </p>
             <Button asChild>
-              <Link to="/admin/announcements/create">
+              <Link to={`/admin/announcements/${selectedCourseId}/create`}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Announcement
               </Link>

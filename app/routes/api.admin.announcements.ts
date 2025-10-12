@@ -1,15 +1,19 @@
-export async function loader({ request }: { request: Request }) {
+import type { Route } from "./+types/api.admin.announcements";
+
+export async function loader({ request, params }: Route.LoaderArgs) {
   if (request.method !== "GET") {
     return new Response("Method not allowed", { status: 405 });
   }
 
+  const { randomizedCourseId } = params;
+
   try {
     const response = await fetch(
       new URL(
-        "/api/admin/announcements",
+        `/api/admin/announcements/${randomizedCourseId}`,
         process.env.VITE_API_BASE_URL ||
           import.meta.env.VITE_API_BASE_URL ||
-          "http://localhost:3001",
+          "http://localhost:3001"
       ).toString(),
       {
         method: "GET",
@@ -18,7 +22,7 @@ export async function loader({ request }: { request: Request }) {
           // Forward cookies for auth
           Cookie: request.headers.get("Cookie") || "",
         },
-      },
+      }
     );
 
     const data = await response.json();
@@ -30,7 +34,7 @@ export async function loader({ request }: { request: Request }) {
         success: false,
         error: "Failed to connect to server",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

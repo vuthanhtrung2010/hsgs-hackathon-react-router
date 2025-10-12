@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import {
   Card,
   CardContent,
@@ -14,9 +14,20 @@ import { AlertCircle, ArrowLeft, Megaphone } from "lucide-react";
 
 export default function CreateAnnouncement() {
   const navigate = useNavigate();
+  const { randomizedCourseId } = useParams<{ randomizedCourseId: string }>();
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!randomizedCourseId) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <p className="text-red-600">Course ID is required</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,16 +41,19 @@ export default function CreateAnnouncement() {
     }
 
     try {
-      const response = await fetch("/api/admin/announcements/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `/api/admin/announcements/${randomizedCourseId}/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            title: title.trim(),
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          title: title.trim(),
-        }),
-      });
+      );
 
       const data = await response.json();
 
