@@ -4,7 +4,6 @@ import rehypePrettyCode from "rehype-pretty-code";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
-import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
@@ -192,7 +191,6 @@ export async function processMarkdownToHtml(
       .use(remarkGfm)
       .use(remarkMath)
       .use(remarkHeadingSeparator)
-      .use(remarkBreaks)
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
       .use(rehypeSanitize, {
