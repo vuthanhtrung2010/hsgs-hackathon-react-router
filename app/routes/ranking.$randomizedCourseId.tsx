@@ -30,7 +30,7 @@ import type { Route } from "./+types/ranking.$randomizedCourseId";
 import { Config } from "~/config";
 import { data } from "react-router";
 import { processMarkdownToHtml } from "~/lib/markdown-processor";
-import 'katex/dist/katex.min.css';
+import "katex/dist/katex.min.css";
 
 const USERS_PER_PAGE = 50;
 
@@ -282,10 +282,12 @@ export default function RankingRoute() {
                     "{courseQuote}"
                   </blockquote>
                   {quoteAuthor && (
-                    <cite className="not-italic text-sm font-semibold text-primary flex items-center gap-2">
-                      <span className="inline-block w-8 h-0.5 bg-primary/50 rounded-full"></span>
-                      {quoteAuthor}
-                    </cite>
+                    <div className="flex justify-end">
+                      <cite className="not-italic text-sm font-semibold text-primary flex items-center gap-2">
+                        <span className="inline-block w-8 h-0.5 bg-primary/50 rounded-full"></span>
+                        {quoteAuthor}
+                      </cite>
+                    </div>
                   )}
                 </div>
               </div>
@@ -586,10 +588,12 @@ export default function RankingRoute() {
                         "{courseQuote}"
                       </blockquote>
                       {quoteAuthor && (
-                        <cite className="not-italic text-xs font-semibold text-primary flex items-center gap-2">
-                          <span className="inline-block w-6 h-0.5 bg-primary/50 rounded-full"></span>
-                          {quoteAuthor}
-                        </cite>
+                        <div className="flex justify-end">
+                          <cite className="not-italic text-xs font-semibold text-primary flex items-center gap-2">
+                            <span className="inline-block w-6 h-0.5 bg-primary/50 rounded-full"></span>
+                            {quoteAuthor}
+                          </cite>
+                        </div>
                       )}
                     </div>
                   </div>
