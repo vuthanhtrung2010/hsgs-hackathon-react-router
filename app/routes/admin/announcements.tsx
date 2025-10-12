@@ -26,14 +26,18 @@ interface Course {
   randomId: string;
 }
 
-export async function loader() {
+export async function loader({ request }: { request: Request }) {
   try {
     const baseUrl =
       process.env.VITE_API_BASE_URL ||
       import.meta.env.VITE_API_BASE_URL ||
       "http://localhost:3001";
 
-    const response = await fetch(new URL("/api/courses", baseUrl).toString());
+    const response = await fetch(new URL("/api/courses", baseUrl).toString(), {
+      headers: {
+        Cookie: request.headers.get("Cookie") || "",
+      },
+    });
     const courses = response.ok ? ((await response.json()) as Course[]) : [];
 
     return { courses };
@@ -46,36 +50,35 @@ export async function loader() {
 export default function Announcements() {
   const { courses } = useLoaderData<{ courses: Course[] }>();
   const [selectedCourseId, setSelectedCourseId] = useState<string>(
-    courses[0]?.randomId || "",
+    courses[0]?.randomId || ""
   );
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(courses.length === 0 ? false : true);
   const [error, setError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteDialogContent, setDeleteDialogContent] =
     useState<SaveDialogContent | null>(null);
 
-  useEffect(() => {
-    if (selectedCourseId) {
-      fetchAnnouncements();
-    }
-  }, [selectedCourseId]);
-
   const fetchAnnouncements = async () => {
-    if (!selectedCourseId) return;
+    if (!selectedCourseId) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch(
-        `/api/admin/announcements/${selectedCourseId}`,
+        `/api/admin/announcements/course/${selectedCourseId}`,
         {
           credentials: "include",
-        },
+        }
       );
       const data = await response.json();
 
       if (data.success) {
         setAnnouncements(data.announcements);
+        setError(null);
       } else {
         setError(data.error || "Failed to fetch announcements");
       }
@@ -86,6 +89,10 @@ export default function Announcements() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, [selectedCourseId]);
 
   const handleDelete = async (announcementId: string, title: string) => {
     setDeleteDialogContent({
@@ -100,13 +107,13 @@ export default function Announcements() {
             {
               method: "DELETE",
               credentials: "include",
-            },
+            }
           );
           const data = await response.json();
 
           if (data.success) {
             setAnnouncements((prev) =>
-              prev.filter((a) => a.id !== announcementId),
+              prev.filter((a) => a.id !== announcementId)
             );
             setDeleteDialogContent({
               title: "Success",
@@ -161,6 +168,23 @@ export default function Announcements() {
     );
   }
 
+  // No courses available
+  if (courses.length === 0) {
+    return (
+      <div className="p-6">
+        <Card>
+          <CardContent className="pt-6 text-center py-12">
+            <Megaphone className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No courses available</h3>
+            <p className="text-muted-foreground">
+              Please add courses before creating announcements.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -177,7 +201,7 @@ export default function Announcements() {
             onCourseChange={setSelectedCourseId}
             courses={courses.map((c) => ({ id: c.randomId, name: c.name }))}
           />
-          <Button asChild>
+          <Button asChild disabled={!selectedCourseId}>
             <Link to={`/admin/announcements/${selectedCourseId}/create`}>
               <Plus className="h-4 w-4 mr-2" />
               New Announcement

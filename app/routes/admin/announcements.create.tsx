@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, Form, redirect } from "react-router";
+import type { Route } from "./+types/announcements.create";
 import {
   Card,
   CardContent,
@@ -12,12 +13,72 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { AlertCircle, ArrowLeft, Megaphone } from "lucide-react";
 
-export default function CreateAnnouncement() {
+export async function action({ request, params }: Route.ActionArgs) {
+  const { randomizedCourseId } = params;
+
+  if (!randomizedCourseId) {
+    return {
+      success: false,
+      error: "Course ID is required",
+    };
+  }
+
+  const formData = await request.formData();
+  const title = formData.get("title");
+
+  if (!title || typeof title !== "string" || !title.trim()) {
+    return {
+      success: false,
+      error: "Title is required",
+    };
+  }
+
+  try {
+    const response = await fetch(
+      new URL(
+        `/api/admin/announcements/course/${randomizedCourseId}`,
+        process.env.VITE_API_BASE_URL ||
+          import.meta.env.VITE_API_BASE_URL ||
+          "http://localhost:3001"
+      ).toString(),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: request.headers.get("Cookie") || "",
+        },
+        body: JSON.stringify({
+          title: title.trim(),
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Redirect to edit page
+      return redirect(`/admin/announcements/${data.announcement.id}/edit`);
+    } else {
+      return {
+        success: false,
+        error: data.error || "Failed to create announcement",
+      };
+    }
+  } catch (err) {
+    console.error("Error creating announcement:", err);
+    return {
+      success: false,
+      error: "Failed to connect to server",
+    };
+  }
+}
+
+export default function CreateAnnouncement({
+  actionData,
+}: Route.ComponentProps) {
   const navigate = useNavigate();
   const { randomizedCourseId } = useParams<{ randomizedCourseId: string }>();
   const [title, setTitle] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   if (!randomizedCourseId) {
     return (
@@ -28,48 +89,6 @@ export default function CreateAnnouncement() {
       </div>
     );
   }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    if (!title.trim()) {
-      setError("Title is required");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `/api/admin/announcements/${randomizedCourseId}/create`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            title: title.trim(),
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Redirect to edit page
-        navigate(`/admin/announcements/${data.announcement.id}/edit`);
-      } else {
-        setError(data.error || "Failed to create announcement");
-      }
-    } catch (err) {
-      setError("Failed to connect to server");
-      console.error("Error creating announcement:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
@@ -106,13 +125,15 @@ export default function CreateAnnouncement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <Form method="post" className="space-y-6">
             {/* Error Message */}
-            {error && (
+            {actionData && !actionData.success && (
               <div className="bg-red-50 border border-red-200 rounded-md p-4">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-red-600" />
-                  <span className="text-red-600 text-sm">{error}</span>
+                  <span className="text-red-600 text-sm">
+                    {actionData.error}
+                  </span>
                 </div>
               </div>
             )}
@@ -122,14 +143,12 @@ export default function CreateAnnouncement() {
               <Label htmlFor="title">Title *</Label>
               <Input
                 id="title"
+                name="title"
                 type="text"
                 placeholder="e.g., Important Update for All Students"
                 required
                 value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                  setError(null);
-                }}
+                onChange={(e) => setTitle(e.target.value)}
               />
               <p className="text-sm text-muted-foreground">
                 A clear and descriptive title for your announcement
@@ -160,15 +179,12 @@ export default function CreateAnnouncement() {
                 type="button"
                 variant="outline"
                 onClick={() => navigate("/admin/announcements")}
-                disabled={loading}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Creating..." : "Create & Edit"}
-              </Button>
+              <Button type="submit">Create & Edit</Button>
             </div>
-          </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

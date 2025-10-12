@@ -105,9 +105,10 @@ export default function CourseSelector({
               {displayCourses.map((course) => (
                 <CommandItem
                   key={course.id}
-                  value={course.name}
-                  onSelect={() => {
-                    onCourseChange(course.id);
+                  value={course.id}
+                  keywords={[course.name]}
+                  onSelect={(currentValue) => {
+                    onCourseChange(currentValue);
                     setOpen(false);
                   }}
                 >

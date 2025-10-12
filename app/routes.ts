@@ -20,16 +20,12 @@ export default [
   ]),
 
   // API routes
-  route("api/announcements/:randomizedCourseId", "routes/api.announcements.ts"),
+  route("api/announcements/course/:randomizedCourseId", "routes/api.announcements.ts"),
   route("api/auth/login", "routes/api.auth.login.ts"),
   route("api/auth/session", "routes/api.auth.session.ts"),
   route("api/auth/logout", "routes/api.auth.logout.ts"),
   route("api/admin/stats", "routes/api.admin.stats.ts"),
-  route("api/admin/announcements/:randomizedCourseId", "routes/api.admin.announcements.ts"),
-  route(
-    "api/admin/announcements/:randomizedCourseId/create",
-    "routes/api.admin.announcements.create.ts",
-  ),
+  route("api/admin/announcements/course/:randomizedCourseId", "routes/api.admin.announcements.ts"),
   route("api/admin/announcements/:id", "routes/api.admin.announcements.$id.ts"),
   route(
     "api/admin/announcements/update",

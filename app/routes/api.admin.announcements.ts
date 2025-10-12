@@ -1,5 +1,6 @@
 import type { Route } from "./+types/api.admin.announcements";
 
+// Handle GET requests
 export async function loader({ request, params }: Route.LoaderArgs) {
   if (request.method !== "GET") {
     return new Response("Method not allowed", { status: 405 });
@@ -10,7 +11,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   try {
     const response = await fetch(
       new URL(
-        `/api/admin/announcements/${randomizedCourseId}`,
+        `/api/admin/announcements/course/${randomizedCourseId}`,
         process.env.VITE_API_BASE_URL ||
           import.meta.env.VITE_API_BASE_URL ||
           "http://localhost:3001"

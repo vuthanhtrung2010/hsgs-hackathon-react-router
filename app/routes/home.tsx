@@ -1,13 +1,6 @@
-import { useLoaderData } from "react-router";
 import type { Route } from "./+types/home";
 import { Link } from "react-router";
 import { BookOpen, Brain, Clock, Target, Zap, Users, Shield, Bell, CreditCard } from "lucide-react";
-
-interface Course {
-  id: string;
-  name: string;
-  randomId: string;
-}
 
 export function meta({}: Route.MetaArgs) {
   return [

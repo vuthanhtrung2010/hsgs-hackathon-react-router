@@ -29,6 +29,8 @@ import NameDisplay from "~/components/NameDisplay";
 import type { Route } from "./+types/ranking.$randomizedCourseId";
 import { Config } from "~/config";
 import { data } from "react-router";
+import { processMarkdownToHtml } from "~/lib/markdown-processor";
+import 'katex/dist/katex.min.css';
 
 const USERS_PER_PAGE = 50;
 
@@ -78,14 +80,24 @@ export async function loader({ params }: Route.LoaderArgs) {
       baseUrl
     );
     const announcementsResponse = await fetch(announcementsUrl.toString());
-    const announcements = announcementsResponse.ok
+    const announcementsData = announcementsResponse.ok
       ? await announcementsResponse.json()
       : [];
+
+    // Process markdown content for each announcement
+    const processedAnnouncements = await Promise.all(
+      announcementsData.map(async (announcement: any) => ({
+        ...announcement,
+        processedContent: announcement.content
+          ? await processMarkdownToHtml(announcement.content)
+          : "",
+      }))
+    );
 
     return {
       users: rankingData.ranking || [],
       recentSubmissions: rankingData.recentSubmissions || [],
-      announcements,
+      announcements: processedAnnouncements,
       randomizedCourseId,
     };
   } catch (error) {
@@ -603,10 +615,14 @@ export default function RankingRoute() {
                       <h4 className="font-semibold text-base mb-2">
                         {announcements[currentAnnouncementIndex].title}
                       </h4>
-                      <div className="text-sm text-muted-foreground prose prose-sm max-w-none">
-                        {announcements[currentAnnouncementIndex].content ||
-                          "No content"}
-                      </div>
+                      <div
+                        className="text-sm text-muted-foreground prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            announcements[currentAnnouncementIndex]
+                              .processedContent || "No content",
+                        }}
+                      />
                       <div className="text-xs text-muted-foreground mt-2">
                         {new Date(
                           announcements[currentAnnouncementIndex].createdAt
@@ -712,10 +728,14 @@ export default function RankingRoute() {
                   <h4 className="font-semibold text-base mb-2">
                     {announcements[currentAnnouncementIndex].title}
                   </h4>
-                  <div className="text-sm text-muted-foreground prose prose-sm max-w-none">
-                    {announcements[currentAnnouncementIndex].content ||
-                      "No content"}
-                  </div>
+                  <div
+                    className="text-sm text-muted-foreground prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        announcements[currentAnnouncementIndex]
+                          .processedContent || "No content",
+                    }}
+                  />
                   <div className="text-xs text-muted-foreground mt-2">
                     {new Date(
                       announcements[currentAnnouncementIndex].createdAt
