@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from "react";
 import { Link, useLoaderData } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faSearch,
   faSort,
   faSortUp,
   faSortDown,
@@ -133,9 +132,8 @@ export default function RankingRoute() {
     announcements: any[];
   }>();
 
-  const [users, setUsers] = useState<IUsersListData[]>(initialUsers);
+  const [users] = useState<IUsersListData[]>(initialUsers);
   const [filteredUsers, setFilteredUsers] = useState<IUsersListData[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<SortField>("rating");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -233,17 +231,11 @@ export default function RankingRoute() {
   useEffect(() => {
     let filtered = users;
 
-    if (searchTerm) {
-      filtered = filtered.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
     filtered = sortUsers(filtered);
 
     setFilteredUsers(filtered);
     setCurrentPage(1);
-  }, [searchTerm, users, sortField, sortOrder, sortUsers]);
+  }, [users, sortField, sortOrder, sortUsers]);
 
   return (
     <main className="max-w-[1600px] mx-auto py-8 px-4">
@@ -302,23 +294,6 @@ export default function RankingRoute() {
           {/* Main Leaderboard - Takes less space on desktop */}
           <div className="flex-1 lg:max-w-[65%]">
             <div className="mb-6">
-              <div className="search-controls">
-                <div className="search-input-container">
-                  <FontAwesomeIcon icon={faSearch} className="search-icon" />
-                  <Input
-                    type="text"
-                    placeholder="Search users by name..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                {searchTerm && (
-                  <Button variant="outline" onClick={() => setSearchTerm("")}>
-                    Clear
-                  </Button>
-                )}
-              </div>
               <div className="results-info">
                 {isLoading ? (
                   <span>Loading users...</span>
@@ -413,11 +388,9 @@ export default function RankingRoute() {
                           colSpan={showDebt ? 5 : 4}
                           className="h-24 px-4 text-center text-muted-foreground"
                         >
-                          <span>
-                            {searchTerm
-                              ? "No users found matching your search."
-                              : "No users available."}
-                          </span>
+                        <span>
+                          No users available.
+                        </span>
                         </td>
                       </tr>
                     ) : (
