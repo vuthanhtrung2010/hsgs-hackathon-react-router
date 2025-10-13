@@ -293,23 +293,6 @@ export default function RankingRoute() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Main Leaderboard - Takes less space on desktop */}
           <div className="flex-1 lg:max-w-[65%]">
-            <div className="mb-6">
-              <div className="results-info">
-                {isLoading ? (
-                  <span>Loading users...</span>
-                ) : (
-                  <>
-                    Showing {filteredUsers.length} users
-                    {totalPages > 1 && (
-                      <>
-                        {" "}
-                        • Page {currentPage} of {totalPages}
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
             <div className="rounded-md border">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -388,9 +371,7 @@ export default function RankingRoute() {
                           colSpan={showDebt ? 5 : 4}
                           className="h-24 px-4 text-center text-muted-foreground"
                         >
-                        <span>
-                          No users available.
-                        </span>
+                          <span>No users available.</span>
                         </td>
                       </tr>
                     ) : (
@@ -529,6 +510,23 @@ export default function RankingRoute() {
                 </Pagination>
               </div>
             )}
+            <div className="mt-6 text-center">
+              <div className="results-info">
+                {isLoading ? (
+                  <span>Loading users...</span>
+                ) : (
+                  <>
+                    Showing {filteredUsers.length} users
+                    {totalPages > 1 && (
+                      <>
+                        {" "}
+                        • Page {currentPage} of {totalPages}
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
             {currentUsers.length > 0 && (
               <div className="mt-6 text-sm text-muted-foreground">
                 <p>
