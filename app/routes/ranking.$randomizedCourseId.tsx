@@ -247,7 +247,7 @@ export default function RankingRoute() {
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-4 flex items-center">
             <FontAwesomeIcon icon={faTrophy} className="mr-2 trophy-icon" />
-            {courseName} - Leaderboard
+            {courseName} - Dashboard
           </h1>
           <hr className="mb-6" />
         </div>
