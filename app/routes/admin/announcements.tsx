@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link } from "react-router";
 import {
   Card,
   CardContent,
@@ -11,6 +11,7 @@ import { Plus, Megaphone, Calendar, Trash2 } from "lucide-react";
 import { SaveDialog } from "../../components/ui/save-dialog";
 import type { SaveDialogContent } from "../../components/ui/save-dialog";
 import CourseSelector from "../../components/CourseSelector";
+import type { Route } from "./+types/announcements";
 
 interface Announcement {
   id: string;
@@ -26,7 +27,7 @@ interface Course {
   randomId: string;
 }
 
-export async function loader({ request }: { request: Request }) {
+export async function loader({ request }: Route.LoaderArgs) {
   try {
     const baseUrl =
       process.env.VITE_API_BASE_URL ||
@@ -47,8 +48,8 @@ export async function loader({ request }: { request: Request }) {
   }
 }
 
-export default function Announcements() {
-  const { courses } = useLoaderData<{ courses: Course[] }>();
+export default function Announcements({ loaderData }: Route.ComponentProps) {
+  const { courses } = loaderData;
   const [selectedCourseId, setSelectedCourseId] = useState<string>(
     courses[0]?.randomId || ""
   );

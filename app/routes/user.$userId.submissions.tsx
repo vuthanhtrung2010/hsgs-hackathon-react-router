@@ -1,4 +1,4 @@
-import { Link, useLoaderData } from "react-router";
+import { Link } from "react-router";
 import {
   Card,
   CardContent,
@@ -9,6 +9,7 @@ import { Button } from "../components/ui/button";
 import { ExternalLink, FileQuestion, Calendar, Trophy } from "lucide-react";
 import { data } from "react-router";
 import RatingDisplay from "../components/RatingDisplay";
+import type { Route } from "./+types/user.$userId.submissions";
 
 interface Submission {
   id: number;
@@ -24,13 +25,7 @@ interface Submission {
   submissionUrl: string;
 }
 
-export async function loader({
-  params,
-  request,
-}: {
-  params: { userId: string };
-  request: Request;
-}) {
+export async function loader({ params }: Route.LoaderArgs) {
   const { userId } = params;
 
   try {
@@ -72,12 +67,8 @@ export async function loader({
   }
 }
 
-export default function UserSubmissions() {
-  const { submissions, total, userId } = useLoaderData<{
-    submissions: Submission[];
-    total: number;
-    userId: string;
-  }>();
+export default function UserSubmissions({ loaderData }: Route.ComponentProps) {
+  const { submissions, total, userId } = loaderData;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -125,7 +116,7 @@ export default function UserSubmissions() {
                   <div className="text-2xl font-bold text-primary">
                     {Math.round(
                       submissions.reduce(
-                        (sum, sub) => sum + (sub.score / sub.maxScore) * 100,
+                        (sum: number, sub: Submission) => sum + (sub.score / sub.maxScore) * 100,
                         0
                       ) / submissions.length
                     )}
@@ -138,7 +129,7 @@ export default function UserSubmissions() {
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">
                     {Math.round(
-                      submissions.reduce((sum, sub) => sum + sub.rating, 0) /
+                      submissions.reduce((sum: number, sub: Submission) => sum + sub.rating, 0) /
                         submissions.length
                     )}
                   </div>
@@ -198,13 +189,15 @@ export default function UserSubmissions() {
                     </tr>
                   </thead>
                   <tbody>
-                    {submissions.map((submission) => (
+                    {submissions.map((submission: Submission) => (
                       <tr
                         key={submission.id}
                         className="border-b hover:bg-muted/50"
                       >
                         <td className="py-3 px-4">
-                          <div className="font-medium">{submission.quizName}</div>
+                          <div className="font-medium">
+                            {submission.quizName}
+                          </div>
                           <div className="text-sm text-muted-foreground">
                             Quiz ID: {submission.quizId}
                           </div>

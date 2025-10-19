@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router";
 import type { IUserData } from "~/lib/server-actions/users";
 import { getRatingClass, getRatingTitle } from "~/lib/rating";
@@ -79,7 +79,7 @@ interface UserPageProps {
 
 export default function UserPage({ userRank }: UserPageProps) {
   const userData = useLoaderData<IUserData>();
-  const [selectedCourseId, setSelectedCourseId] = React.useState<string>("");
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
 
   // Get current course data
   const currentCourse =
@@ -88,7 +88,7 @@ export default function UserPage({ userRank }: UserPageProps) {
     ) || userData?.courses?.[0];
 
   // Set default course
-  React.useEffect(() => {
+  useEffect(() => {
     if (userData?.courses && userData.courses.length > 0 && !selectedCourseId) {
       setSelectedCourseId(userData.courses[0].courseId);
     }
@@ -97,6 +97,12 @@ export default function UserPage({ userRank }: UserPageProps) {
   const handleCourseChange = (courseId: string) => {
     setSelectedCourseId(courseId);
   };
+
+  // Format courses for the CourseSelector component
+  const formattedCourses = userData.courses?.map(course => ({
+    id: course.courseId,
+    name: course.courseName
+  }));
 
   if (!userData) {
     return <NotFound />;
@@ -187,6 +193,7 @@ export default function UserPage({ userRank }: UserPageProps) {
               <CourseSelector
                 selectedCourseId={selectedCourseId}
                 onCourseChange={handleCourseChange}
+                courses={formattedCourses}
               />
             </div>
           )}

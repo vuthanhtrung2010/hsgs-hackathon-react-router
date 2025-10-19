@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useLoaderData } from "react-router";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalculator,
@@ -123,8 +122,8 @@ export async function loader({}: Route.LoaderArgs): Promise<{
   }
 }
 
-export default function MathGeneration() {
-  const { courses } = useLoaderData<{ courses: any[] }>();
+export default function MathGeneration({ loaderData }: Route.ComponentProps) {
+  const { courses } = loaderData;
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
   const [quizName, setQuizName] = useState("Test_quiz");
   const [isGenerating, setIsGenerating] = useState(false);

@@ -1,4 +1,4 @@
-import { Link, useLoaderData } from "react-router";
+import { Link } from "react-router";
 import {
   Card,
   CardContent,
@@ -8,6 +8,7 @@ import {
 import { Button } from "../../components/ui/button";
 import { ExternalLink, Users, FileQuestion, Calendar } from "lucide-react";
 import { data } from "react-router";
+import type { Route } from "./+types/courses";
 
 interface Course {
   id: string;
@@ -21,7 +22,7 @@ interface Course {
   };
 }
 
-export async function loader({ request }: { request: Request }) {
+export async function loader({ request }: Route.LoaderArgs) {
   try {
     const url = new URL(
       "/api/admin/courses",
@@ -60,11 +61,8 @@ export async function loader({ request }: { request: Request }) {
   }
 }
 
-export default function AdminCourses() {
-  const { courses, error } = useLoaderData<{
-    courses: Course[];
-    error: string | null;
-  }>();
+export default function AdminCourses({ loaderData }: Route.ComponentProps) {
+  const { courses, error } = loaderData;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -133,7 +131,7 @@ export default function AdminCourses() {
                   </tr>
                 </thead>
                 <tbody>
-                  {courses.map((course) => (
+                  {courses.map((course: Course) => (
                     <tr key={course.id} className="border-b hover:bg-muted/50">
                       <td className="py-3 px-4">
                         <div className="font-medium">{course.name}</div>
@@ -216,13 +214,13 @@ export default function AdminCourses() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">
-                  {courses.reduce((sum, course) => sum + course._count.canvasUsers, 0)}
+                  {courses.reduce((sum: number, course: Course) => sum + course._count.canvasUsers, 0)}
                 </div>
                 <div className="text-sm text-muted-foreground">Total Users</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">
-                  {courses.reduce((sum, course) => sum + course._count.questions, 0)}
+                  {courses.reduce((sum: number, course: Course) => sum + course._count.questions, 0)}
                 </div>
                 <div className="text-sm text-muted-foreground">Total Questions</div>
               </div>

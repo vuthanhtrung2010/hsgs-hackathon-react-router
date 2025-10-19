@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -79,11 +79,8 @@ export function meta({}: Route.MetaArgs): Route.MetaDescriptors {
   ];
 }
 
-export default function Problems() {
-  const { problems: initialProblems, courses } = useLoaderData<{
-    problems: Problem[];
-    courses: any[];
-  }>();
+export default function Problems({ loaderData }: Route.ComponentProps) {
+  const { problems: initialProblems, courses } = loaderData;
   const [problems, setProblems] = useState<Problem[]>(initialProblems || []);
   const [filteredProblems, setFilteredProblems] = useState<Problem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");

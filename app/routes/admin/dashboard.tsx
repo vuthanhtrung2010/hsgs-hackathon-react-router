@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
@@ -15,44 +13,69 @@ import {
   AlertCircle,
   Megaphone,
 } from "lucide-react";
+import { data } from "react-router";
+import type { Route } from "./+types/dashboard";
 
 interface DashboardStats {
   canvasUserCount: number;
   announcementCount?: number;
 }
 
-export default function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats>({
-    canvasUserCount: 0,
-    announcementCount: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface LoaderData {
+  stats: DashboardStats;
+  error: string | null;
+}
 
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
+export async function loader({ request }: Route.LoaderArgs): Promise<LoaderData> {
+  try {
+    const url = new URL(
+      "/api/admin/stats",
+      process.env.VITE_API_BASE_URL ||
+        import.meta.env.VITE_API_BASE_URL ||
+        "https://api.example.com"
+    );
 
-  const fetchDashboardStats = async () => {
-    try {
-      const response = await fetch("/api/admin/stats", {
-        credentials: "include",
-      });
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Cookie": request.headers.get("Cookie") || "",
+      },
+    });
 
-      const data = await response.json();
-
-      if (data.success) {
-        setStats(data.stats);
-      } else {
-        setError(data.error || "Failed to fetch stats");
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw data("Unauthorized access", { status: 401 });
+      } else if (response.status === 403) {
+        throw data("Admin access required", { status: 403 });
       }
-    } catch (error) {
-      console.error("Failed to fetch dashboard stats:", error);
-      setError("Failed to connect to server");
-    } finally {
-      setLoading(false);
+      throw data("Failed to fetch dashboard stats", { status: response.status });
     }
-  };
+
+    const responseData = await response.json();
+    
+    if (!responseData.success) {
+      return { 
+        stats: { canvasUserCount: 0, announcementCount: 0 }, 
+        error: responseData.error || "Failed to fetch dashboard stats" 
+      };
+    }
+
+    return { 
+      stats: responseData.stats, 
+      error: null 
+    };
+  } catch (error) {
+    console.error("Error fetching dashboard stats:", error);
+    return { 
+      stats: { canvasUserCount: 0, announcementCount: 0 }, 
+      error: "Failed to connect to server" 
+    };
+  }
+}
+
+export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
+  const { stats, error } = loaderData;
 
   const statCards = [
     {
@@ -84,12 +107,6 @@ export default function AdminDashboard() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button asChild>
-            <Link to="/admin/classes/create">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Class
-            </Link>
-          </Button>
           <Button asChild variant="outline">
             <Link to="/admin/announcements/create">
               <Plus className="mr-2 h-4 w-4" />
@@ -112,9 +129,7 @@ export default function AdminDashboard() {
                 <Icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {loading ? "..." : stat.value}
-                </div>
+                <div className="text-2xl font-bold">{stat.value}</div>
                 <p className="text-xs text-muted-foreground">
                   {stat.description}
                 </p>
@@ -135,30 +150,6 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       )}
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5" />
-            Manage Classes
-          </CardTitle>
-          <CardDescription>
-            View and manage all your classes, add new members, and track
-            progress.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <Link to="/admin/classes">View All Classes</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/admin/classes/create">Create New Class</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSort,
@@ -8,7 +8,6 @@ import {
   faTrophy,
   faQuoteLeft,
 } from "@fortawesome/free-solid-svg-icons";
-import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import {
   Pagination,
@@ -121,16 +120,12 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
-export default function RankingRoute() {
+export default function RankingRoute({ loaderData }: Route.ComponentProps) {
   const {
     users: initialUsers,
     recentSubmissions,
     announcements,
-  } = useLoaderData<{
-    users: IUsersListData[];
-    recentSubmissions: RecentSubmission[];
-    announcements: any[];
-  }>();
+  } = loaderData;
 
   const [users] = useState<IUsersListData[]>(initialUsers);
   const [filteredUsers, setFilteredUsers] = useState<IUsersListData[]>([]);
@@ -654,7 +649,7 @@ export default function RankingRoute() {
                   </p>
                 ) : (
                   <div className="space-y-3">
-                    {recentSubmissions.map((submission, index) => (
+                    {recentSubmissions.map((submission: RecentSubmission, index: number) => (
                       <div
                         key={submission.id}
                         className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
@@ -766,7 +761,7 @@ export default function RankingRoute() {
               </p>
             ) : (
               <div className="space-y-3">
-                {recentSubmissions.map((submission, index) => (
+                {recentSubmissions.map((submission: RecentSubmission, index: number) => (
                   <div
                     key={submission.id}
                     className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
