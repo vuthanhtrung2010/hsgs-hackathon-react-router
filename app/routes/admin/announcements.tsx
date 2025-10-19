@@ -51,7 +51,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function Announcements({ loaderData }: Route.ComponentProps) {
   const { courses } = loaderData;
   const [selectedCourseId, setSelectedCourseId] = useState<string>(
-    courses[0]?.randomId || ""
+    courses[0]?.randomId || "",
   );
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(courses.length === 0 ? false : true);
@@ -73,7 +73,7 @@ export default function Announcements({ loaderData }: Route.ComponentProps) {
         `/api/admin/announcements/course/${selectedCourseId}`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await response.json();
 
@@ -108,13 +108,13 @@ export default function Announcements({ loaderData }: Route.ComponentProps) {
             {
               method: "DELETE",
               credentials: "include",
-            }
+            },
           );
           const data = await response.json();
 
           if (data.success) {
             setAnnouncements((prev) =>
-              prev.filter((a) => a.id !== announcementId)
+              prev.filter((a) => a.id !== announcementId),
             );
             setDeleteDialogContent({
               title: "Success",

@@ -12,7 +12,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const order = url.searchParams.get("order") || "desc";
 
   try {
-    const apiUrl = new URL(`/api/announcements/${randomizedCourseId}`, API_BASE_URL);
+    const apiUrl = new URL(
+      `/api/announcements/${randomizedCourseId}`,
+      API_BASE_URL,
+    );
     apiUrl.searchParams.set("sortBy", sortBy);
     apiUrl.searchParams.set("order", order);
 

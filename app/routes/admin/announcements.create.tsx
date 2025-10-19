@@ -39,7 +39,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         `/api/admin/announcements/course/${randomizedCourseId}`,
         process.env.VITE_API_BASE_URL ||
           import.meta.env.VITE_API_BASE_URL ||
-          "http://localhost:3001"
+          "http://localhost:3001",
       ).toString(),
       {
         method: "POST",
@@ -50,7 +50,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         body: JSON.stringify({
           title: title.trim(),
         }),
-      }
+      },
     );
 
     const data = await response.json();

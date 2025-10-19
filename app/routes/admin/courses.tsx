@@ -28,14 +28,14 @@ export async function loader({ request }: Route.LoaderArgs) {
       "/api/admin/courses",
       process.env.VITE_API_BASE_URL ||
         import.meta.env.VITE_API_BASE_URL ||
-        "https://api.example.com"
+        "https://api.example.com",
     );
 
     const response = await fetch(url.toString(), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Cookie": request.headers.get("Cookie") || "",
+        Cookie: request.headers.get("Cookie") || "",
       },
     });
 
@@ -49,9 +49,11 @@ export async function loader({ request }: Route.LoaderArgs) {
     }
 
     const responseData = await response.json();
-    
+
     if (!responseData.success) {
-      throw data(responseData.error || "Failed to fetch courses", { status: 500 });
+      throw data(responseData.error || "Failed to fetch courses", {
+        status: 500,
+      });
     }
 
     return { courses: responseData.courses, error: null };
@@ -122,12 +124,22 @@ export default function AdminCourses({ loaderData }: Route.ComponentProps) {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium">Course Name</th>
-                    <th className="text-left py-3 px-4 font-medium">Course ID</th>
+                    <th className="text-left py-3 px-4 font-medium">
+                      Course Name
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium">
+                      Course ID
+                    </th>
                     <th className="text-center py-3 px-4 font-medium">Users</th>
-                    <th className="text-center py-3 px-4 font-medium">Questions</th>
-                    <th className="text-center py-3 px-4 font-medium">Created</th>
-                    <th className="text-center py-3 px-4 font-medium">Actions</th>
+                    <th className="text-center py-3 px-4 font-medium">
+                      Questions
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium">
+                      Created
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -166,11 +178,7 @@ export default function AdminCourses({ loaderData }: Route.ComponentProps) {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center justify-center gap-2">
-                          <Button
-                            asChild
-                            variant="outline"
-                            size="sm"
-                          >
+                          <Button asChild variant="outline" size="sm">
                             <Link to={`/ranking/${course.randomId}`}>
                               View Leaderboard
                             </Link>
@@ -210,19 +218,31 @@ export default function AdminCourses({ loaderData }: Route.ComponentProps) {
                 <div className="text-2xl font-bold text-primary">
                   {courses.length}
                 </div>
-                <div className="text-sm text-muted-foreground">Total Courses</div>
+                <div className="text-sm text-muted-foreground">
+                  Total Courses
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">
-                  {courses.reduce((sum: number, course: Course) => sum + course._count.canvasUsers, 0)}
+                  {courses.reduce(
+                    (sum: number, course: Course) =>
+                      sum + course._count.canvasUsers,
+                    0,
+                  )}
                 </div>
                 <div className="text-sm text-muted-foreground">Total Users</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">
-                  {courses.reduce((sum: number, course: Course) => sum + course._count.questions, 0)}
+                  {courses.reduce(
+                    (sum: number, course: Course) =>
+                      sum + course._count.questions,
+                    0,
+                  )}
                 </div>
-                <div className="text-sm text-muted-foreground">Total Questions</div>
+                <div className="text-sm text-muted-foreground">
+                  Total Questions
+                </div>
               </div>
             </div>
           </CardContent>

@@ -26,20 +26,22 @@ interface LoaderData {
   error: string | null;
 }
 
-export async function loader({ request }: Route.LoaderArgs): Promise<LoaderData> {
+export async function loader({
+  request,
+}: Route.LoaderArgs): Promise<LoaderData> {
   try {
     const url = new URL(
       "/api/admin/stats",
       process.env.VITE_API_BASE_URL ||
         import.meta.env.VITE_API_BASE_URL ||
-        "https://api.example.com"
+        "https://api.example.com",
     );
 
     const response = await fetch(url.toString(), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Cookie": request.headers.get("Cookie") || "",
+        Cookie: request.headers.get("Cookie") || "",
       },
     });
 
@@ -49,27 +51,29 @@ export async function loader({ request }: Route.LoaderArgs): Promise<LoaderData>
       } else if (response.status === 403) {
         throw data("Admin access required", { status: 403 });
       }
-      throw data("Failed to fetch dashboard stats", { status: response.status });
+      throw data("Failed to fetch dashboard stats", {
+        status: response.status,
+      });
     }
 
     const responseData = await response.json();
-    
+
     if (!responseData.success) {
-      return { 
-        stats: { canvasUserCount: 0, announcementCount: 0 }, 
-        error: responseData.error || "Failed to fetch dashboard stats" 
+      return {
+        stats: { canvasUserCount: 0, announcementCount: 0 },
+        error: responseData.error || "Failed to fetch dashboard stats",
       };
     }
 
-    return { 
-      stats: responseData.stats, 
-      error: null 
+    return {
+      stats: responseData.stats,
+      error: null,
     };
   } catch (error) {
     console.error("Error fetching dashboard stats:", error);
-    return { 
-      stats: { canvasUserCount: 0, announcementCount: 0 }, 
-      error: "Failed to connect to server" 
+    return {
+      stats: { canvasUserCount: 0, announcementCount: 0 },
+      error: "Failed to connect to server",
     };
   }
 }

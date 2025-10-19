@@ -99,9 +99,9 @@ export default function UserPage({ userRank }: UserPageProps) {
   };
 
   // Format courses for the CourseSelector component
-  const formattedCourses = userData.courses?.map(course => ({
+  const formattedCourses = userData.courses?.map((course) => ({
     id: course.courseId,
-    name: course.courseName
+    name: course.courseName,
   }));
 
   if (!userData) {

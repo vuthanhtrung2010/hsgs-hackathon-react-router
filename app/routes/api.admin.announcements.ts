@@ -14,7 +14,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         `/api/admin/announcements/course/${randomizedCourseId}`,
         process.env.VITE_API_BASE_URL ||
           import.meta.env.VITE_API_BASE_URL ||
-          "http://localhost:3001"
+          "http://localhost:3001",
       ).toString(),
       {
         method: "GET",
@@ -23,7 +23,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           // Forward cookies for auth
           Cookie: request.headers.get("Cookie") || "",
         },
-      }
+      },
     );
 
     const data = await response.json();
@@ -35,7 +35,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         success: false,
         error: "Failed to connect to server",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

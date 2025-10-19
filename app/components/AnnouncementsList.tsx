@@ -16,7 +16,7 @@ export function AnnouncementsList({ courseId }: AnnouncementsListProps) {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       if (!courseId) return;
-      
+
       try {
         setLoading(true);
         setError(null);

@@ -11,7 +11,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         `/api/admin/announcements/${params.id}`,
         process.env.VITE_API_BASE_URL ||
           import.meta.env.VITE_API_BASE_URL ||
-          "http://localhost:3001"
+          "http://localhost:3001",
       ).toString(),
       {
         method: "GET",
@@ -20,7 +20,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           // Forward cookies for auth
           Cookie: request.headers.get("Cookie") || "",
         },
-      }
+      },
     );
 
     const data = await response.json();
@@ -32,7 +32,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         success: false,
         error: "Failed to connect to server",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -46,7 +46,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         `/api/admin/announcements/${params.id}`,
         process.env.VITE_API_BASE_URL ||
           import.meta.env.VITE_API_BASE_URL ||
-          "http://localhost:3001"
+          "http://localhost:3001",
       ).toString(),
       {
         method: request.method,
@@ -56,7 +56,7 @@ export async function action({ request, params }: Route.ActionArgs) {
           Cookie: request.headers.get("Cookie") || "",
         },
         body: body ? JSON.stringify(body) : null,
-      }
+      },
     );
 
     const data = await response.json();
@@ -68,7 +68,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         success: false,
         error: "Failed to connect to server",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

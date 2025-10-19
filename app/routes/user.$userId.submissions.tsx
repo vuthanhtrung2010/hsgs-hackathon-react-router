@@ -33,7 +33,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       `/api/users/details/${userId}/submissions`,
       process.env.VITE_API_BASE_URL ||
         import.meta.env.VITE_API_BASE_URL ||
-        "https://api.example.com"
+        "https://api.example.com",
     );
 
     const response = await fetch(url.toString(), {
@@ -116,9 +116,10 @@ export default function UserSubmissions({ loaderData }: Route.ComponentProps) {
                   <div className="text-2xl font-bold text-primary">
                     {Math.round(
                       submissions.reduce(
-                        (sum: number, sub: Submission) => sum + (sub.score / sub.maxScore) * 100,
-                        0
-                      ) / submissions.length
+                        (sum: number, sub: Submission) =>
+                          sum + (sub.score / sub.maxScore) * 100,
+                        0,
+                      ) / submissions.length,
                     )}
                     %
                   </div>
@@ -129,8 +130,10 @@ export default function UserSubmissions({ loaderData }: Route.ComponentProps) {
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">
                     {Math.round(
-                      submissions.reduce((sum: number, sub: Submission) => sum + sub.rating, 0) /
-                        submissions.length
+                      submissions.reduce(
+                        (sum: number, sub: Submission) => sum + sub.rating,
+                        0,
+                      ) / submissions.length,
                     )}
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -217,7 +220,7 @@ export default function UserSubmissions({ loaderData }: Route.ComponentProps) {
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {Math.round(
-                              (submission.score / submission.maxScore) * 100
+                              (submission.score / submission.maxScore) * 100,
                             )}
                             %
                           </div>

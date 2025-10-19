@@ -75,7 +75,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     // Fetch announcements
     const announcementsUrl = new URL(
       `/api/announcements/course/${randomizedCourseId}`,
-      baseUrl
+      baseUrl,
     );
     const announcementsResponse = await fetch(announcementsUrl.toString());
     const announcementsData = announcementsResponse.ok
@@ -89,7 +89,7 @@ export async function loader({ params }: Route.LoaderArgs) {
         processedContent: announcement.content
           ? await processMarkdownToHtml(announcement.content)
           : "",
-      }))
+      })),
     );
 
     return {
@@ -121,11 +121,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function RankingRoute({ loaderData }: Route.ComponentProps) {
-  const {
-    users: initialUsers,
-    recentSubmissions,
-    announcements,
-  } = loaderData;
+  const { users: initialUsers, recentSubmissions, announcements } = loaderData;
 
   const [users] = useState<IUsersListData[]>(initialUsers);
   const [filteredUsers, setFilteredUsers] = useState<IUsersListData[]>([]);
@@ -208,7 +204,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
         return 0;
       });
     },
-    [sortField, sortOrder]
+    [sortField, sortOrder],
   );
 
   const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
@@ -491,7 +487,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
                       <PaginationNext
                         onClick={() =>
                           setCurrentPage((prev) =>
-                            Math.min(prev + 1, totalPages)
+                            Math.min(prev + 1, totalPages),
                           )
                         }
                         className={
@@ -595,7 +591,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
                       />
                       <div className="text-xs text-muted-foreground mt-2">
                         {new Date(
-                          announcements[currentAnnouncementIndex].createdAt
+                          announcements[currentAnnouncementIndex].createdAt,
                         ).toLocaleDateString()}
                       </div>
                     </div>
@@ -607,7 +603,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
                           size="sm"
                           onClick={() =>
                             setCurrentAnnouncementIndex((prev) =>
-                              prev === 0 ? announcements.length - 1 : prev - 1
+                              prev === 0 ? announcements.length - 1 : prev - 1,
                             )
                           }
                         >
@@ -622,7 +618,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
                           size="sm"
                           onClick={() =>
                             setCurrentAnnouncementIndex((prev) =>
-                              prev === announcements.length - 1 ? 0 : prev + 1
+                              prev === announcements.length - 1 ? 0 : prev + 1,
                             )
                           }
                         >
@@ -649,30 +645,34 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
                   </p>
                 ) : (
                   <div className="space-y-3">
-                    {recentSubmissions.map((submission: RecentSubmission, index: number) => (
-                      <div
-                        key={submission.id}
-                        className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                      >
-                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                          {index + 1}
+                    {recentSubmissions.map(
+                      (submission: RecentSubmission, index: number) => (
+                        <div
+                          key={submission.id}
+                          className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                        >
+                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <Link
+                              to={`/user/${submission.userId}`}
+                              className="font-medium text-sm hover:text-primary transition-colors block truncate"
+                            >
+                              {submission.userName}
+                            </Link>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {submission.quizName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(
+                                submission.submittedAt,
+                              ).toLocaleString()}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <Link
-                            to={`/user/${submission.userId}`}
-                            className="font-medium text-sm hover:text-primary transition-colors block truncate"
-                          >
-                            {submission.userName}
-                          </Link>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {submission.quizName}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(submission.submittedAt).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                      ),
+                    )}
                   </div>
                 )}
               </div>
@@ -708,7 +708,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
                   />
                   <div className="text-xs text-muted-foreground mt-2">
                     {new Date(
-                      announcements[currentAnnouncementIndex].createdAt
+                      announcements[currentAnnouncementIndex].createdAt,
                     ).toLocaleDateString()}
                   </div>
                 </div>
@@ -720,7 +720,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
                       size="sm"
                       onClick={() =>
                         setCurrentAnnouncementIndex((prev) =>
-                          prev === 0 ? announcements.length - 1 : prev - 1
+                          prev === 0 ? announcements.length - 1 : prev - 1,
                         )
                       }
                     >
@@ -734,7 +734,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
                       size="sm"
                       onClick={() =>
                         setCurrentAnnouncementIndex((prev) =>
-                          prev === announcements.length - 1 ? 0 : prev + 1
+                          prev === announcements.length - 1 ? 0 : prev + 1,
                         )
                       }
                     >
@@ -761,30 +761,32 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
               </p>
             ) : (
               <div className="space-y-3">
-                {recentSubmissions.map((submission: RecentSubmission, index: number) => (
-                  <div
-                    key={submission.id}
-                    className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                  >
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                      {index + 1}
+                {recentSubmissions.map(
+                  (submission: RecentSubmission, index: number) => (
+                    <div
+                      key={submission.id}
+                      className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                    >
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <Link
+                          to={`/user/${submission.userId}`}
+                          className="font-medium text-sm hover:text-primary transition-colors block truncate"
+                        >
+                          {submission.userName}
+                        </Link>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {submission.quizName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(submission.submittedAt).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <Link
-                        to={`/user/${submission.userId}`}
-                        className="font-medium text-sm hover:text-primary transition-colors block truncate"
-                      >
-                        {submission.userName}
-                      </Link>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {submission.quizName}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(submission.submittedAt).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             )}
           </div>
