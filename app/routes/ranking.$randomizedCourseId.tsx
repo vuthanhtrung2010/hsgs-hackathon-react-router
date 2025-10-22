@@ -18,8 +18,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "~/components/ui/pagination";
-import { type IUsersListData } from "~/lib/server-actions/users";
-import { getRatingTitle } from "~/lib/rating";
+import { getRatingTitle, type RatingThresholds } from "~/lib/rating";
 import RatingDisplay from "~/components/RatingDisplay";
 import "~/styles/rating.css";
 import Loading from "~/components/Loading";
@@ -70,7 +69,23 @@ export async function loader({ params }: Route.LoaderArgs) {
       });
     }
 
-    const rankingData = await rankingResponse.json();
+    const rankingData: {
+      ranking: Array<{
+        course: {
+          courseName: string;
+          rating: number;
+          quizzesCompleted: number;
+          debt: number;
+          quote?: string;
+          quoteAuthor?: string;
+          showDebt?: boolean;
+          customRatingThresholds?: boolean;
+          ratingThresholds?: RatingThresholds;
+        };
+        [key: string]: any;
+      }>;
+      recentSubmissions: Array<RecentSubmission>;
+    } = await rankingResponse.json();
 
     // Fetch announcements
     const announcementsUrl = new URL(
@@ -92,11 +107,20 @@ export async function loader({ params }: Route.LoaderArgs) {
       })),
     );
 
+    // Extract course details including rating thresholds if available
+    const courseDetails = rankingData.ranking?.[0]?.course || {};
+    const ratingThresholds =
+      courseDetails.customRatingThresholds && courseDetails.ratingThresholds
+        ? courseDetails.ratingThresholds
+        : undefined;
+
     return {
       users: rankingData.ranking || [],
       recentSubmissions: rankingData.recentSubmissions || [],
       announcements: processedAnnouncements,
       randomizedCourseId,
+      ratingThresholds,
+      customRatingThresholds: courseDetails.customRatingThresholds || false,
     };
   } catch (error) {
     console.error("Error fetching rankings:", error);
@@ -121,10 +145,36 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function RankingRoute({ loaderData }: Route.ComponentProps) {
-  const { users: initialUsers, recentSubmissions, announcements } = loaderData;
+  const {
+    users: initialUsers,
+    recentSubmissions,
+    announcements,
+    ratingThresholds,
+  } = loaderData;
 
-  const [users] = useState<IUsersListData[]>(initialUsers);
-  const [filteredUsers, setFilteredUsers] = useState<IUsersListData[]>([]);
+  // Define the user interface that combines IUsersListData with additional fields from the API
+  type ExtendedUser = {
+    id: string;
+    name: string;
+    shortName: string;
+    course: {
+      courseName: string;
+      rating: number;
+      quizzesCompleted: number;
+      debt: number;
+      quote?: string;
+      quoteAuthor?: string;
+      showDebt?: boolean;
+      customRatingThresholds?: boolean;
+      ratingThresholds?: RatingThresholds;
+    };
+    [key: string]: any;
+  };
+
+  const [users] = useState<ExtendedUser[]>(initialUsers as ExtendedUser[]);
+  const [filteredUsers, setFilteredUsers] = useState<ExtendedUser[]>(
+    initialUsers as ExtendedUser[],
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<SortField>("rating");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -158,7 +208,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
   };
 
   const sortUsers = useCallback(
-    (users: IUsersListData[]) => {
+    (users: ExtendedUser[]) => {
       if (!sortField || !sortOrder) return users;
 
       return [...users].sort((a, b) => {
@@ -220,7 +270,7 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
   }, []);
 
   useEffect(() => {
-    let filtered = users;
+    let filtered = [...users]; // Create a copy of the users array
 
     filtered = sortUsers(filtered);
 
@@ -382,17 +432,22 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
                               <RatingDisplay
                                 rating={Math.round(rating)}
                                 showIcon={true}
+                                thresholds={ratingThresholds || undefined}
                               />
                             </td>
                             <td className="p-4 align-middle border-r border-border">
                               <Link
                                 to={`/user/${user.id}`}
                                 className="text-primary hover:underline font-medium"
-                                title={getRatingTitle(Math.round(rating))}
+                                title={getRatingTitle(
+                                  Math.round(rating),
+                                  ratingThresholds || undefined,
+                                )}
                               >
                                 <NameDisplay
                                   name={user.name}
                                   rating={Math.round(rating)}
+                                  thresholds={ratingThresholds || undefined}
                                 />
                               </Link>
                             </td>

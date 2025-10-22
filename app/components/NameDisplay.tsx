@@ -1,20 +1,24 @@
 import React from "react";
-import { getRatingClass } from "~/lib/rating";
+import { getRatingClass, type RatingThresholds } from "~/lib/rating";
 
 interface UsernameDisplayProps {
   name: string;
   rating: number;
   className?: string;
+  thresholds?: RatingThresholds;
 }
 
 export default function NameDisplay({
   name,
   rating,
   className = "",
+  thresholds,
 }: UsernameDisplayProps) {
-  const ratingClass = getRatingClass(rating);
+  const ratingClass = getRatingClass(rating, thresholds);
 
-  if (rating >= 3000) {
+  const adminThreshold = thresholds?.adminThreshold || 3000;
+
+  if (rating >= adminThreshold) {
     // name với chữ cái đầu màu đỏ nhạt, phần còn lại màu đỏ như grandmaster (#e00)
     const firstChar = name.charAt(0);
     const restChars = name.slice(1);

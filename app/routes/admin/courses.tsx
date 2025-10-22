@@ -6,9 +6,19 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
-import { ExternalLink, Users, FileQuestion, Calendar } from "lucide-react";
-import { data } from "react-router";
+import {
+  ExternalLink,
+  Users,
+  FileQuestion,
+  Calendar,
+  Settings,
+} from "lucide-react";
+import { data, redirect } from "react-router";
 import type { Route } from "./+types/courses";
+import { CourseSettingsDialog } from "../../components/CourseSettingsDialog";
+import { useState } from "react";
+import { DEFAULT_RATING_THRESHOLDS } from "~/lib/rating";
+import type { RatingThresholds } from "~/lib/rating";
 
 interface Course {
   id: string;
@@ -16,10 +26,101 @@ interface Course {
   randomId: string;
   createdAt: string;
   updatedAt: string;
+  quote?: string;
+  quoteAuthor?: string;
+  showDebt?: boolean;
+  customRatingThresholds?: boolean;
+  ratingThresholds?: RatingThresholds;
   _count: {
     canvasUsers: number;
     questions: number;
   };
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const courseId = formData.get("courseId");
+
+  if (!courseId || typeof courseId !== "string") {
+    return {
+      success: false,
+      error: "Course ID is required",
+    };
+  }
+
+  // Extract settings from the form data
+  const quote = formData.get("quote") || "";
+  const quoteAuthor = formData.get("quoteAuthor") || "";
+
+  // Handle both checkbox values ("on") and hidden input values ("true")
+  const showDebtValue = formData.get("showDebt");
+  const showDebt = showDebtValue === "true" || showDebtValue === "on";
+
+  const customRatingThresholdsValue = formData.get("customRatingThresholds");
+  const customRatingThresholds =
+    customRatingThresholdsValue === "true" ||
+    customRatingThresholdsValue === "on";
+
+  // Extract rating thresholds from form data
+  const thresholds: RatingThresholds = {
+    newbieThreshold: parseInt(formData.get("newbieThreshold") as string) || 0,
+    amateurThreshold:
+      parseInt(formData.get("amateurThreshold") as string) || 1000,
+    expertThreshold:
+      parseInt(formData.get("expertThreshold") as string) || 1300,
+    candidateMasterThreshold:
+      parseInt(formData.get("candidateMasterThreshold") as string) || 1600,
+    masterThreshold:
+      parseInt(formData.get("masterThreshold") as string) || 1900,
+    grandmasterThreshold:
+      parseInt(formData.get("grandmasterThreshold") as string) || 2100,
+    targetThreshold:
+      parseInt(formData.get("targetThreshold") as string) || 2400,
+    adminThreshold: parseInt(formData.get("adminThreshold") as string) || 3000,
+  };
+
+  const url = new URL(
+    `/api/admin/courses/${courseId}/settings`,
+    process.env.VITE_API_BASE_URL ||
+      import.meta.env.VITE_API_BASE_URL ||
+      "https://api.example.com",
+  );
+  try {
+    const response = await fetch(url.toString(), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: request.headers.get("Cookie") || "",
+      },
+      body: JSON.stringify({
+        quote,
+        quoteAuthor,
+        showDebt,
+        customRatingThresholds,
+        thresholds,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      console.error("API error:", data.error);
+      return {
+        success: false,
+        error: data.error || "Failed to update course settings",
+      };
+    }
+
+    return {
+      success: true,
+    };
+  } catch (err) {
+    console.error("Error saving course settings:", err);
+    return {
+      success: false,
+      error: "Failed to connect to server",
+    };
+  }
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -65,6 +166,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function AdminCourses({ loaderData }: Route.ComponentProps) {
   const { courses, error } = loaderData;
+  const [isSaving, setIsSaving] = useState(false);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -183,6 +285,30 @@ export default function AdminCourses({ loaderData }: Route.ComponentProps) {
                               View Leaderboard
                             </Link>
                           </Button>
+
+                          <CourseSettingsDialog
+                            courseId={course.id}
+                            initialQuote={course.quote || ""}
+                            initialQuoteAuthor={course.quoteAuthor || ""}
+                            initialShowDebt={course.showDebt || false}
+                            initialCustomRatingThresholds={
+                              course.customRatingThresholds || false
+                            }
+                            initialThresholds={
+                              course.ratingThresholds ||
+                              DEFAULT_RATING_THRESHOLDS
+                            }
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={isSaving}
+                              title="Course Settings"
+                            >
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                          </CourseSettingsDialog>
+
                           <Button
                             variant="ghost"
                             size="sm"

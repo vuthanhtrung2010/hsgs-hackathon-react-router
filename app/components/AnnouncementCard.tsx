@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { renderMarkdown } from "../lib/markdown";
+import { processMarkdownForProblem } from "../lib/markdown-processor";
 import { useEffect, useState } from "react";
 import type { Announcement } from "~/types";
 import styles from "../ProblemPage.module.css";
@@ -32,7 +32,7 @@ export function AnnouncementCard({
   useEffect(() => {
     const processMarkdown = async () => {
       try {
-        const html = await renderMarkdown(announcement.content);
+        const html = await processMarkdownForProblem(announcement.content);
         setRenderedContent(html);
       } catch (error) {
         console.error("Error rendering markdown:", error);

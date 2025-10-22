@@ -1,15 +1,41 @@
-import React from "react";
-import { getRatingClass, getRatingTitle } from "~/lib/rating";
+import {
+  getRatingClass,
+  getRatingTitle,
+  type RatingThresholds,
+} from "~/lib/rating";
 import "~/styles/rating.css";
 
 interface RatingDisplayProps {
   rating: number;
   showIcon?: boolean;
   className?: string;
+  thresholds?: RatingThresholds;
 }
 
-function RatingProgress({ rating }: { rating: number }) {
-  const ratingLevels = [1000, 1300, 1600, 1900, 2400, 3000];
+function RatingProgress({
+  rating,
+  thresholds,
+}: {
+  rating: number;
+  thresholds?: RatingThresholds;
+}) {
+  // Use custom thresholds if provided, otherwise use default levels
+  let ratingLevels: number[];
+
+  if (thresholds) {
+    ratingLevels = [
+      thresholds.amateurThreshold,
+      thresholds.expertThreshold,
+      thresholds.candidateMasterThreshold,
+      thresholds.masterThreshold,
+      thresholds.grandmasterThreshold,
+      thresholds.targetThreshold,
+      thresholds.adminThreshold,
+    ];
+  } else {
+    ratingLevels = [1000, 1300, 1600, 1900, 2100, 2400, 3000];
+  }
+
   const level = ratingLevels.findIndex((level) => rating < level);
   const actualLevel = level === -1 ? ratingLevels.length : level;
 
@@ -27,9 +53,10 @@ export default function RatingDisplay({
   rating,
   showIcon = true,
   className = "",
+  thresholds,
 }: RatingDisplayProps) {
-  const ratingClass = getRatingClass(rating);
-  const ratingTitle = getRatingTitle(rating);
+  const ratingClass = getRatingClass(rating, thresholds);
+  const ratingTitle = getRatingTitle(rating, thresholds);
 
   if (rating === 0 || rating === 1500) {
     return (
@@ -39,7 +66,7 @@ export default function RatingDisplay({
     );
   }
 
-  const progress = RatingProgress({ rating });
+  const progress = RatingProgress({ rating, thresholds });
   const fillHeight = progress * 14; // Height of the fill area
   const startY = 16 - fillHeight; // Start from bottom up
 

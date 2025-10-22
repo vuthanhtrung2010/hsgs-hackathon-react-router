@@ -7,11 +7,12 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { getRatingClass } from "~/lib/rating";
+import { getRatingClass, type RatingThresholds } from "~/lib/rating";
 
 interface ClusterRadarChartProps {
   clusters: Record<string, any>; // Simplified clusters structure
   userName: string;
+  thresholds?: RatingThresholds;
 }
 
 // Format cluster names for display
@@ -27,17 +28,19 @@ const CustomTooltip = ({
   active,
   payload,
   label,
+  thresholds,
 }: {
   active?: boolean;
   payload?: Array<{ value: number }>;
   label?: string;
+  thresholds?: RatingThresholds;
 }) => {
   if (active && payload && payload.length) {
     const value = payload[0].value;
     return (
       <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
         <p className="text-sm font-medium">{label}</p>
-        <p className={`text-lg font-bold ${getRatingClass(value)}`}>
+        <p className={`text-lg font-bold ${getRatingClass(value, thresholds)}`}>
           {Math.round(value)}
         </p>
       </div>
@@ -49,6 +52,7 @@ const CustomTooltip = ({
 export default function ClusterRadarChart({
   clusters,
   userName,
+  thresholds,
 }: ClusterRadarChartProps) {
   // Check if clusters is empty or null
   const hasSkillsData = clusters && Object.keys(clusters).length > 0;
@@ -100,7 +104,9 @@ export default function ClusterRadarChart({
         <h2 className="text-xl font-semibold">Skills Analysis</h2>
         <div className="text-sm text-muted-foreground">
           Avg:{" "}
-          <span className={`font-bold ${getRatingClass(averageRating)}`}>
+          <span
+            className={`font-bold ${getRatingClass(averageRating, thresholds)}`}
+          >
             {averageRating}
           </span>
         </div>
@@ -134,7 +140,7 @@ export default function ClusterRadarChart({
               strokeWidth={2}
               dot={{ fill: "#eab308", strokeWidth: 2, r: 4 }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip thresholds={thresholds} />} />
           </RadarChart>
         </ResponsiveContainer>
       </div>
@@ -146,7 +152,9 @@ export default function ClusterRadarChart({
             <span className="text-muted-foreground truncate">
               {item.subject}:
             </span>
-            <span className={`font-medium ${getRatingClass(item.rating)}`}>
+            <span
+              className={`font-medium ${getRatingClass(item.rating, thresholds)}`}
+            >
               {item.rating}
             </span>
           </div>
@@ -163,7 +171,9 @@ export default function ClusterRadarChart({
               <span className="text-muted-foreground truncate">
                 {item.subject}:
               </span>
-              <span className={`font-medium ${getRatingClass(item.rating)}`}>
+              <span
+                className={`font-medium ${getRatingClass(item.rating, thresholds)}`}
+              >
                 {item.rating}
               </span>
             </div>

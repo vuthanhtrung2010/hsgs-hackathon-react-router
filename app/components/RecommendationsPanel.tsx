@@ -1,4 +1,4 @@
-import { getRatingClass } from "~/lib/rating";
+import { getRatingClass, type RatingThresholds } from "~/lib/rating";
 import type { Recommendations } from "~/lib/server-actions/users";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,12 +12,14 @@ interface RecommendationsProps {
   recommendations?: Recommendations[];
   userRating: number;
   courseId: string;
+  thresholds?: RatingThresholds;
 }
 
 export default function RecommendationsPanel({
   recommendations,
   userRating,
   courseId,
+  thresholds,
 }: RecommendationsProps) {
   if (!recommendations || recommendations.length === 0) {
     return (
@@ -92,7 +94,9 @@ export default function RecommendationsPanel({
 
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <span className={`font-medium ${getRatingClass(rec.rating)}`}>
+                  <span
+                    className={`font-medium ${getRatingClass(rec.rating, thresholds)}`}
+                  >
                     {rec.rating}
                   </span>
                 </div>
@@ -127,6 +131,7 @@ export default function RecommendationsPanel({
                   recommendations.reduce((sum, rec) => sum + rec.rating, 0) /
                     recommendations.length,
                 ),
+                thresholds,
               )}`}
             >
               {Math.round(
