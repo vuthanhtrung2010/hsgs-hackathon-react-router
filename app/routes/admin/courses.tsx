@@ -13,7 +13,7 @@ import {
   Calendar,
   Settings,
 } from "lucide-react";
-import { data, redirect } from "react-router";
+import { data } from "react-router";
 import type { Route } from "./+types/courses";
 import { CourseSettingsDialog } from "../../components/CourseSettingsDialog";
 import { useState } from "react";
@@ -176,11 +176,6 @@ export default function AdminCourses({ loaderData }: Route.ComponentProps) {
     });
   };
 
-  const getRankingUrl = (randomId: string) => {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/ranking/${randomId}`;
-  };
-
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -248,9 +243,25 @@ export default function AdminCourses({ loaderData }: Route.ComponentProps) {
                   {courses.map((course: Course) => (
                     <tr key={course.id} className="border-b hover:bg-muted/50">
                       <td className="py-3 px-4">
-                        <div className="font-medium">{course.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Random ID: {course.randomId}
+                        <div className="flex items-center gap-2">
+                          <Button asChild variant="ghost" size="sm">
+                            <Link to={`/ranking/${course.randomId}`}>
+                              <ExternalLink className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <div>
+                            <div className="font-medium">
+                              <Link
+                                to={`/ranking/${course.randomId}`}
+                                className="text-primary hover:underline"
+                              >
+                                {course.name}
+                              </Link>
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Random ID: {course.randomId}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td className="py-3 px-4">
@@ -280,12 +291,6 @@ export default function AdminCourses({ loaderData }: Route.ComponentProps) {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center justify-center gap-2">
-                          <Button asChild variant="outline" size="sm">
-                            <Link to={`/ranking/${course.randomId}`}>
-                              View Leaderboard
-                            </Link>
-                          </Button>
-
                           <CourseSettingsDialog
                             courseId={course.id}
                             initialQuote={course.quote || ""}
@@ -308,19 +313,6 @@ export default function AdminCourses({ loaderData }: Route.ComponentProps) {
                               <Settings className="h-4 w-4" />
                             </Button>
                           </CourseSettingsDialog>
-
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              const url = getRankingUrl(course.randomId);
-                              navigator.clipboard.writeText(url);
-                              // You could add a toast notification here
-                            }}
-                            title="Copy ranking URL"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
                         </div>
                       </td>
                     </tr>
