@@ -1,5 +1,7 @@
 import { Outlet, Link, useLocation } from "react-router";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../components/AuthProvider";
+import { useIsMobile } from "../../hooks/use-mobile";
 import {
   Plus,
   Home,
@@ -7,11 +9,29 @@ import {
   Calculator,
   Users,
   FileQuestion,
+  Menu,
+  X,
 } from "lucide-react";
+import Loading from "~/components/Loading";
 
 export default function AdminLayout() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Default to collapsed on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+    }
+  }, [isMobile]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   // For now, we'll allow any authenticated user to access admin
   // In a real app, you'd check for admin role
@@ -74,13 +94,28 @@ export default function AdminLayout() {
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <div className="w-64 bg-card border-r border-border flex flex-col">
+      <div
+        className={`${
+          isOpen ? "w-64" : "w-20"
+        } bg-card border-r border-border flex flex-col transition-all duration-300 ease-in-out`}
+      >
         {/* Header */}
-        <div className="p-6 border-b border-border">
-          <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Welcome, {user.name}
-          </p>
+        <div className="p-6 border-b border-border flex items-center justify-between">
+          {isOpen && (
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Admin</h1>
+              <p className="text-xs text-muted-foreground mt-1">
+                {user.name}
+              </p>
+            </div>
+          )}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-2 hover:bg-accent rounded-md transition-colors ml-auto"
+            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            {isOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
 
         {/* Navigation */}
@@ -99,9 +134,10 @@ export default function AdminLayout() {
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent"
                     }`}
+                    title={!isOpen ? item.label : undefined}
                   >
                     <Icon size={18} />
-                    {item.label}
+                    {isOpen && <span>{item.label}</span>}
                   </Link>
                 </li>
               );
@@ -113,9 +149,10 @@ export default function AdminLayout() {
         <div className="p-4 border-t border-border">
           <Link
             to="/"
-            className="block text-sm text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground px-3 py-2 rounded-md hover:bg-accent transition-colors"
+            title={!isOpen ? "Back to Main Site" : undefined}
           >
-            ← Back to Main Site
+            {isOpen ? "← Back to Main Site" : <Plus size={18} />}
           </Link>
         </div>
       </div>
