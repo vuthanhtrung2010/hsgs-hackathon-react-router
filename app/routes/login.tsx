@@ -125,62 +125,69 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Card className="p-0 max-w-sm w-full shadow-none border-none">
-        <MagicCard
-          gradientColor={
-            mounted && actualTheme === "dark" ? "#262626" : "#D9D9D955"
-          }
-          className="p-0"
-        >
-          <CardHeader className="border-b border-border p-4 [.border-b]:pb-4">
-            <CardTitle>Login</CardTitle>
-            <CardDescription>Sign in to your account</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4">
-            <form ref={formRef} onSubmit={handleSubmit}>
-              <div className="flex flex-col gap-6">
-                {error && (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded flex items-center gap-2">
-                    <AlertCircle size={16} />
-                    <span>{error}</span>
-                  </div>
-                )}
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
+    <div className="flex min-h-screen items-center justify-center bg-secondary/30">
+      <div className="w-full max-w-sm clay-card p-0 overflow-hidden">
+        <CardHeader className="border-b border-border/50 p-6 bg-primary/5">
+          <CardTitle className="text-2xl text-center text-primary">
+            Welcome Back!
+          </CardTitle>
+          <CardDescription className="text-center text-base">
+            Sign in to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6">
+          <form ref={formRef} onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-6">
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl flex items-center gap-3">
+                  <AlertCircle size={20} />
+                  <span className="font-medium">{error}</span>
                 </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                  </div>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                  />
-                </div>
+              )}
+              <div className="grid gap-2">
+                <Label htmlFor="email" className="text-base ml-1">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="rounded-xl border-2 focus-visible:ring-primary/50 h-10 px-4"
+                />
               </div>
-              <CardFooter className="flex-col gap-2 p-0 mt-6">
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign In"}
-                </Button>
-              </CardFooter>
-            </form>
-          </CardContent>
-        </MagicCard>
-      </Card>
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-base ml-1">
+                    Password
+                  </Label>
+                </div>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="rounded-xl border-2 focus-visible:ring-primary/50 h-10 px-4"
+                />
+              </div>
+            </div>
+            <CardFooter className="flex-col gap-2 p-0 mt-8">
+              <Button
+                type="submit"
+                className="w-full clay-btn py-6 text-lg hover:brightness-110"
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </CardFooter>
+          </form>
+        </CardContent>
+      </div>
     </div>
   );
 }

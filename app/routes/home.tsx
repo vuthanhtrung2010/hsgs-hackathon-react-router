@@ -105,7 +105,7 @@ export default function Home() {
             <div className="flex gap-4 justify-center flex-wrap">
               <Link
                 to="/problems"
-                className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground clay-btn hover:bg-primary/90 transition-colors"
               >
                 Browse Problems
               </Link>
@@ -129,7 +129,7 @@ export default function Home() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="p-6 rounded-lg border border-border bg-card hover:shadow-lg transition-shadow relative"
+              className="p-6 clay-card hover:-translate-y-2 transition-transform duration-300 relative"
             >
               {feature.badge && (
                 <span className="absolute top-4 right-4 px-3 py-1 text-xs font-semibold bg-primary/10 text-primary rounded-full">
@@ -158,7 +158,7 @@ export default function Home() {
           </p>
           <Link
             to="/problems"
-            className="inline-flex items-center px-8 py-4 bg-primary text-primary-foreground rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center px-8 py-4 bg-primary text-primary-foreground clay-btn text-lg hover:bg-primary/90 transition-colors"
           >
             Explore Problems Now
           </Link>

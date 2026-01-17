@@ -9,3 +9,7 @@
 .env
 .env.*
 !.env.example
+
+# AI shit
+.shared
+.agent
