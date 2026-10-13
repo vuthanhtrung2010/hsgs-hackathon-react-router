@@ -62,12 +62,14 @@ export default function SubLeaderboardsAdmin({
 }: Route.ComponentProps) {
   const { courses } = loaderData;
   const [selectedCourseId, setSelectedCourseId] = useState<string>(
-    courses[0]?.randomId || "",
+    courses[0]?.id || courses[0]?.randomId || "",
   );
   const [subLeaderboards, setSubLeaderboards] = useState<SubLeaderboardItem[]>(
     [],
   );
-  const [loading, setLoading] = useState(courses.length > 0);
+  const [loading, setLoading] = useState(
+    Boolean(courses[0]?.id || courses[0]?.randomId),
+  );
   const [error, setError] = useState<string | null>(null);
 
   // Dialog states
@@ -81,6 +83,7 @@ export default function SubLeaderboardsAdmin({
 
   const fetchSubLeaderboards = async () => {
     if (!selectedCourseId) {
+      setSubLeaderboards([]);
       setLoading(false);
       return;
     }
@@ -188,7 +191,18 @@ export default function SubLeaderboardsAdmin({
         </Card>
       )}
 
-      {loading ? (
+      {!selectedCourseId ? (
+        <Card>
+          <CardContent className="pt-6 text-center py-12">
+            <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No course selected</h3>
+            <p className="text-muted-foreground">
+              Please select a course from the dropdown above to view and manage
+              its sub-leaderboards.
+            </p>
+          </CardContent>
+        </Card>
+      ) : loading ? (
         <div className="text-center py-12 text-muted-foreground">
           Loading sub-leaderboards...
         </div>

@@ -67,7 +67,9 @@ export default function CourseSelector({
   // Use prop courses if provided, otherwise use state courses
   const displayCourses = propCourses || courses;
   const selectedCourse = displayCourses.find(
-    (course) => course.id === selectedCourseId,
+    (course) =>
+      course.id === selectedCourseId ||
+      (course as any).randomId === selectedCourseId,
   );
 
   if (loading) {
@@ -115,7 +117,8 @@ export default function CourseSelector({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      selectedCourseId === course.id
+                      selectedCourseId === course.id ||
+                        (course as any).randomId === selectedCourseId
                         ? "opacity-100"
                         : "opacity-0",
                     )}

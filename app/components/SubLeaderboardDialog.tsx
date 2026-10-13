@@ -64,19 +64,21 @@ export default function SubLeaderboardDialog({
     const fetchCourseStudents = async () => {
       setLoadingCandidates(true);
       try {
-        const res = await fetch(`/api/ranking/${courseId}`);
+        const res = await fetch(`/api/courses/${courseId}/students`, {
+          credentials: "include",
+        });
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data.ranking)) {
-            const studentList: CandidateStudent[] = data.ranking.map(
-              (entry: any) => ({
-                studentId: String(entry.id),
-                name: entry.name || "Unknown",
-                shortName: entry.shortName || entry.name || "Unknown",
-              }),
-            );
+          if (Array.isArray(data)) {
+            const studentList: CandidateStudent[] = data.map((entry: any) => ({
+              studentId: String(entry.id),
+              name: entry.name || "Unknown",
+              shortName: entry.name || "Unknown",
+            }));
             setCandidates(studentList);
           }
+        } else {
+          console.error("Failed to load students for course:", res.status);
         }
       } catch (err) {
         console.error("Failed to load candidate students:", err);
@@ -107,6 +109,18 @@ export default function SubLeaderboardDialog({
                 setSelectedStudentIds(
                   data.members.map((m: any) => String(m.studentId)),
                 );
+                // Also merge any member into candidates if missing
+                setCandidates((prev) => {
+                  const existingIds = new Set(prev.map((c) => c.studentId));
+                  const newOnes = data.members
+                    .filter((m: any) => !existingIds.has(String(m.studentId)))
+                    .map((m: any) => ({
+                      studentId: String(m.studentId),
+                      name: m.name || "Unknown",
+                      shortName: m.shortName || m.name || "Unknown",
+                    }));
+                  return [...prev, ...newOnes];
+                });
               }
             }
           }
