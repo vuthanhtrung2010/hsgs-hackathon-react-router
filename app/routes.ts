@@ -7,6 +7,10 @@ export default [
     "ranking/:randomizedCourseId",
     "routes/ranking.$randomizedCourseId.tsx",
   ),
+  route(
+    "ranking/sub/:id",
+    "routes/ranking.sub.$id.tsx",
+  ),
   route("user/:userId", "routes/user.$userId.tsx"),
   route("user/:userId/submissions", "routes/user.$userId.submissions.tsx"),
   route("problems", "routes/problems.tsx"),
