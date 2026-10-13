@@ -27,6 +27,7 @@ export default [
     route("gen", "routes/admin/gen.tsx"),
     route("users", "routes/admin/users.tsx"),
     route("courses", "routes/admin/courses.tsx"),
+    route("sub-leaderboards", "routes/admin/sub-leaderboards.tsx"),
   ]),
 
   // API routes
