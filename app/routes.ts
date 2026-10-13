@@ -49,6 +49,15 @@ export default [
   ),
   route("api/admin/users", "routes/api.admin.users.ts"),
   route("api/admin/gen", "routes/api.admin.gen.ts"),
+  route("api/admin/sub-leaderboards", "routes/api.admin.sub-leaderboards.ts"),
+  route(
+    "api/admin/sub-leaderboards/course/:randomizedCourseId",
+    "routes/api.admin.sub-leaderboards.course.$randomizedCourseId.ts",
+  ),
+  route(
+    "api/admin/sub-leaderboards/:id",
+    "routes/api.admin.sub-leaderboards.$id.ts",
+  ),
 
   // 404 catch-all
   route("*", "routes/404.tsx"),
