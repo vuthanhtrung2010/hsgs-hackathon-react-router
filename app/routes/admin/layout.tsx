@@ -11,6 +11,7 @@ import {
   FileQuestion,
   Menu,
   X,
+  Trophy,
 } from "lucide-react";
 import Loading from "~/components/Loading";
 
@@ -68,6 +69,12 @@ export default function AdminLayout() {
       href: "/admin/courses",
       label: "Courses",
       icon: FileQuestion,
+      exact: false,
+    },
+    {
+      href: "/admin/sub-leaderboards",
+      label: "Sub-Leaderboards",
+      icon: Trophy,
       exact: false,
     },
     {

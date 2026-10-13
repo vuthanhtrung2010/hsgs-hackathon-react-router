@@ -7,6 +7,10 @@ export default [
     "ranking/:randomizedCourseId",
     "routes/ranking.$randomizedCourseId.tsx",
   ),
+  route(
+    "ranking/sub/:id",
+    "routes/ranking.sub.$id.tsx",
+  ),
   route("user/:userId", "routes/user.$userId.tsx"),
   route("user/:userId/submissions", "routes/user.$userId.submissions.tsx"),
   route("problems", "routes/problems.tsx"),
@@ -23,6 +27,7 @@ export default [
     route("gen", "routes/admin/gen.tsx"),
     route("users", "routes/admin/users.tsx"),
     route("courses", "routes/admin/courses.tsx"),
+    route("sub-leaderboards", "routes/admin/sub-leaderboards.tsx"),
   ]),
 
   // API routes
@@ -45,6 +50,23 @@ export default [
   ),
   route("api/admin/users", "routes/api.admin.users.ts"),
   route("api/admin/gen", "routes/api.admin.gen.ts"),
+  route("api/admin/sub-leaderboards", "routes/api.admin.sub-leaderboards.ts"),
+  route(
+    "api/admin/sub-leaderboards/course/:randomizedCourseId",
+    "routes/api.admin.sub-leaderboards.course.$randomizedCourseId.ts",
+  ),
+  route(
+    "api/admin/sub-leaderboards/:id",
+    "routes/api.admin.sub-leaderboards.$id.ts",
+  ),
+  route(
+    "api/courses/:courseId/students",
+    "routes/api.courses.$courseId.students.ts",
+  ),
+  route(
+    "api/admin/sub-leaderboards/course/:randomizedCourseId/students",
+    "routes/api.admin.sub-leaderboards.course.$randomizedCourseId.students.ts",
+  ),
 
   // 404 catch-all
   route("*", "routes/404.tsx"),
