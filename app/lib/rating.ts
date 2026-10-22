@@ -63,3 +63,53 @@ export function formatRating(rating: number): string {
   if (rating === 0 || rating === 1500) return "";
   return rating.toFixed(0);
 }
+
+export function validateRatingThresholds(
+  thresholds: Partial<RatingThresholds>,
+): { valid: boolean; error?: string } {
+  const {
+    newbieThreshold,
+    amateurThreshold,
+    expertThreshold,
+    candidateMasterThreshold,
+    masterThreshold,
+    grandmasterThreshold,
+    targetThreshold,
+    adminThreshold,
+  } = thresholds;
+
+  const fields = [
+    { name: "Newbie", val: newbieThreshold },
+    { name: "Amateur", val: amateurThreshold },
+    { name: "Expert", val: expertThreshold },
+    { name: "Candidate Master", val: candidateMasterThreshold },
+    { name: "Master", val: masterThreshold },
+    { name: "Grandmaster", val: grandmasterThreshold },
+    { name: "Target", val: targetThreshold },
+    { name: "Admin", val: adminThreshold },
+  ];
+
+  for (const field of fields) {
+    if (field.val === undefined || field.val === null || isNaN(field.val)) {
+      return {
+        valid: false,
+        error: `${field.name} threshold must be a valid number`,
+      };
+    }
+  }
+
+  if (newbieThreshold! < 0) {
+    return { valid: false, error: "Newbie threshold must be at least 0" };
+  }
+
+  for (let i = 0; i < fields.length - 1; i++) {
+    if (fields[i].val! >= fields[i + 1].val!) {
+      return {
+        valid: false,
+        error: `${fields[i + 1].name} (${fields[i + 1].val}) must be greater than ${fields[i].name} (${fields[i].val})`,
+      };
+    }
+  }
+
+  return { valid: true };
+}

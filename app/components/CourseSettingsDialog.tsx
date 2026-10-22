@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Form, useActionData, useFetcher } from "react-router";
+import { useState, useEffect, useMemo } from "react";
+import { useFetcher } from "react-router";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +15,12 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Checkbox } from "./ui/checkbox";
-import { AlertCircle } from "lucide-react";
-import { type RatingThresholds, DEFAULT_RATING_THRESHOLDS } from "~/lib/rating";
+import { AlertCircle, RotateCcw } from "lucide-react";
+import {
+  type RatingThresholds,
+  DEFAULT_RATING_THRESHOLDS,
+  validateRatingThresholds,
+} from "~/lib/rating";
 
 interface CourseSettingsDialogProps {
   courseId: string;
@@ -24,8 +28,106 @@ interface CourseSettingsDialogProps {
   initialQuoteAuthor?: string;
   initialShowDebt?: boolean;
   initialCustomRatingThresholds?: boolean;
-  initialThresholds?: RatingThresholds;
+  initialThresholds?: RatingThresholds | null;
   children: React.ReactNode;
+}
+
+interface ThresholdConfig {
+  key: keyof RatingThresholds;
+  label: string;
+  badgeBg: string;
+  badgeText: string;
+  badgeBorder: string;
+  defaultVal: number;
+}
+
+const THRESHOLD_CONFIGS: ThresholdConfig[] = [
+  {
+    key: "newbieThreshold",
+    label: "Newbie",
+    badgeBg: "bg-zinc-100 dark:bg-zinc-800",
+    badgeText: "text-zinc-600 dark:text-zinc-300",
+    badgeBorder: "border-zinc-300 dark:border-zinc-700",
+    defaultVal: 0,
+  },
+  {
+    key: "amateurThreshold",
+    label: "Amateur",
+    badgeBg: "bg-emerald-50 dark:bg-emerald-950/60",
+    badgeText: "text-emerald-700 dark:text-emerald-300",
+    badgeBorder: "border-emerald-300 dark:border-emerald-700",
+    defaultVal: 1000,
+  },
+  {
+    key: "expertThreshold",
+    label: "Expert",
+    badgeBg: "bg-blue-50 dark:bg-blue-950/60",
+    badgeText: "text-blue-700 dark:text-blue-300",
+    badgeBorder: "border-blue-300 dark:border-blue-700",
+    defaultVal: 1300,
+  },
+  {
+    key: "candidateMasterThreshold",
+    label: "Candidate Master",
+    badgeBg: "bg-purple-50 dark:bg-purple-950/60",
+    badgeText: "text-purple-700 dark:text-purple-300",
+    badgeBorder: "border-purple-300 dark:border-purple-700",
+    defaultVal: 1600,
+  },
+  {
+    key: "masterThreshold",
+    label: "Master",
+    badgeBg: "bg-amber-50 dark:bg-amber-950/60",
+    badgeText: "text-amber-700 dark:text-amber-300",
+    badgeBorder: "border-amber-300 dark:border-amber-700",
+    defaultVal: 1900,
+  },
+  {
+    key: "grandmasterThreshold",
+    label: "Grandmaster",
+    badgeBg: "bg-red-50 dark:bg-red-950/60",
+    badgeText: "text-red-700 dark:text-red-300",
+    badgeBorder: "border-red-300 dark:border-red-700",
+    defaultVal: 2100,
+  },
+  {
+    key: "targetThreshold",
+    label: "Target",
+    badgeBg: "bg-rose-50 dark:bg-rose-950/60",
+    badgeText: "text-rose-700 dark:text-rose-300",
+    badgeBorder: "border-rose-300 dark:border-rose-700",
+    defaultVal: 2400,
+  },
+  {
+    key: "adminThreshold",
+    label: "Admin",
+    badgeBg: "bg-red-100 dark:bg-red-950",
+    badgeText: "text-red-900 dark:text-red-200",
+    badgeBorder: "border-red-400 dark:border-red-800",
+    defaultVal: 3000,
+  },
+];
+
+type ThresholdInputMap = Record<keyof RatingThresholds, string>;
+
+function thresholdsToInputs(
+  t?: Partial<RatingThresholds> | null,
+): ThresholdInputMap {
+  const src = t || DEFAULT_RATING_THRESHOLDS;
+  return {
+    newbieThreshold: String(src.newbieThreshold ?? DEFAULT_RATING_THRESHOLDS.newbieThreshold),
+    amateurThreshold: String(src.amateurThreshold ?? DEFAULT_RATING_THRESHOLDS.amateurThreshold),
+    expertThreshold: String(src.expertThreshold ?? DEFAULT_RATING_THRESHOLDS.expertThreshold),
+    candidateMasterThreshold: String(
+      src.candidateMasterThreshold ?? DEFAULT_RATING_THRESHOLDS.candidateMasterThreshold,
+    ),
+    masterThreshold: String(src.masterThreshold ?? DEFAULT_RATING_THRESHOLDS.masterThreshold),
+    grandmasterThreshold: String(
+      src.grandmasterThreshold ?? DEFAULT_RATING_THRESHOLDS.grandmasterThreshold,
+    ),
+    targetThreshold: String(src.targetThreshold ?? DEFAULT_RATING_THRESHOLDS.targetThreshold),
+    adminThreshold: String(src.adminThreshold ?? DEFAULT_RATING_THRESHOLDS.adminThreshold),
+  };
 }
 
 export function CourseSettingsDialog({
@@ -37,7 +139,6 @@ export function CourseSettingsDialog({
   initialThresholds = DEFAULT_RATING_THRESHOLDS,
   children,
 }: CourseSettingsDialogProps) {
-  const actionData = useActionData<{ success?: boolean; error?: string }>();
   const fetcher = useFetcher();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,19 +152,19 @@ export function CourseSettingsDialog({
     initialCustomRatingThresholds,
   );
 
-  // Thresholds state
-  const [thresholds, setThresholds] = useState<RatingThresholds>({
-    ...initialThresholds,
-  });
+  // Thresholds state (stored as strings so users can delete and type freely)
+  const [thresholdInputs, setThresholdInputs] = useState<ThresholdInputMap>(() =>
+    thresholdsToInputs(initialThresholds),
+  );
 
-  // Reset form when dialog opens
+  // Reset form with latest initial props whenever dialog opens
   useEffect(() => {
     if (open) {
       setQuote(initialQuote);
       setQuoteAuthor(initialQuoteAuthor);
       setShowDebt(initialShowDebt);
       setCustomRatingThresholds(initialCustomRatingThresholds);
-      setThresholds({ ...initialThresholds });
+      setThresholdInputs(thresholdsToInputs(initialThresholds));
       setError(null);
     }
   }, [
@@ -75,102 +176,125 @@ export function CourseSettingsDialog({
     initialThresholds,
   ]);
 
-  // Update thresholds when custom thresholds toggle changes
-  useEffect(() => {
-    if (!customRatingThresholds) {
-      // If disabling custom thresholds, reset to initial thresholds
-      setThresholds({ ...initialThresholds });
-    }
-  }, [customRatingThresholds, initialThresholds]);
-
-  // Update a specific threshold value
+  // Update a specific threshold string value
   const updateThreshold = (key: keyof RatingThresholds, value: string) => {
-    const numValue = parseInt(value, 10);
-    if (!isNaN(numValue)) {
-      setThresholds((prev) => ({ ...prev, [key]: numValue }));
-    }
+    setThresholdInputs((prev) => ({ ...prev, [key]: value }));
+    if (error) setError(null);
   };
 
-  // Validate thresholds follow the correct order
-  const validateThresholds = (): boolean => {
-    const {
-      newbieThreshold,
-      amateurThreshold,
-      expertThreshold,
-      candidateMasterThreshold,
-      masterThreshold,
-      grandmasterThreshold,
-      targetThreshold,
-      adminThreshold,
-    } = thresholds;
-
-    return (
-      newbieThreshold < amateurThreshold &&
-      amateurThreshold < expertThreshold &&
-      expertThreshold < candidateMasterThreshold &&
-      candidateMasterThreshold < masterThreshold &&
-      masterThreshold < grandmasterThreshold &&
-      grandmasterThreshold < targetThreshold &&
-      targetThreshold < adminThreshold
-    );
+  // Reset to default DMOJ thresholds
+  const handleResetToDefaults = () => {
+    setThresholdInputs(thresholdsToInputs(DEFAULT_RATING_THRESHOLDS));
+    setError(null);
   };
 
-  // Check for action data results when component updates
-  useEffect(() => {
-    if (actionData?.success) {
-      setOpen(false);
-    } else if (actionData?.error) {
-      setError(actionData.error);
-    }
-  }, [actionData]);
+  // Parse current inputs to numbers
+  const parsedThresholds = useMemo((): Partial<RatingThresholds> => {
+    return {
+      newbieThreshold: parseInt(thresholdInputs.newbieThreshold, 10),
+      amateurThreshold: parseInt(thresholdInputs.amateurThreshold, 10),
+      expertThreshold: parseInt(thresholdInputs.expertThreshold, 10),
+      candidateMasterThreshold: parseInt(
+        thresholdInputs.candidateMasterThreshold,
+        10,
+      ),
+      masterThreshold: parseInt(thresholdInputs.masterThreshold, 10),
+      grandmasterThreshold: parseInt(thresholdInputs.grandmasterThreshold, 10),
+      targetThreshold: parseInt(thresholdInputs.targetThreshold, 10),
+      adminThreshold: parseInt(thresholdInputs.adminThreshold, 10),
+    };
+  }, [thresholdInputs]);
 
-  // Check fetcher state and data
-  useEffect(() => {
-    if (fetcher.data) {
-      // If successful, close the dialog
-      if (fetcher.data.success) {
-        console.log("Settings saved successfully!");
-        alert("Course settings saved successfully!");
-        setOpen(false);
-        // Force a page refresh to show updated settings
-        window.location.reload();
-      } else if (fetcher.data.error) {
-        console.error("Error saving settings:", fetcher.data.error);
-        setError(fetcher.data.error);
-      } else {
-        console.log("Unexpected response format:", fetcher.data);
+  // Per-field validation errors for real-time visual feedback
+  const fieldErrors = useMemo(() => {
+    const errs: Partial<Record<keyof RatingThresholds, string>> = {};
+    if (!customRatingThresholds) return errs;
+
+    for (const cfg of THRESHOLD_CONFIGS) {
+      const valStr = thresholdInputs[cfg.key].trim();
+      const num = parseInt(valStr, 10);
+      if (valStr === "" || isNaN(num)) {
+        errs[cfg.key] = "Must be a number";
       }
     }
-  }, [fetcher.state, fetcher.data]);
 
-  // Pre-validate form before submission
-  const validateForm = (): boolean => {
-    // Validate form
-    if (customRatingThresholds && !validateThresholds()) {
-      setError(
-        "Rating thresholds must be in ascending order: Newbie < Amateur < Expert < Candidate Master < Master < Grandmaster < Target < Admin",
-      );
-      console.log("Validation failed: Thresholds not in ascending order");
-      return false;
+    if (Object.keys(errs).length > 0) return errs;
+
+    if ((parsedThresholds.newbieThreshold ?? 0) < 0) {
+      errs.newbieThreshold = "Must be ≥ 0";
     }
 
+    for (let i = 0; i < THRESHOLD_CONFIGS.length - 1; i++) {
+      const cur = THRESHOLD_CONFIGS[i];
+      const next = THRESHOLD_CONFIGS[i + 1];
+      const curVal = parsedThresholds[cur.key];
+      const nextVal = parsedThresholds[next.key];
+      if (curVal !== undefined && nextVal !== undefined && curVal >= nextVal) {
+        errs[next.key] = `Must be > ${cur.label} (${curVal})`;
+      }
+    }
+
+    return errs;
+  }, [customRatingThresholds, thresholdInputs, parsedThresholds]);
+
+  // Dynamic range / order guidance for each field
+  const getFieldHint = (index: number) => {
+    const cur = THRESHOLD_CONFIGS[index];
+    const prev = index > 0 ? THRESHOLD_CONFIGS[index - 1] : null;
+    const next =
+      index < THRESHOLD_CONFIGS.length - 1 ? THRESHOLD_CONFIGS[index + 1] : null;
+
+    if (!prev && next) {
+      const nextVal = parsedThresholds[next.key];
+      const nText = !isNaN(nextVal ?? NaN) ? ` (${nextVal})` : "";
+      return `≥ 0 and < ${next.label}${nText}`;
+    }
+    if (prev && next) {
+      const prevVal = parsedThresholds[prev.key];
+      const nextVal = parsedThresholds[next.key];
+      const pText = !isNaN(prevVal ?? NaN) ? ` (${prevVal})` : "";
+      const nText = !isNaN(nextVal ?? NaN) ? ` (${nextVal})` : "";
+      return `> ${prev.label}${pText} and < ${next.label}${nText}`;
+    }
+    if (prev && !next) {
+      const prevVal = parsedThresholds[prev.key];
+      const pText = !isNaN(prevVal ?? NaN) ? ` (${prevVal})` : "";
+      return `> ${prev.label}${pText}`;
+    }
+    return "";
+  };
+
+  // Close dialog on successful save
+  useEffect(() => {
+    if (fetcher.data) {
+      if (fetcher.data.success) {
+        setOpen(false);
+      } else if (fetcher.data.error) {
+        setError(fetcher.data.error);
+      }
+    }
+  }, [fetcher.data]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (customRatingThresholds) {
+      const validation = validateRatingThresholds(parsedThresholds);
+      if (!validation.valid) {
+        e.preventDefault();
+        setError(validation.error || "Please fix threshold validation errors");
+        return;
+      }
+    }
     setError(null);
-    return true;
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <fetcher.Form
           method="post"
           action="/admin/courses"
-          onSubmit={(e) => {
-            if (!validateForm()) {
-              e.preventDefault();
-              return false;
-            }
-          }}
+          onSubmit={handleSubmit}
         >
           {/* Required and always-present form values */}
           <input type="hidden" name="courseId" value={courseId} />
@@ -185,43 +309,44 @@ export function CourseSettingsDialog({
           <input
             type="hidden"
             name="newbieThreshold"
-            value={thresholds.newbieThreshold.toString()}
+            value={thresholdInputs.newbieThreshold}
           />
           <input
             type="hidden"
             name="amateurThreshold"
-            value={thresholds.amateurThreshold.toString()}
+            value={thresholdInputs.amateurThreshold}
           />
           <input
             type="hidden"
             name="expertThreshold"
-            value={thresholds.expertThreshold.toString()}
+            value={thresholdInputs.expertThreshold}
           />
           <input
             type="hidden"
             name="candidateMasterThreshold"
-            value={thresholds.candidateMasterThreshold.toString()}
+            value={thresholdInputs.candidateMasterThreshold}
           />
           <input
             type="hidden"
             name="masterThreshold"
-            value={thresholds.masterThreshold.toString()}
+            value={thresholdInputs.masterThreshold}
           />
           <input
             type="hidden"
             name="grandmasterThreshold"
-            value={thresholds.grandmasterThreshold.toString()}
+            value={thresholdInputs.grandmasterThreshold}
           />
           <input
             type="hidden"
             name="targetThreshold"
-            value={thresholds.targetThreshold.toString()}
+            value={thresholdInputs.targetThreshold}
           />
           <input
             type="hidden"
             name="adminThreshold"
-            value={thresholds.adminThreshold.toString()}
+            value={thresholdInputs.adminThreshold}
           />
+
           <DialogHeader>
             <DialogTitle>Course Settings</DialogTitle>
             <DialogDescription>
@@ -268,7 +393,7 @@ export function CourseSettingsDialog({
               <div className="flex items-center space-x-2 pt-2">
                 <Checkbox
                   id="showDebt"
-                  type="button" /* Prevent it from submitting as form field */
+                  type="button"
                   checked={showDebt}
                   onCheckedChange={(checked) => setShowDebt(checked === true)}
                 />
@@ -280,205 +405,130 @@ export function CourseSettingsDialog({
 
             <TabsContent value="ratings" className="space-y-4">
               {/* Custom Rating Thresholds Toggle */}
-              <div className="flex items-center space-x-2 pb-4">
-                <Checkbox
-                  id="customRatingThresholds"
-                  type="button" /* Prevent it from submitting as form field */
-                  checked={customRatingThresholds}
-                  onCheckedChange={(checked) =>
-                    setCustomRatingThresholds(checked === true)
-                  }
-                />
-                <Label
-                  htmlFor="customRatingThresholds"
-                  className="cursor-pointer"
-                >
-                  Use custom rating thresholds for this course
-                </Label>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-muted/40 rounded-lg border">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="customRatingThresholds"
+                    type="button"
+                    checked={customRatingThresholds}
+                    onCheckedChange={(checked) =>
+                      setCustomRatingThresholds(checked === true)
+                    }
+                  />
+                  <Label
+                    htmlFor="customRatingThresholds"
+                    className="cursor-pointer font-medium"
+                  >
+                    Use custom rating thresholds for this course
+                  </Label>
+                </div>
+
+                {customRatingThresholds && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetToDefaults}
+                    className="text-xs h-8 gap-1.5 self-start sm:self-auto"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Reset to defaults
+                  </Button>
+                )}
               </div>
 
-              {/* Always show thresholds but conditionally set disabled state */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
                     {customRatingThresholds
-                      ? "Set custom rating thresholds for this course. Thresholds must be in ascending order."
-                      : "Current rating thresholds for this course. Enable custom thresholds to modify these values."}
+                      ? "Set custom rating thresholds for this course. Cutoffs must be strictly ascending."
+                      : "Currently using standard DMOJ rating thresholds. Enable custom thresholds above to edit."}
                   </p>
                   {!customRatingThresholds && (
-                    <span className="text-xs bg-secondary px-2 py-1 rounded-md">
+                    <span className="text-xs bg-secondary text-secondary-foreground font-medium px-2 py-0.5 rounded-md">
                       Read-only
                     </span>
                   )}
                 </div>
 
                 <div
-                  className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!customRatingThresholds ? "opacity-75" : ""}`}
+                  className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${
+                    !customRatingThresholds ? "opacity-75" : ""
+                  }`}
                 >
-                  <div className="space-y-2">
-                    <Label htmlFor="newbieThreshold">Newbie Threshold</Label>
-                    <Input
-                      id="newbieThreshold"
-                      type="number"
-                      min="0"
-                      value={thresholds.newbieThreshold}
-                      onChange={(e) =>
-                        updateThreshold("newbieThreshold", e.target.value)
-                      }
-                      disabled={!customRatingThresholds}
-                      className={
-                        !customRatingThresholds ? "cursor-not-allowed" : ""
-                      }
-                    />
-                  </div>
+                  {THRESHOLD_CONFIGS.map((config, index) => {
+                    const hasError = !!fieldErrors[config.key];
+                    const hint = getFieldHint(index);
 
-                  <div className="space-y-2">
-                    <Label htmlFor="amateurThreshold">Amateur Threshold</Label>
-                    <Input
-                      id="amateurThreshold"
-                      type="number"
-                      min="1"
-                      value={thresholds.amateurThreshold}
-                      onChange={(e) =>
-                        updateThreshold("amateurThreshold", e.target.value)
-                      }
-                      disabled={!customRatingThresholds}
-                      className={
-                        !customRatingThresholds ? "cursor-not-allowed" : ""
-                      }
-                    />
-                  </div>
+                    return (
+                      <div
+                        key={config.key}
+                        className={`p-3 rounded-lg border transition-colors ${
+                          hasError
+                            ? "border-destructive/60 bg-destructive/5"
+                            : "bg-card border-border/70"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <Label
+                            htmlFor={config.key}
+                            className="font-medium text-sm flex items-center gap-2 cursor-pointer"
+                          >
+                            <span>{config.label}</span>
+                          </Label>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[11px] font-semibold border ${config.badgeBg} ${config.badgeText} ${config.badgeBorder}`}
+                          >
+                            {config.label}
+                          </span>
+                        </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="expertThreshold">Expert Threshold</Label>
-                    <Input
-                      id="expertThreshold"
-                      type="number"
-                      min="1"
-                      value={thresholds.expertThreshold}
-                      onChange={(e) =>
-                        updateThreshold("expertThreshold", e.target.value)
-                      }
-                      disabled={!customRatingThresholds}
-                      className={
-                        !customRatingThresholds ? "cursor-not-allowed" : ""
-                      }
-                    />
-                  </div>
+                        <Input
+                          id={config.key}
+                          type="number"
+                          min="0"
+                          value={thresholdInputs[config.key]}
+                          onChange={(e) =>
+                            updateThreshold(config.key, e.target.value)
+                          }
+                          disabled={!customRatingThresholds}
+                          className={`font-mono text-sm ${
+                            hasError
+                              ? "border-destructive focus-visible:ring-destructive"
+                              : ""
+                          } ${!customRatingThresholds ? "cursor-not-allowed bg-muted/50" : ""}`}
+                        />
 
-                  <div className="space-y-2">
-                    <Label htmlFor="candidateMasterThreshold">
-                      Candidate Master Threshold
-                    </Label>
-                    <Input
-                      id="candidateMasterThreshold"
-                      type="number"
-                      min="1"
-                      value={thresholds.candidateMasterThreshold}
-                      onChange={(e) =>
-                        updateThreshold(
-                          "candidateMasterThreshold",
-                          e.target.value,
-                        )
-                      }
-                      disabled={!customRatingThresholds}
-                      className={
-                        !customRatingThresholds ? "cursor-not-allowed" : ""
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="masterThreshold">Master Threshold</Label>
-                    <Input
-                      id="masterThreshold"
-                      type="number"
-                      min="1"
-                      value={thresholds.masterThreshold}
-                      onChange={(e) =>
-                        updateThreshold("masterThreshold", e.target.value)
-                      }
-                      disabled={!customRatingThresholds}
-                      className={
-                        !customRatingThresholds ? "cursor-not-allowed" : ""
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="grandmasterThreshold">
-                      Grandmaster Threshold
-                    </Label>
-                    <Input
-                      id="grandmasterThreshold"
-                      type="number"
-                      min="1"
-                      value={thresholds.grandmasterThreshold}
-                      onChange={(e) =>
-                        updateThreshold("grandmasterThreshold", e.target.value)
-                      }
-                      disabled={!customRatingThresholds}
-                      className={
-                        !customRatingThresholds ? "cursor-not-allowed" : ""
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="targetThreshold">Target Threshold</Label>
-                    <Input
-                      id="targetThreshold"
-                      type="number"
-                      min="1"
-                      value={thresholds.targetThreshold}
-                      onChange={(e) =>
-                        updateThreshold("targetThreshold", e.target.value)
-                      }
-                      disabled={!customRatingThresholds}
-                      className={
-                        !customRatingThresholds ? "cursor-not-allowed" : ""
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="adminThreshold">Admin Threshold</Label>
-                    <Input
-                      id="adminThreshold"
-                      type="number"
-                      min="1"
-                      value={thresholds.adminThreshold}
-                      onChange={(e) =>
-                        updateThreshold("adminThreshold", e.target.value)
-                      }
-                      disabled={!customRatingThresholds}
-                      className={
-                        !customRatingThresholds ? "cursor-not-allowed" : ""
-                      }
-                    />
-                  </div>
+                        <div className="mt-1.5 flex items-center justify-between text-xs">
+                          {hasError ? (
+                            <span className="text-destructive font-medium">
+                              {fieldErrors[config.key]}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">
+                              {hint}
+                            </span>
+                          )}
+                          <span className="text-muted-foreground/60 text-[10px]">
+                            Default: {config.defaultVal}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-
-                {customRatingThresholds && !validateThresholds() && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mt-4">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
-                      <span className="text-amber-600 text-sm">
-                        Rating thresholds must be in ascending order
-                      </span>
-                    </div>
-                  </div>
-                )}
               </div>
             </TabsContent>
           </Tabs>
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3 mt-4">
+            <div className="bg-destructive/10 border border-destructive/30 rounded-md p-3 mt-4">
               <div className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                <span className="text-red-600 text-sm">{error}</span>
+                <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+                <span className="text-destructive text-sm font-medium">
+                  {error}
+                </span>
               </div>
             </div>
           )}
@@ -491,7 +541,10 @@ export function CourseSettingsDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={fetcher.state !== "idle"}>
+            <Button
+              type="submit"
+              disabled={fetcher.state !== "idle" || (customRatingThresholds && Object.keys(fieldErrors).length > 0)}
+            >
               {fetcher.state !== "idle" ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>

@@ -30,7 +30,7 @@ interface Course {
   quoteAuthor?: string;
   showDebt?: boolean;
   customRatingThresholds?: boolean;
-  ratingThresholds?: RatingThresholds;
+  ratingThresholds?: RatingThresholds | null;
   _count: {
     canvasUsers: number;
     questions: number;
@@ -61,22 +61,23 @@ export async function action({ request }: Route.ActionArgs) {
     customRatingThresholdsValue === "true" ||
     customRatingThresholdsValue === "on";
 
-  // Extract rating thresholds from form data
+  // Extract rating thresholds from form data safely
+  const parseThreshold = (key: string, defaultVal: number): number => {
+    const val = formData.get(key);
+    if (typeof val !== "string") return defaultVal;
+    const num = parseInt(val, 10);
+    return isNaN(num) ? defaultVal : num;
+  };
+
   const thresholds: RatingThresholds = {
-    newbieThreshold: parseInt(formData.get("newbieThreshold") as string) || 0,
-    amateurThreshold:
-      parseInt(formData.get("amateurThreshold") as string) || 1000,
-    expertThreshold:
-      parseInt(formData.get("expertThreshold") as string) || 1300,
-    candidateMasterThreshold:
-      parseInt(formData.get("candidateMasterThreshold") as string) || 1600,
-    masterThreshold:
-      parseInt(formData.get("masterThreshold") as string) || 1900,
-    grandmasterThreshold:
-      parseInt(formData.get("grandmasterThreshold") as string) || 2100,
-    targetThreshold:
-      parseInt(formData.get("targetThreshold") as string) || 2400,
-    adminThreshold: parseInt(formData.get("adminThreshold") as string) || 3000,
+    newbieThreshold: parseThreshold("newbieThreshold", 0),
+    amateurThreshold: parseThreshold("amateurThreshold", 1000),
+    expertThreshold: parseThreshold("expertThreshold", 1300),
+    candidateMasterThreshold: parseThreshold("candidateMasterThreshold", 1600),
+    masterThreshold: parseThreshold("masterThreshold", 1900),
+    grandmasterThreshold: parseThreshold("grandmasterThreshold", 2100),
+    targetThreshold: parseThreshold("targetThreshold", 2400),
+    adminThreshold: parseThreshold("adminThreshold", 3000),
   };
 
   const url = new URL(
@@ -250,13 +251,18 @@ export default function AdminCourses({ loaderData }: Route.ComponentProps) {
                             </Link>
                           </Button>
                           <div>
-                            <div className="font-medium">
+                            <div className="font-medium flex items-center gap-2">
                               <Link
                                 to={`/ranking/${course.randomId}`}
                                 className="text-primary hover:underline"
                               >
                                 {course.name}
                               </Link>
+                              {course.customRatingThresholds && (
+                                <span className="inline-flex items-center text-[10px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 px-1.5 py-0.5 rounded border border-purple-200 dark:border-purple-800">
+                                  Custom Rating
+                                </span>
+                              )}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               Random ID: {course.randomId}
