@@ -93,17 +93,17 @@ const THRESHOLD_CONFIGS: ThresholdConfig[] = [
   {
     key: "targetThreshold",
     label: "Target",
-    badgeBg: "bg-rose-50 dark:bg-rose-950/60",
-    badgeText: "text-rose-700 dark:text-rose-300",
-    badgeBorder: "border-rose-300 dark:border-rose-700",
+    badgeBg: "bg-gradient-to-r from-red-500 via-orange-500 to-amber-400",
+    badgeText: "text-white font-bold",
+    badgeBorder: "border-orange-500/50 shadow-sm",
     defaultVal: 2400,
   },
   {
     key: "adminThreshold",
     label: "Admin",
-    badgeBg: "bg-red-100 dark:bg-red-950",
-    badgeText: "text-red-900 dark:text-red-200",
-    badgeBorder: "border-red-400 dark:border-red-800",
+    badgeBg: "bg-gradient-to-r from-pink-500 via-yellow-400 via-emerald-400 to-cyan-500 bg-[length:200%_auto]",
+    badgeText: "text-white font-extrabold shadow-sm",
+    badgeBorder: "border-pink-400/80 shadow-sm",
     defaultVal: 3000,
   },
 ];

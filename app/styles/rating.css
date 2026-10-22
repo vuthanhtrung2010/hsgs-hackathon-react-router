@@ -36,18 +36,74 @@
   color: #e00;
 }
 
+/* Animated Gradients for Top Tiers */
+@keyframes rainbow-rgb {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes solar-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Target Tier: Solar Flare / Molten Gold */
 .rate-target,
-.rate-target a {
-  color: #e00;
+.rate-target a,
+a.rate-target {
+  background: linear-gradient(
+    90deg,
+    #ff1744,
+    #ff5252,
+    #ff9100,
+    #ffea00,
+    #ff9100,
+    #ff5252,
+    #ff1744
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: solar-gradient 3.5s ease-in-out infinite;
+  display: inline-block;
+  font-weight: bold;
 }
 
+/* Admin Tier: RGB Rainbow LED Wave */
 .rate-admin,
-.rate-admin a {
-  color: #e00;
-}
-
-.rate-target a::first-letter {
-  color: #700;
+.rate-admin a,
+a.rate-admin {
+  background: linear-gradient(
+    90deg,
+    #ff0055,
+    #ff5500,
+    #ffcc00,
+    #00ff66,
+    #00ccff,
+    #7700ff,
+    #ff00aa,
+    #ff0055
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow-rgb 3s linear infinite;
+  display: inline-block;
+  font-weight: 800;
 }
 
 /* Rating group styles */
@@ -132,15 +188,27 @@ svg.rate-box.rate-grandmaster path {
 }
 
 svg.rate-box.rate-target circle {
-  stroke: #e00;
+  stroke: #ff9100;
 }
 svg.rate-box.rate-target path {
-  fill: #e00;
+  fill: #ff9100;
 }
 
 svg.rate-box.rate-target circle:last-child {
   stroke: none;
-  fill: #e00;
+  fill: #ff1744;
+}
+
+svg.rate-box.rate-admin circle {
+  stroke: #ff0077;
+}
+svg.rate-box.rate-admin path {
+  fill: #ff0077;
+}
+
+svg.rate-box.rate-admin circle:last-child {
+  stroke: none;
+  fill: #00ccff;
 }
 
 /* Username styling with rating colors */
