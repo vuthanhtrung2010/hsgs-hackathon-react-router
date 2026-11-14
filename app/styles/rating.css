@@ -1,39 +1,56 @@
-/* DMOJ-style rating colors and classes - exact copy from DMOJ */
+/* Rating tiers retain their color families in both themes. */
+:root {
+  --rating-newbie: #707789;
+  --rating-amateur: #16803e;
+  --rating-expert: #315cce;
+  --rating-candidate-master: #8751b7;
+  --rating-master: #996800;
+  --rating-grandmaster: #cb334a;
+}
+
+.dark {
+  --rating-newbie: #a7aabe;
+  --rating-amateur: #6bd597;
+  --rating-expert: #8ba7ff;
+  --rating-candidate-master: #c59aee;
+  --rating-master: #f0c16c;
+  --rating-grandmaster: #ff8a9b;
+}
 
 .rate-none,
 .rate-none a {
-  color: #999;
+  color: var(--rating-newbie);
   font-weight: normal;
 }
 
 .rate-newbie,
 .rate-newbie a {
-  color: #999;
+  color: var(--rating-newbie);
 }
 
 .rate-amateur,
 .rate-amateur a {
-  color: #00a900;
+  color: var(--rating-amateur);
 }
 
 .rate-expert,
 .rate-expert a {
-  color: blue;
+  color: var(--rating-expert);
 }
 
 .rate-candidate-master,
 .rate-candidate-master a {
-  color: purple;
+  color: var(--rating-candidate-master);
 }
 
 .rate-master,
 .rate-master a {
-  color: #ffb100;
+  color: var(--rating-master);
 }
 
 .rate-grandmaster,
 .rate-grandmaster a {
-  color: #e00;
+  color: var(--rating-grandmaster);
 }
 
 /* Animated Gradients for Top Tiers */
@@ -144,47 +161,47 @@ svg.rate-box {
   }
 }
 
-/* SVG colors for different rating levels - exact DMOJ colors */
+/* Icons use the same tier colors as their labels. */
 svg.rate-box.rate-newbie circle {
-  stroke: #999;
+  stroke: var(--rating-newbie);
 }
 svg.rate-box.rate-newbie path {
-  fill: #999;
+  fill: var(--rating-newbie);
 }
 
 svg.rate-box.rate-amateur circle {
-  stroke: #00a900;
+  stroke: var(--rating-amateur);
 }
 svg.rate-box.rate-amateur path {
-  fill: #00a900;
+  fill: var(--rating-amateur);
 }
 
 svg.rate-box.rate-expert circle {
-  stroke: blue;
+  stroke: var(--rating-expert);
 }
 svg.rate-box.rate-expert path {
-  fill: blue;
+  fill: var(--rating-expert);
 }
 
 svg.rate-box.rate-candidate-master circle {
-  stroke: purple;
+  stroke: var(--rating-candidate-master);
 }
 svg.rate-box.rate-candidate-master path {
-  fill: purple;
+  fill: var(--rating-candidate-master);
 }
 
 svg.rate-box.rate-master circle {
-  stroke: #ffb100;
+  stroke: var(--rating-master);
 }
 svg.rate-box.rate-master path {
-  fill: #ffb100;
+  fill: var(--rating-master);
 }
 
 svg.rate-box.rate-grandmaster circle {
-  stroke: #e00;
+  stroke: var(--rating-grandmaster);
 }
 svg.rate-box.rate-grandmaster path {
-  fill: #e00;
+  fill: var(--rating-grandmaster);
 }
 
 svg.rate-box.rate-target circle {

@@ -1,5 +1,3 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrophy } from "@fortawesome/free-solid-svg-icons";
 import type { RatingThresholds } from "~/lib/rating";
 import LeaderboardView, {
   type RecentSubmission,
@@ -113,16 +111,9 @@ export default function RankingRoute({ loaderData }: Route.ComponentProps) {
   const quoteAuthor = users[0]?.course?.quoteAuthor;
   const showDebt = users[0]?.course?.showDebt || false;
 
-  const titleNode = (
-    <h1 className="text-3xl font-bold flex items-center">
-      <FontAwesomeIcon icon={faTrophy} className="mr-2 trophy-icon" />
-      {courseName} - Dashboard
-    </h1>
-  );
-
   return (
     <LeaderboardView
-      title={titleNode}
+      title={courseName}
       courseQuote={courseQuote}
       quoteAuthor={quoteAuthor}
       showDebt={showDebt}

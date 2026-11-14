@@ -71,7 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.user && data.session) {
+        if (data?.user && data?.session) {
           setUser(data.user);
           setSession(data.session);
         }

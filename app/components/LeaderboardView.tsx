@@ -1,34 +1,37 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faSort,
-  faSortUp,
-  faSortDown,
-  faQuoteLeft,
-} from "@fortawesome/free-solid-svg-icons";
+  Trophy,
+  Users,
+  BookOpen,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  ChevronLeft,
+  ChevronRight,
+  Megaphone,
+  Activity,
+  Quote,
+  ArrowUpRight,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "~/components/ui/pagination";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 import { getRatingTitle, type RatingThresholds } from "~/lib/rating";
 import RatingDisplay from "~/components/RatingDisplay";
-import "~/styles/rating.css";
-import Loading from "~/components/Loading";
 import NameDisplay from "~/components/NameDisplay";
-import "katex/dist/katex.min.css";
 import {
   sortLeaderboardUsers,
   type LeaderboardUser,
   type SortField,
   type SortOrder,
 } from "~/lib/leaderboard-utils";
+import "~/styles/rating.css";
+import "~/styles/leaderboard.css";
+import "katex/dist/katex.min.css";
 
 const USERS_PER_PAGE = 50;
 
@@ -51,7 +54,8 @@ export interface RecentSubmission {
 }
 
 export interface LeaderboardViewProps {
-  title: React.ReactNode;
+  title: ReactNode;
+  subtitle?: ReactNode;
   courseQuote?: string | null;
   quoteAuthor?: string | null;
   showDebt?: boolean;
@@ -62,637 +66,503 @@ export interface LeaderboardViewProps {
   customRatingThresholds?: boolean;
 }
 
+function dateLabel(value: Date | string, withTime = false) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Date unavailable";
+  return date.toLocaleString("en-GB", {
+    day: "numeric",
+    month: "short",
+    ...(withTime
+      ? { hour: "2-digit", minute: "2-digit" }
+      : { year: "numeric" }),
+  });
+}
+
+function dateTime(value: Date | string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
 export default function LeaderboardView({
   title,
+  subtitle,
   courseQuote,
   quoteAuthor,
   showDebt = false,
-  users: initialUsers,
+  users,
   recentSubmissions,
   announcements,
   ratingThresholds,
 }: LeaderboardViewProps) {
-  const [users] = useState<LeaderboardUser[]>(initialUsers);
-  const [filteredUsers, setFilteredUsers] =
-    useState<LeaderboardUser[]>(initialUsers);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<SortField>("rating");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isLoading] = useState(false);
-  const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0);
+  const [announcementIndex, setAnnouncementIndex] = useState(0);
+  const sortedUsers = useMemo(
+    () => sortLeaderboardUsers(users, sortField, sortOrder),
+    [users, sortField, sortOrder],
+  );
+  // Rank remains tied to rating even when the visible rows are sorted another way.
+  const ranks = useMemo(
+    () =>
+      new Map(
+        sortLeaderboardUsers(users, "rating", "desc").map((user, index) => [
+          user.id,
+          index + 1,
+        ]),
+      ),
+    [users],
+  );
+  const quizzesCompleted = users.reduce(
+    (total, user) => total + (user.course?.quizzesCompleted ?? 0),
+    0,
+  );
+  const totalPages = Math.max(1, Math.ceil(users.length / USERS_PER_PAGE));
+  const page = Math.min(currentPage, totalPages);
+  const startIndex = (page - 1) * USERS_PER_PAGE;
+  const currentUsers = sortedUsers.slice(
+    startIndex,
+    startIndex + USERS_PER_PAGE,
+  );
+  const announcement = announcements.length
+    ? announcements[announcementIndex % announcements.length]
+    : undefined;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [users, sortField, sortOrder]);
 
   const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      if (sortOrder === "asc") {
-        setSortOrder("desc");
-      } else if (sortOrder === "desc") {
-        setSortOrder("asc");
-      }
-    } else {
-      setSortField(field);
-      setSortOrder("desc");
-    }
+    setSortOrder(sortField === field && sortOrder === "desc" ? "asc" : "desc");
+    setSortField(field);
   };
-
-  const getSortIcon = (field: SortField) => {
-    if (sortField !== field) return faSort;
-    if (sortOrder === "asc") return faSortUp;
-    if (sortOrder === "desc") return faSortDown;
-    return faSort;
+  const sortIcon = (field: SortField) =>
+    sortField !== field ? (
+      <ArrowUpDown className="size-3.5 opacity-50" aria-hidden="true" />
+    ) : sortOrder === "asc" ? (
+      <ArrowUp className="size-3.5 text-primary" aria-hidden="true" />
+    ) : (
+      <ArrowDown className="size-3.5 text-primary" aria-hidden="true" />
+    );
+  const rating = (user: LeaderboardUser) => {
+    const value = user.course?.rating ?? 1500;
+    return value === 0 || value === 1500 ? (
+      <span className="text-xs font-normal text-muted-foreground">Unrated</span>
+    ) : (
+      <RatingDisplay
+        rating={Math.round(value)}
+        thresholds={ratingThresholds}
+        className="tabular-nums"
+      />
+    );
   };
-
-  const sortUsersCallback = useCallback(
-    (usersToSort: LeaderboardUser[]) => {
-      return sortLeaderboardUsers(usersToSort, sortField, sortOrder);
-    },
-    [sortField, sortOrder],
+  const rank = (user: LeaderboardUser) => {
+    const position = ranks.get(user.id);
+    return (
+      <span
+        className={`inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium tabular-nums ${position === 1 ? "bg-amber-500/10 text-amber-700 dark:text-amber-300" : position && position <= 3 ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"}`}
+        aria-label={`Rank ${position}`}
+      >
+        {position === 1 ? (
+          <Trophy className="size-4" aria-hidden="true" />
+        ) : (
+          position
+        )}
+        <span className="sr-only">{position === 1 ? "1" : ""}</span>
+      </span>
+    );
+  };
+  const student = (user: LeaderboardUser) => (
+    <Link
+      to={`/user/${user.id}`}
+      title={getRatingTitle(
+        Math.round(user.course?.rating ?? 1500),
+        ratingThresholds,
+      )}
+      className="group flex min-h-10 min-w-0 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-ring"
+    >
+      <span className="min-w-0 break-words text-sm font-medium leading-relaxed group-hover:underline [overflow-wrap:anywhere]">
+        <NameDisplay
+          name={user.name}
+          rating={Math.round(user.course?.rating ?? 1500)}
+          thresholds={ratingThresholds}
+        />
+      </span>
+      <ArrowUpRight
+        className="hidden size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 lg:block"
+        aria-hidden="true"
+      />
+    </Link>
   );
 
-  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
-  const startIndex = (currentPage - 1) * USERS_PER_PAGE;
-  const endIndex = startIndex + USERS_PER_PAGE;
-  const currentUsers = filteredUsers.slice(startIndex, endIndex);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const sorted = sortUsersCallback([...users]);
-    setFilteredUsers(sorted);
-    setCurrentPage(1);
-  }, [users, sortField, sortOrder, sortUsersCallback]);
+  const columns: { field: SortField; label: string; className: string }[] = [
+    { field: "name", label: "Student", className: "" },
+    { field: "rating", label: "Rating", className: "w-28" },
+    { field: "quizzes", label: "Quizzes", className: "w-24" },
+    ...(showDebt
+      ? [{ field: "debt" as const, label: "Debt", className: "w-28" }]
+      : []),
+  ];
 
   return (
-    <main className="max-w-[1600px] mx-auto py-8 px-4">
-      {!isLoaded && <Loading />}
-      <div
-        className={`users-page-container ${isLoaded ? "loaded" : "loading"}`}
-      >
-        {/* Title */}
-        <div className="mb-6">
-          <div className="text-3xl font-bold mb-4">{title}</div>
-          <hr className="mb-6" />
+    <div className="leaderboard-view mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+      <header className="mb-7">
+        <p className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          <Trophy className="size-4 text-primary" aria-hidden="true" />
+          Leaderboard
+        </p>
+        <h1 className="break-words text-2xl font-semibold tracking-tight sm:text-3xl">
+          {title}
+        </h1>
+        <div className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          {subtitle ||
+            "Every exercise is a step forward. See how the class is progressing."}
         </div>
+        <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-2">
+            <Users className="size-4" aria-hidden="true" />
+            <strong className="font-semibold tabular-nums text-foreground">
+              {users.length.toLocaleString()}
+            </strong>{" "}
+            students
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <BookOpen className="size-4" aria-hidden="true" />
+            <strong className="font-semibold tabular-nums text-foreground">
+              {quizzesCompleted.toLocaleString()}
+            </strong>{" "}
+            quizzes completed
+          </span>
+        </div>
+      </header>
 
-        {/* Mobile: Quote at top */}
-        {courseQuote && (
-          <div className="lg:hidden relative mb-6 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 shadow-lg overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-16 translate-x-16"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full translate-y-12 -translate-x-12"></div>
-
-            <div className="relative p-6">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faQuoteLeft}
-                      className="text-primary text-xl"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex-1 pt-1">
-                  <blockquote className="text-lg font-medium text-foreground/90 italic leading-relaxed mb-3">
-                    "{courseQuote}"
-                  </blockquote>
-                  {quoteAuthor && (
-                    <div className="flex justify-end">
-                      <cite className="not-italic text-sm font-semibold text-primary flex items-center gap-2">
-                        <span className="inline-block w-8 h-0.5 bg-primary/50 rounded-full"></span>
-                        {quoteAuthor}
-                      </cite>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-4 h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_340px]">
+        <section
+          aria-label="Student rankings"
+          className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-5">
+            <div>
+              <h2 className="text-sm font-semibold">Class standings</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {sortField === "rating" && sortOrder === "desc"
+                  ? "Highest rated first"
+                  : `Sorted by ${sortField === "name" ? "student name" : sortField} · ${sortOrder === "asc" ? "ascending" : "descending"}`}
+              </p>
             </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="sm:hidden">
+                  <ArrowUpDown aria-hidden="true" />
+                  Sort
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-52 p-1.5">
+                <p className="px-3 py-2 text-xs text-muted-foreground">
+                  Sort standings by
+                </p>
+                {columns.map(({ field, label }) => (
+                  <Button
+                    key={field}
+                    variant="ghost"
+                    onClick={() => handleSort(field)}
+                    className="w-full justify-between"
+                  >
+                    {label}
+                    {sortIcon(field)}
+                  </Button>
+                ))}
+              </PopoverContent>
+            </Popover>
+            <span className="hidden text-xs tabular-nums text-muted-foreground sm:inline">
+              {users.length
+                ? `${startIndex + 1}–${Math.min(startIndex + USERS_PER_PAGE, users.length)} of ${users.length}`
+                : "0 students"}
+            </span>
           </div>
-        )}
-
-        {/* Desktop: Main content with right sidebar */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Main Leaderboard - Takes less space on desktop */}
-          <div className="flex-1 lg:max-w-[65%]">
-            <div className="rounded-md border">
-              <div className="overflow-x-auto">
-                <table className="w-full">
+          {users.length === 0 ? (
+            <div className="px-5 py-16 text-center">
+              <Users
+                className="mx-auto mb-4 size-7 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <h3 className="text-sm font-medium">No students ranked yet</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Student rankings will appear here when members join this
+                leaderboard.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="hidden overflow-x-auto sm:block">
+                <table className="w-full table-fixed text-sm">
+                  <caption className="sr-only">
+                    Student standings. Rank is based on rating.
+                  </caption>
                   <thead>
-                    <tr className="border-b bg-gray-800 dark:bg-white">
-                      <th className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 first:rounded-tl-md w-[4rem]">
+                    <tr className="border-b border-border bg-muted/50">
+                      <th
+                        scope="col"
+                        className="w-16 px-4 text-center text-xs font-medium text-muted-foreground"
+                      >
                         Rank
                       </th>
-                      <th
-                        className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 w-[8rem] cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
-                        onClick={() => handleSort("rating")}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          Rating
-                          <FontAwesomeIcon
-                            icon={getSortIcon("rating")}
-                            className="w-3 h-3"
-                          />
-                        </div>
-                      </th>
-                      <th
-                        className="h-12 px-4 text-left align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
-                        onClick={() => handleSort("name")}
-                      >
-                        <div className="flex items-center gap-2">
-                          Name
-                          <FontAwesomeIcon
-                            icon={getSortIcon("name")}
-                            className="w-3 h-3"
-                          />
-                        </div>
-                      </th>
-                      <th
-                        className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 border-r border-gray-600 dark:border-gray-300 w-[6rem] cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
-                        onClick={() => handleSort("quizzes")}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          Quizzes
-                          <FontAwesomeIcon
-                            icon={getSortIcon("quizzes")}
-                            className="w-3 h-3"
-                          />
-                        </div>
-                      </th>
-                      {showDebt && (
+                      {columns.map(({ field, label, className }) => (
                         <th
-                          className="h-12 px-4 text-center align-middle font-medium text-white dark:text-gray-900 rounded-tr-md w-[6rem] cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-100"
-                          onClick={() => handleSort("debt")}
+                          key={field}
+                          scope="col"
+                          aria-sort={
+                            sortField === field
+                              ? sortOrder === "asc"
+                                ? "ascending"
+                                : "descending"
+                              : undefined
+                          }
+                          className={`px-4 text-left text-xs font-medium text-muted-foreground ${className}`}
                         >
-                          <div className="flex items-center justify-center gap-2">
-                            Debt
-                            <FontAwesomeIcon
-                              icon={getSortIcon("debt")}
-                              className="w-3 h-3"
-                            />
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleSort(field)}
+                            className="flex min-h-12 w-full items-center gap-2 hover:text-foreground"
+                          >
+                            {label}
+                            {sortIcon(field)}
+                          </button>
                         </th>
-                      )}
+                      ))}
                     </tr>
                   </thead>
-                  <tbody>
-                    {isLoading ? (
-                      <tr>
-                        <td
-                          colSpan={showDebt ? 5 : 4}
-                          className="h-24 px-4 text-center text-muted-foreground"
-                        >
-                          <div className="flex items-center justify-center">
-                            <Loading />
-                          </div>
+                  <tbody className="divide-y divide-border">
+                    {currentUsers.map((user) => (
+                      <tr
+                        key={user.id}
+                        data-student-id={user.id}
+                        className="transition-colors hover:bg-secondary"
+                      >
+                        <td className="px-4 py-3 text-center">{rank(user)}</td>
+                        <td className="px-4 py-3">{student(user)}</td>
+                        <td className="px-4 py-3 font-medium">
+                          {rating(user)}
                         </td>
-                      </tr>
-                    ) : currentUsers.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={showDebt ? 5 : 4}
-                          className="h-24 px-4 text-center text-muted-foreground"
-                        >
-                          <span>No users available.</span>
+                        <td className="px-4 py-3 tabular-nums text-muted-foreground">
+                          {(
+                            user.course?.quizzesCompleted ?? 0
+                          ).toLocaleString()}
                         </td>
+                        {showDebt && (
+                          <td className="break-words px-4 py-3 text-xs tabular-nums text-destructive">
+                            {(user.course?.debt ?? 0).toLocaleString()}
+                          </td>
+                        )}
                       </tr>
-                    ) : (
-                      currentUsers.map((user, index) => {
-                        const rating = user.course?.rating || 1500;
-                        return (
-                          <tr
-                            key={user.id}
-                            className="border-b transition-colors hover:bg-muted/50"
-                          >
-                            <td className="p-4 align-middle text-center border-r border-border">
-                              <span className="font-bold text-lg">
-                                #{startIndex + index + 1}
-                              </span>
-                            </td>
-                            <td className="p-4 align-middle text-center border-r border-border">
-                              <RatingDisplay
-                                rating={Math.round(rating)}
-                                showIcon={true}
-                                thresholds={ratingThresholds || undefined}
-                              />
-                            </td>
-                            <td className="p-4 align-middle border-r border-border">
-                              <Link
-                                to={`/user/${user.id}`}
-                                className="text-primary hover:underline font-medium"
-                                title={getRatingTitle(
-                                  Math.round(rating),
-                                  ratingThresholds || undefined,
-                                )}
-                              >
-                                <NameDisplay
-                                  name={user.name}
-                                  rating={Math.round(rating)}
-                                  thresholds={ratingThresholds || undefined}
-                                />
-                              </Link>
-                            </td>
-                            <td className="p-4 align-middle text-center">
-                              <span className="font-medium text-sm">
-                                {user.course?.quizzesCompleted || 0}
-                              </span>
-                            </td>
-                            {showDebt && (
-                              <td className="p-4 align-middle text-center">
-                                <span className="font-medium text-sm text-red-600 dark:text-red-400">
-                                  {user.course?.debt || 0}
-                                </span>
-                              </td>
-                            )}
-                          </tr>
-                        );
-                      })
-                    )}
+                    ))}
                   </tbody>
                 </table>
               </div>
-            </div>
-            {totalPages > 1 && (
-              <div className="mt-6 flex justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() =>
-                          setCurrentPage((prev) => Math.max(prev - 1, 1))
-                        }
-                        className={
-                          currentPage === 1
-                            ? "pointer-events-none opacity-50"
-                            : "cursor-pointer"
-                        }
-                      />
-                    </PaginationItem>
-
-                    {/* Page numbers */}
-                    {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                      let pageNumber;
-                      if (totalPages <= 7) {
-                        pageNumber = i + 1;
-                      } else if (currentPage <= 4) {
-                        pageNumber = i + 1;
-                      } else if (currentPage >= totalPages - 3) {
-                        pageNumber = totalPages - 6 + i;
-                      } else {
-                        pageNumber = currentPage - 3 + i;
-                      }
-
-                      if (
-                        pageNumber === currentPage - 2 &&
-                        currentPage > 4 &&
-                        totalPages > 7
-                      ) {
-                        return (
-                          <PaginationItem key="ellipsis-start">
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        );
-                      }
-
-                      if (
-                        pageNumber === currentPage + 2 &&
-                        currentPage < totalPages - 3 &&
-                        totalPages > 7
-                      ) {
-                        return (
-                          <PaginationItem key="ellipsis-end">
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        );
-                      }
-
-                      return (
-                        <PaginationItem key={pageNumber}>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(pageNumber)}
-                            isActive={pageNumber === currentPage}
-                            className="cursor-pointer"
-                          >
-                            {pageNumber}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() =>
-                          setCurrentPage((prev) =>
-                            Math.min(prev + 1, totalPages),
-                          )
-                        }
-                        className={
-                          currentPage === totalPages
-                            ? "pointer-events-none opacity-50"
-                            : "cursor-pointer"
-                        }
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            )}
-            <div className="mt-6 text-center">
-              <div className="results-info">
-                {isLoading ? (
-                  <span>Loading users...</span>
-                ) : (
-                  <>
-                    Showing {filteredUsers.length} users
-                    {totalPages > 1 && (
-                      <>
-                        {" "}
-                        • Page {currentPage} of {totalPages}
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-            {currentUsers.length > 0 && (
-              <div className="mt-6 text-sm text-muted-foreground">
-                <p>
-                  Click on a name to view their profile and detailed statistics.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Right Sidebar - Desktop only */}
-          <div className="hidden lg:block lg:w-[35%] space-y-6">
-            {/* Quote Box */}
-            {courseQuote && (
-              <div className="relative rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 shadow-lg overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -translate-y-12 translate-x-12"></div>
-
-                <div className="relative p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <FontAwesomeIcon
-                          icon={faQuoteLeft}
-                          className="text-primary text-lg"
-                        />
-                      </div>
+              <ul
+                className="divide-y divide-border sm:hidden"
+                aria-label="Student standings"
+              >
+                {currentUsers.map((user) => (
+                  <li
+                    key={user.id}
+                    data-student-id={user.id}
+                    className="flex items-start gap-2 px-3 py-3"
+                  >
+                    {rank(user)}
+                    <div className="min-w-0 flex-1">
+                      {student(user)}
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        <span className="tabular-nums">
+                          {(
+                            user.course?.quizzesCompleted ?? 0
+                          ).toLocaleString()}
+                        </span>{" "}
+                        quizzes completed
+                        {showDebt && (
+                          <span className="ml-3 text-destructive">
+                            Debt: {(user.course?.debt ?? 0).toLocaleString()}
+                          </span>
+                        )}
+                      </p>
                     </div>
-
-                    <div className="flex-1 pt-1">
-                      <blockquote className="text-base font-medium text-foreground/90 italic leading-relaxed mb-2">
-                        "{courseQuote}"
-                      </blockquote>
-                      {quoteAuthor && (
-                        <div className="flex justify-end">
-                          <cite className="not-italic text-xs font-semibold text-primary flex items-center gap-2">
-                            <span className="inline-block w-6 h-0.5 bg-primary/50 rounded-full"></span>
-                            {quoteAuthor}
-                          </cite>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                    <span className="shrink-0 pt-2.5 text-sm">
+                      {rating(user)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {totalPages > 1 && (
+            <nav
+              aria-label="Ranking pages"
+              className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-4 sm:px-5"
+            >
+              <span className="text-xs tabular-nums text-muted-foreground">
+                Page {page} of {totalPages}
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-label="Previous ranking page"
+                  disabled={page === 1}
+                  onClick={() => setCurrentPage(page - 1)}
+                >
+                  <ChevronLeft aria-hidden="true" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-label="Next ranking page"
+                  disabled={page === totalPages}
+                  onClick={() => setCurrentPage(page + 1)}
+                >
+                  Next
+                  <ChevronRight aria-hidden="true" />
+                </Button>
               </div>
-            )}
+            </nav>
+          )}
+          <p className="border-t border-border px-4 py-3 text-xs leading-relaxed text-muted-foreground sm:px-5">
+            Select a student to explore their profile and progress.
+          </p>
+        </section>
 
-            {/* Announcements */}
-            <div className="rounded-xl border-2 border-border bg-card shadow-lg overflow-hidden">
-              <div className="bg-primary/10 px-4 py-3 border-b border-border">
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                  📢 Announcements
+        <aside aria-label="Class updates" className="min-w-0 space-y-5">
+          {courseQuote && (
+            <figure className="rounded-2xl border border-primary/10 bg-secondary/50 p-5">
+              <Quote className="mb-3 size-5 text-primary" aria-hidden="true" />
+              <blockquote className="break-words text-base font-medium leading-relaxed text-foreground">
+                {courseQuote}
+              </blockquote>
+              {quoteAuthor && (
+                <figcaption className="mt-4 text-xs text-muted-foreground">
+                  — {quoteAuthor}
+                </figcaption>
+              )}
+            </figure>
+          )}
+          <section className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
+              <Megaphone
+                className="size-4 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <h2 className="text-sm font-semibold">Announcements</h2>
+              {announcements.length > 0 && (
+                <span className="ml-auto text-xs tabular-nums text-muted-foreground">
+                  {announcements.length}
+                </span>
+              )}
+            </div>
+            {announcement ? (
+              <div className="p-5">
+                <time
+                  dateTime={dateTime(announcement.createdAt)}
+                  className="text-xs text-muted-foreground"
+                >
+                  {dateLabel(announcement.createdAt)}
+                </time>
+                <h3 className="mt-2 break-words text-sm font-semibold leading-relaxed">
+                  {announcement.title}
                 </h3>
-              </div>
-              <div className="p-4">
-                {announcements.length === 0 ? (
-                  <p className="text-muted-foreground text-sm text-center py-8">
-                    No announcements yet
-                  </p>
-                ) : (
-                  <>
-                    <div className="mb-4">
-                      <h4 className="font-semibold text-base mb-2">
-                        {announcements[currentAnnouncementIndex].title}
-                      </h4>
-                      <div
-                        className="text-sm text-muted-foreground prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            announcements[currentAnnouncementIndex]
-                              .processedContent || "No content",
-                        }}
-                      />
-                      <div className="text-xs text-muted-foreground mt-2">
-                        {new Date(
-                          announcements[currentAnnouncementIndex].createdAt,
-                        ).toLocaleDateString()}
-                      </div>
-                    </div>
-
-                    {announcements.length > 1 && (
-                      <div className="flex items-center justify-between pt-3 border-t border-border">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            setCurrentAnnouncementIndex((prev) =>
-                              prev === 0 ? announcements.length - 1 : prev - 1,
-                            )
-                          }
-                        >
-                          Previous
-                        </Button>
-                        <span className="text-xs text-muted-foreground">
-                          {currentAnnouncementIndex + 1} /{" "}
-                          {announcements.length}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            setCurrentAnnouncementIndex((prev) =>
-                              prev === announcements.length - 1 ? 0 : prev + 1,
-                            )
-                          }
-                        >
-                          Next
-                        </Button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Recent Submissions */}
-            <div className="rounded-xl border-2 border-border bg-card shadow-lg overflow-hidden">
-              <div className="bg-primary/10 px-4 py-3 border-b border-border">
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                  🔥 Recent Submissions
-                </h3>
-              </div>
-              <div className="p-4">
-                {recentSubmissions.length === 0 ? (
-                  <p className="text-muted-foreground text-sm text-center py-8">
-                    No recent submissions
-                  </p>
-                ) : (
-                  <div className="space-y-3">
-                    {recentSubmissions.map(
-                      (submission: RecentSubmission, index: number) => (
-                        <div
-                          key={submission.id}
-                          className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                        >
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <Link
-                              to={`/user/${submission.userId}`}
-                              className="font-medium text-sm hover:text-primary transition-colors block truncate"
-                            >
-                              {submission.userName}
-                            </Link>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {submission.quizName}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(
-                                submission.submittedAt,
-                              ).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile: Announcements */}
-        <div className="lg:hidden mt-6 rounded-xl border-2 border-border bg-card shadow-lg overflow-hidden">
-          <div className="bg-primary/10 px-4 py-3 border-b border-border">
-            <h3 className="font-bold text-lg flex items-center gap-2">
-              📢 Announcements
-            </h3>
-          </div>
-          <div className="p-4">
-            {announcements.length === 0 ? (
-              <p className="text-muted-foreground text-sm text-center py-8">
-                No announcements yet
-              </p>
-            ) : (
-              <>
-                <div className="mb-4">
-                  <h4 className="font-semibold text-base mb-2">
-                    {announcements[currentAnnouncementIndex].title}
-                  </h4>
-                  <div
-                    className="text-sm text-muted-foreground prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        announcements[currentAnnouncementIndex]
-                          .processedContent || "No content",
-                    }}
-                  />
-                  <div className="text-xs text-muted-foreground mt-2">
-                    {new Date(
-                      announcements[currentAnnouncementIndex].createdAt,
-                    ).toLocaleDateString()}
-                  </div>
-                </div>
-
+                <div
+                  className="ranking-announcement mt-3 min-w-0 break-words text-sm leading-relaxed text-muted-foreground [overflow-wrap:anywhere] [&_a]:text-primary [&_a]:underline [&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      announcement.processedContent || "<p>No content.</p>",
+                  }}
+                />
                 {announcements.length > 1 && (
-                  <div className="flex items-center justify-between pt-3 border-t border-border">
+                  <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="icon"
+                      className="size-8 rounded-lg"
+                      aria-label="Previous announcement"
                       onClick={() =>
-                        setCurrentAnnouncementIndex((prev) =>
-                          prev === 0 ? announcements.length - 1 : prev - 1,
+                        setAnnouncementIndex(
+                          (index) =>
+                            (index - 1 + announcements.length) %
+                            announcements.length,
                         )
                       }
                     >
-                      Previous
+                      <ChevronLeft aria-hidden="true" />
                     </Button>
-                    <span className="text-xs text-muted-foreground">
-                      {currentAnnouncementIndex + 1} / {announcements.length}
+                    <span className="text-xs tabular-nums text-muted-foreground">
+                      {(announcementIndex % announcements.length) + 1} of{" "}
+                      {announcements.length}
                     </span>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="icon"
+                      className="size-8 rounded-lg"
+                      aria-label="Next announcement"
                       onClick={() =>
-                        setCurrentAnnouncementIndex((prev) =>
-                          prev === announcements.length - 1 ? 0 : prev + 1,
+                        setAnnouncementIndex(
+                          (index) => (index + 1) % announcements.length,
                         )
                       }
                     >
-                      Next
+                      <ChevronRight aria-hidden="true" />
                     </Button>
                   </div>
                 )}
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile: Recent Submissions */}
-        <div className="lg:hidden mt-6 rounded-xl border-2 border-border bg-card shadow-lg overflow-hidden">
-          <div className="bg-primary/10 px-4 py-3 border-b border-border">
-            <h3 className="font-bold text-lg flex items-center gap-2">
-              🔥 Recent Submissions
-            </h3>
-          </div>
-          <div className="p-4">
-            {recentSubmissions.length === 0 ? (
-              <p className="text-muted-foreground text-sm text-center py-8">
-                No recent submissions
-              </p>
+              </div>
             ) : (
-              <div className="space-y-3">
-                {recentSubmissions.map(
-                  (submission: RecentSubmission, index: number) => (
-                    <div
-                      key={submission.id}
-                      className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                    >
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <Link
-                          to={`/user/${submission.userId}`}
-                          className="font-medium text-sm hover:text-primary transition-colors block truncate"
-                        >
-                          {submission.userName}
-                        </Link>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {submission.quizName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(submission.submittedAt).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  ),
-                )}
+              <div className="px-5 py-6">
+                <p className="text-sm text-muted-foreground">
+                  You’re all caught up.
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  New class announcements will appear here.
+                </p>
               </div>
             )}
-          </div>
-        </div>
+          </section>
+          <section className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
+              <Activity
+                className="size-4 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <h2 className="text-sm font-semibold">Recent submissions</h2>
+            </div>
+            {recentSubmissions.length ? (
+              <ul className="divide-y divide-border px-5">
+                {recentSubmissions.map((submission) => (
+                  <li key={submission.id} className="py-4">
+                    <Link
+                      to={`/user/${submission.userId}`}
+                      className="inline-flex min-h-8 max-w-full items-center break-words text-sm font-medium hover:text-primary hover:underline [overflow-wrap:anywhere]"
+                    >
+                      {submission.userName}
+                    </Link>
+                    <p className="mt-0.5 break-words text-xs leading-relaxed text-muted-foreground">
+                      {submission.quizName}
+                    </p>
+                    <time
+                      dateTime={dateTime(submission.submittedAt)}
+                      className="mt-2 block text-xs tabular-nums text-muted-foreground"
+                    >
+                      {dateLabel(submission.submittedAt, true)}
+                    </time>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="px-5 py-6 text-sm leading-relaxed text-muted-foreground">
+                No recent submissions. The next completed exercise will appear
+                here.
+              </p>
+            )}
+          </section>
+        </aside>
       </div>
-    </main>
+    </div>
   );
 }

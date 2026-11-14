@@ -6,12 +6,7 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
-import {
-  BookOpen,
-  Plus,
-  AlertCircle,
-  Megaphone,
-} from "lucide-react";
+import { BookOpen, Plus, AlertCircle, Megaphone } from "lucide-react";
 import { data } from "react-router";
 import type { Route } from "./+types/dashboard";
 
@@ -86,41 +81,41 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
       value: stats.canvasUserCount,
       description: "Canvas LMS users synced",
       icon: BookOpen,
-      color: "text-purple-600",
+      color: "text-primary",
     },
     {
       title: "Announcements",
       value: stats.announcementCount || 0,
       description: "Total announcements created",
       icon: Megaphone,
-      color: "text-orange-600",
+      color: "text-primary",
     },
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-8 space-y-7">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Admin Dashboard
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Workspace overview
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-2">
             Manage your learning management system
           </p>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline">
-            <Link to="/admin/announcements/create">
-              <Plus className="mr-2 h-4 w-4" />
-              New Announcement
+            <Link to="/admin/courses">
+              <BookOpen className="h-4 w-4" aria-hidden="true" />
+              Browse Courses
             </Link>
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -132,7 +127,9 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
                 <Icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-3xl font-semibold tracking-tight tabular-nums">
+                  {stat.value.toLocaleString()}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   {stat.description}
                 </p>
@@ -144,11 +141,11 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
 
       {/* Error Message */}
       {error && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-destructive/20 bg-destructive/5">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <span className="text-red-600 text-sm">{error}</span>
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <span className="text-destructive text-sm">{error}</span>
             </div>
           </CardContent>
         </Card>

@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, LoaderCircle } from "lucide-react";
 
 import { useAuth } from "../components/AuthProvider";
-import { useTheme } from "../components/ThemeProvider";
-import { MagicCard } from "../components/magicui/magic-card";
 import { Button } from "../components/ui/button";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardFooter,
@@ -19,7 +16,6 @@ import { Label } from "../components/ui/label";
 import Loading from "../components/Loading";
 
 export default function LoginPage() {
-  const { actualTheme } = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, login, isLoading: authLoading } = useAuth();
@@ -30,14 +26,9 @@ export default function LoginPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [mounted, setMounted] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -118,71 +109,88 @@ export default function LoginPage() {
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("Unexpected error occurred");
+      setError("Unable to sign in. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary/30">
+    <div className="flex min-h-[calc(100svh-10rem)] items-center justify-center px-5 py-12">
       <div className="w-full max-w-sm clay-card p-0 overflow-hidden">
-        <CardHeader className="border-b border-border/50 p-6 bg-primary/5">
-          <CardTitle className="text-2xl text-center text-primary">
-            Welcome Back!
+        <CardHeader className="border-b border-border p-6 sm:p-8">
+          <CardTitle className="text-2xl text-center font-semibold tracking-tight">
+            Welcome back
           </CardTitle>
-          <CardDescription className="text-center text-base">
+          <CardDescription className="text-center text-sm">
             Sign in to your account
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-6 sm:p-8">
           <form ref={formRef} onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               {error && (
-                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl flex items-center gap-3">
-                  <AlertCircle size={20} />
-                  <span className="font-medium">{error}</span>
+                <div
+                  role="alert"
+                  className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl flex items-center gap-3"
+                >
+                  <AlertCircle
+                    size={20}
+                    className="shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="min-w-0 break-words text-sm leading-relaxed">
+                    {error}
+                  </span>
                 </div>
               )}
               <div className="grid gap-2">
-                <Label htmlFor="email" className="text-base ml-1">
+                <Label htmlFor="email" className="text-sm">
                   Email
                 </Label>
                 <Input
                   id="email"
                   name="email"
+                  autoComplete="username"
                   type="email"
                   placeholder="Enter your email"
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="rounded-xl border-2 focus-visible:ring-primary/50 h-10 px-4"
+                  className="rounded-xl h-11 px-3"
                 />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-base ml-1">
+                  <Label htmlFor="password" className="text-sm">
                     Password
                   </Label>
                 </div>
                 <Input
                   id="password"
                   name="password"
+                  autoComplete="current-password"
                   type="password"
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="rounded-xl border-2 focus-visible:ring-primary/50 h-10 px-4"
+                  className="rounded-xl h-11 px-3"
                 />
               </div>
             </div>
             <CardFooter className="flex-col gap-2 p-0 mt-8">
               <Button
                 type="submit"
-                className="w-full clay-btn py-6 text-lg hover:brightness-110"
+                className="w-full h-11 rounded-xl"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading && (
+                  <LoaderCircle
+                    className="size-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                )}
+                {isLoading ? "Signing in…" : "Sign In"}
               </Button>
             </CardFooter>
           </form>

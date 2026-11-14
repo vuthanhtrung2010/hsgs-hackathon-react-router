@@ -5,8 +5,7 @@ import {
   Menu,
   Home,
   Code,
-  FileText,
-  Users,
+  LayoutDashboard,
   ChevronDown,
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,6 +17,7 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 import { Button } from "~/components/ui/button";
+import { useAuth } from "./AuthProvider";
 import {
   Sheet,
   SheetContent,
@@ -36,11 +36,6 @@ const navigationItems = [
     title: "Problems",
     url: "/problems",
     icon: Code,
-  },
-  {
-    title: "Users",
-    url: "/users",
-    icon: Users,
   },
 ];
 
@@ -61,6 +56,7 @@ const aboutItems = [
 
 export function MobileSidebar() {
   const [open, setOpen] = React.useState(false);
+  const { user } = useAuth();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -68,7 +64,7 @@ export function MobileSidebar() {
         <Button
           variant="ghost"
           size="icon"
-          className="text-zinc-100 hover:bg-zinc-800 hover:text-zinc-100"
+          className="text-foreground hover:bg-accent hover:text-accent-foreground"
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle navigation menu</span>
@@ -99,7 +95,18 @@ export function MobileSidebar() {
                   Navigation
                 </h4>
                 <div className="space-y-1">
-                  {navigationItems.map((item) => (
+                  {[
+                    ...navigationItems,
+                    ...(user
+                      ? [
+                          {
+                            title: "Workspace",
+                            url: "/admin",
+                            icon: LayoutDashboard,
+                          },
+                        ]
+                      : []),
+                  ].map((item) => (
                     <Link
                       key={item.title}
                       to={item.url}

@@ -3,172 +3,171 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../components/AuthProvider";
 import { useIsMobile } from "../../hooks/use-mobile";
 import {
-  Plus,
   Home,
   Megaphone,
   Calculator,
   Users,
   FileQuestion,
   Menu,
-  X,
+  PanelLeftClose,
+  PanelLeftOpen,
   Trophy,
+  ArrowLeft,
+  Layers,
+  LockKeyhole,
 } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "~/components/ui/sheet";
 import Loading from "~/components/Loading";
+
+const sidebarItems = [
+  { href: "/admin", label: "Overview", icon: Home, exact: true },
+  { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
+  { href: "/admin/courses", label: "Courses", icon: FileQuestion },
+  { href: "/admin/sub-leaderboards", label: "Sub-Leaderboards", icon: Trophy },
+  { href: "/admin/gen", label: "Quiz Generation", icon: Calculator },
+  { href: "/admin/users", label: "User Management", icon: Users },
+];
 
 export default function AdminLayout() {
   const { user, isLoading } = useAuth();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Default to collapsed on mobile
   useEffect(() => {
-    if (isMobile) {
-      setIsOpen(false);
-    } else {
-      setIsOpen(true);
-    }
-  }, [isMobile]);
+    setMobileOpen(false);
+  }, [location.pathname]);
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  // For now, we'll allow any authenticated user to access admin
-  // In a real app, you'd check for admin role
-  if (!user) {
+  if (isLoading) return <Loading />;
+  if (!user)
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="text-muted-foreground mb-4">
-            You need to be logged in to access the admin panel.
+      <div className="flex min-h-[65svh] items-center justify-center px-5 py-12">
+        <div className="max-w-sm text-center">
+          <span className="mx-auto mb-5 flex size-12 items-center justify-center rounded-2xl bg-secondary text-primary">
+            <LockKeyhole className="size-6" aria-hidden="true" />
+          </span>
+          <h1 className="text-xl font-semibold tracking-tight">
+            Your workspace awaits
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Sign in to manage your courses, students, and learning materials.
           </p>
-          <Link to="/login" className="text-blue-600 hover:text-blue-800">
-            Go to Login
-          </Link>
+          <Button asChild className="mt-6">
+            <Link
+              to={`/login?callbackUrl=${encodeURIComponent(location.pathname)}`}
+            >
+              Sign in to continue
+            </Link>
+          </Button>
         </div>
       </div>
     );
-  }
 
-  const sidebarItems = [
-    {
-      href: "/admin",
-      label: "Dashboard",
-      icon: Home,
-      exact: true,
-    },
-    {
-      href: "/admin/announcements",
-      label: "Announcements",
-      icon: Megaphone,
-      exact: false,
-    },
-    {
-      href: "/admin/courses",
-      label: "Courses",
-      icon: FileQuestion,
-      exact: false,
-    },
-    {
-      href: "/admin/sub-leaderboards",
-      label: "Sub-Leaderboards",
-      icon: Trophy,
-      exact: false,
-    },
-    {
-      href: "/admin/gen",
-      label: "Quiz Generation",
-      icon: Calculator,
-      exact: false,
-    },
-    {
-      href: "/admin/users",
-      label: "User Management",
-      icon: Users,
-      exact: false,
-    },
-  ];
-
-  const isActive = (href: string, exact: boolean) => {
-    if (exact) {
-      return location.pathname === href;
-    }
-    return location.pathname.startsWith(href);
-  };
+  const navigation = (expanded: boolean) => (
+    <nav aria-label="Workspace navigation" className="flex-1 space-y-1 p-3">
+      {expanded && (
+        <p className="px-3 pb-3 pt-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          Manage your classroom
+        </p>
+      )}
+      {sidebarItems.map(({ href, label, icon: Icon, exact }) => {
+        const active = exact
+          ? location.pathname === href
+          : location.pathname.startsWith(href);
+        return (
+          <Link
+            key={href}
+            to={href}
+            aria-current={active ? "page" : undefined}
+            title={!expanded ? label : undefined}
+            aria-label={!expanded ? label : undefined}
+            className={`flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors ${expanded ? "" : "justify-center"} ${active ? "bg-secondary font-medium text-secondary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+          >
+            <Icon className="size-4 shrink-0" aria-hidden="true" />
+            {expanded && <span>{label}</span>}
+          </Link>
+        );
+      })}
+    </nav>
+  );
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <div
-        className={`${
-          isOpen ? "w-64" : "w-20"
-        } bg-card border-r border-border flex flex-col transition-all duration-300 ease-in-out`}
+    <div className="mx-auto flex min-h-[calc(100svh-10rem)] max-w-[1600px] flex-col md:flex-row">
+      <div className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
+        <span className="flex items-center gap-2 text-sm font-medium">
+          <Layers className="size-4 text-primary" aria-hidden="true" />
+          Workspace
+        </span>
+        <Button variant="outline" size="sm" onClick={() => setMobileOpen(true)}>
+          <Menu aria-hidden="true" />
+          Navigation
+        </Button>
+      </div>
+      <Sheet open={mobileOpen && isMobile} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="flex w-72 flex-col gap-0 p-0">
+          <SheetHeader className="border-b border-border p-6">
+            <SheetTitle className="text-lg">Workspace</SheetTitle>
+            <SheetDescription className="truncate">
+              {user.name || user.email}
+            </SheetDescription>
+          </SheetHeader>
+          {navigation(true)}
+        </SheetContent>
+      </Sheet>
+      <aside
+        className={`hidden shrink-0 flex-col border-r border-border bg-card transition-[width] duration-200 md:flex ${isOpen ? "w-60" : "w-20"}`}
       >
-        {/* Header */}
-        <div className="p-6 border-b border-border flex items-center justify-between">
+        <div
+          className={`flex min-h-24 items-center gap-3 border-b border-border p-4 ${isOpen ? "justify-between" : "justify-center"}`}
+        >
           {isOpen && (
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Admin</h1>
-              <p className="text-xs text-muted-foreground mt-1">
-                {user.name}
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">Workspace</p>
+              <p
+                className="mt-1 truncate text-xs text-muted-foreground"
+                title={user.name || user.email}
+              >
+                {user.name || user.email}
               </p>
             </div>
           )}
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 hover:bg-accent rounded-md transition-colors ml-auto"
             aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            className="shrink-0 text-muted-foreground"
           >
-            {isOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+            {isOpen ? (
+              <PanelLeftClose aria-hidden="true" />
+            ) : (
+              <PanelLeftOpen aria-hidden="true" />
+            )}
+          </Button>
         </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href, item.exact);
-
-              return (
-                <li key={item.href}>
-                  <Link
-                    to={item.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      active
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                    }`}
-                    title={!isOpen ? item.label : undefined}
-                  >
-                    <Icon size={18} />
-                    {isOpen && <span>{item.label}</span>}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-border">
+        {navigation(isOpen)}
+        <div className="border-t border-border p-3">
           <Link
             to="/"
-            className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground px-3 py-2 rounded-md hover:bg-accent transition-colors"
-            title={!isOpen ? "Back to Main Site" : undefined}
+            title="Back to main site"
+            aria-label="Back to main site"
+            className={`flex min-h-11 items-center gap-3 rounded-xl px-3 text-xs text-muted-foreground hover:bg-muted hover:text-foreground ${isOpen ? "" : "justify-center"}`}
           >
-            {isOpen ? "← Back to Main Site" : <Plus size={18} />}
+            <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
+            {isOpen && "Back to main site"}
           </Link>
         </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto">
-          <Outlet />
-        </div>
+      </aside>
+      <div className="min-w-0 flex-1">
+        <Outlet />
       </div>
     </div>
   );

@@ -1,6 +1,4 @@
 import { Link, data } from "react-router";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrophy } from "@fortawesome/free-solid-svg-icons";
 import LeaderboardView, {
   type ProcessedAnnouncement,
   type RecentSubmission,
@@ -11,7 +9,7 @@ import { processMarkdownToHtml } from "~/lib/markdown-processor";
 import type { RatingThresholds } from "~/lib/rating";
 import type { LeaderboardUser } from "~/lib/leaderboard-utils";
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const { id } = params;
 
   try {
@@ -52,12 +50,32 @@ export async function loader({ params }: Route.LoaderArgs) {
     const ranking = responseData.ranking || [];
     const recentSubmissions = responseData.recentSubmissions || [];
 
+    // Full course rankings and announcements use the public random ID, not the LMS ID.
+    // The backend only exposes that ID to authorized sessions.
+    let courseLeaderboardId: string | undefined;
+    try {
+      const coursesResponse = await fetch(new URL("/api/courses", baseUrl), {
+        headers: { Cookie: request.headers.get("Cookie") || "" },
+      });
+      if (coursesResponse.ok) {
+        const courses = (await coursesResponse.json()) as Array<{
+          id: string;
+          randomId?: string;
+        }>;
+        courseLeaderboardId = courses.find(
+          (course) => String(course.id) === String(subLeaderboard.courseId),
+        )?.randomId;
+      }
+    } catch (error) {
+      console.error("Failed to resolve parent leaderboard:", error);
+    }
+
     // 2. Fetch course announcements
     let processedAnnouncements: ProcessedAnnouncement[] = [];
-    if (subLeaderboard?.courseId) {
+    if (courseLeaderboardId) {
       try {
         const announcementsUrl = new URL(
-          `/api/announcements/course/${subLeaderboard.courseId}`,
+          `/api/announcements/course/${courseLeaderboardId}`,
           baseUrl,
         );
         const announcementsResponse = await fetch(announcementsUrl.toString());
@@ -73,7 +91,10 @@ export async function loader({ params }: Route.LoaderArgs) {
           );
         }
       } catch (err) {
-        console.error("Failed to fetch announcements for sub-leaderboard:", err);
+        console.error(
+          "Failed to fetch announcements for sub-leaderboard:",
+          err,
+        );
       }
     }
 
@@ -85,6 +106,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
     return {
       subLeaderboard,
+      courseLeaderboardId,
       users: ranking,
       recentSubmissions,
       announcements: processedAnnouncements,
@@ -117,6 +139,7 @@ export default function SubLeaderboardRoute({
 }: Route.ComponentProps) {
   const {
     subLeaderboard,
+    courseLeaderboardId,
     users,
     recentSubmissions,
     announcements,
@@ -128,30 +151,34 @@ export default function SubLeaderboardRoute({
   const quoteAuthor = users[0]?.course?.quoteAuthor;
   const showDebt = users[0]?.course?.showDebt || false;
 
-  const titleNode = (
-    <div className="flex flex-wrap items-baseline gap-2">
-      <span className="flex items-center">
-        <FontAwesomeIcon icon={faTrophy} className="mr-2 trophy-icon" />
-        {subLeaderboard?.name || "Sub-Leaderboard"}
-      </span>
+  const subtitle = (
+    <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span>Class standings</span>
       {subLeaderboard?.courseName && (
-        <span className="text-muted-foreground font-normal text-xl">
-          —{" "}
-          <Link
-            to={`/ranking/${subLeaderboard.courseId}`}
-            className="text-primary hover:underline"
-            title={`View full ${subLeaderboard.courseName} leaderboard`}
-          >
-            {subLeaderboard.courseName}
-          </Link>
-        </span>
+        <>
+          <span aria-hidden="true">/</span>
+          {courseLeaderboardId ? (
+            <Link
+              to={`/ranking/${courseLeaderboardId}`}
+              className="inline-flex min-h-8 items-center font-medium text-primary hover:underline"
+              title={`View full ${subLeaderboard.courseName} leaderboard`}
+            >
+              {subLeaderboard.courseName}
+            </Link>
+          ) : (
+            <span className="font-medium text-foreground">
+              {subLeaderboard.courseName}
+            </span>
+          )}
+        </>
       )}
-    </div>
+    </span>
   );
 
   return (
     <LeaderboardView
-      title={titleNode}
+      title={subLeaderboard?.name || "Sub-Leaderboard"}
+      subtitle={subtitle}
       courseQuote={courseQuote}
       quoteAuthor={quoteAuthor}
       showDebt={showDebt}

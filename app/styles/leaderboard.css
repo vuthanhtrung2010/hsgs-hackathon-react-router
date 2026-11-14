@@ -1,0 +1,15 @@
+/* Keep high-tier labels readable within dense ranking rows. */
+.leaderboard-view span.rate-admin,
+.leaderboard-view span.rate-target {
+  background: none;
+  animation: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.leaderboard-view span.rate-admin {
+  color: var(--primary);
+}
+
+.leaderboard-view span.rate-target {
+  color: var(--rating-master);
+}

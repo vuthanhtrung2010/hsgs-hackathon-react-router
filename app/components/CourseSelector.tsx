@@ -76,7 +76,7 @@ export default function CourseSelector({
     return (
       <Button
         variant="outline"
-        className={cn("w-[200px] justify-between", className)}
+        className={cn("w-[240px] max-w-full justify-between gap-3", className)}
         disabled
       >
         Loading...
@@ -92,21 +92,37 @@ export default function CourseSelector({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-[200px] justify-between", className)}
+          aria-label="Course"
+          className={cn(
+            "w-[240px] max-w-full justify-between gap-3",
+            className,
+          )}
         >
-          {selectedCourse ? selectedCourse.name : "Select course..."}
+          <span
+            className="min-w-0 truncate text-left"
+            title={selectedCourse?.name}
+          >
+            {selectedCourse ? selectedCourse.name : "Select course..."}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder="Search courses..." />
+      <PopoverContent
+        align="start"
+        className="w-[var(--radix-popover-trigger-width)] min-w-60 max-w-[calc(100vw-2rem)] rounded-xl p-0"
+      >
+        <Command label="Search courses">
+          <CommandInput
+            placeholder="Search courses..."
+            aria-label="Search courses"
+          />
           <CommandList>
             <CommandEmpty>No course found.</CommandEmpty>
             <CommandGroup>
               {displayCourses.map((course) => (
                 <CommandItem
                   key={course.id}
+                  className="my-1 min-h-10 rounded-lg"
                   value={course.id}
                   keywords={[course.name]}
                   onSelect={(currentValue) => {
@@ -123,7 +139,7 @@ export default function CourseSelector({
                         : "opacity-0",
                     )}
                   />
-                  {course.name}
+                  <span className="min-w-0 break-words">{course.name}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
